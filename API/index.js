@@ -7,7 +7,7 @@ var db = require('../DB/dbData');
 
 
 //update the object
-router.get('/API/device/update', function (req, res) {
+router.get('/device/update', function (req, res) {
     //call update function
   
     //callback function
@@ -20,7 +20,7 @@ router.get('/API/device/update', function (req, res) {
 
 
 /* GET data identified with key from device : id*/
-router.get('/API/device/:deviceid/:datatype', function (req, res) {
+router.get('/device/:deviceid/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
         "deviceid": req.params.deviceid,
@@ -41,7 +41,7 @@ router.get('/API/device/:deviceid/:datatype', function (req, res) {
 
 
 /* GET data identified with key and date from device : id*/
-router.get('/API/device/:deviceid/:datatype/:date', function (req, res) {
+router.get('/device/:deviceid/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
         "deviceid": req.params.deviceid,
@@ -60,31 +60,9 @@ router.get('/API/device/:deviceid/:datatype/:date', function (req, res) {
     }
 });
 
-
-
-/* GET user permisssion data identified with userid */
-router.get('/API/permissions/:userid', function (req, res) {
-    //get from url which user we want
-    var condition = {
-        "userid": req.params.userid,
-    };
-    //call db Data function that will retrieve data
-    db.pullUserPermission(condition, callback);
-  
-    //callback function
-    function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
-        else
-            res.respond(result);
-    }
-});
-
-
-
 /* POST /data (OK)*/
 //the body must have three values in it : deviceid, datatype
-router.post('/API/device', function (req, res) {
+router.post('/device', function (req, res) {
     //Create the object
     var device = {
         deviceid: req.body.deviceid,
@@ -105,9 +83,28 @@ router.post('/API/device', function (req, res) {
 
 
 
+/* GET user permisssion data identified with userid */
+router.get('/permissions/:userid', function (req, res) {
+    //get from url which user we want
+    var condition = {
+        "userid": req.params.userid,
+    };
+    //call db Data function that will retrieve data
+    db.pullUserPermission(condition, callback);
+  
+    //callback function
+    function callback(err, result) {
+        if (err)
+            res.respond(err, 404);
+        else
+            res.respond(result);
+    }
+});
+
+
 /* POST user/data (OK)*/
 //the body must have three values in it : deviceid, datatype, permission
-router.post('/API/user/new', function (req, res) {
+router.post('/user/new', function (req, res) {
     //Create the object
     var user = {
         userid: req.body.userid,
@@ -129,7 +126,7 @@ router.post('/API/user/new', function (req, res) {
 
 /* POST user/data (OK)*/
 //the body must have three values in it : deviceid, datatype, permission
-router.post('/API/user/update', function (req, res) {
+router.post('/user/update', function (req, res) {
     //Create the object
     var user = {
         userid: req.body.userid,
@@ -151,7 +148,7 @@ router.post('/API/user/update', function (req, res) {
 
 /* POST permissions/data (OK)*/
 //the body must have three values in it : deviceid, datatype, permission
-router.post('/API/permissions/new', function (req, res) {
+router.post('/permissions/new', function (req, res) {
     //Create the object
     var permissions = {
         deviceid: req.body.deviceid,
@@ -173,7 +170,7 @@ router.post('/API/permissions/new', function (req, res) {
 
 /* POST permissions/data (OK)*/
 //the body must have three values in it : deviceid, datatype, permission
-router.post('/API/permissions/update', function (req, res) {
+router.post('/permissions/update', function (req, res) {
     //Create the object
     var permissions = {
         deviceid: req.body.deviceid,

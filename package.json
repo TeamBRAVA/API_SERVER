@@ -12,6 +12,7 @@
     "express": "~4.13.1",
     "morgan": "~1.6.1",
     "serve-favicon": "~2.3.0",
-    "mongoskin": "~2.0.3"
+    "mongoskin": "~2.0.3",
+    "mongodb": "~2.1.4"
   }
 }
