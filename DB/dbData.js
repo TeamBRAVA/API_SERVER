@@ -15,6 +15,8 @@ var db = require('./connect');
 
 var user = {
   userid: String,
+  username: String,
+  password: String,
   token: String,
   expirationdate: String
 }
