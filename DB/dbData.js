@@ -146,7 +146,7 @@ exports.pullUser = function (obj, callback) {
 exports.updateUser = function (obj, callback) {
     var today = new Date();
 
-    db.collection('user').update({ deviceid: obj.deviceid }, { token: obj.token, expirationdate: obj.expirationdate }, function (err, nbRow) {
+    db.collection('user').update({ deviceid: obj.deviceid }, { username: onj.username, password: obj.password, token: obj.token, expirationdate: obj.expirationdate }, function (err, nbRow) {
         console.log('User ', obj.deviceid, 'is updated!');
         callback(err, nbRow);
     });
