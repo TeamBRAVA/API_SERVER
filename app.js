@@ -20,11 +20,12 @@ app.use(function(req, res, next) {
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
     next();
 });
+
 app.use(auth.certAuthenticate);
 
 app.use('/', userAuth);
 app.use('/', auth.ensureCertAuthenticated, devicesAPI);
-app.use('/',usersAPI);
+app.use('/', usersAPI);
 
 
 
