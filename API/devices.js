@@ -3,6 +3,8 @@ var router = express.Router();
 require('./response');
 var db = require('../DB/dbDevices');
 
+var certs = require('../red_modules/red-cert-generator/index.js');
+
 /*API FOR THE DEVICES AND THEIR PERMISSIONS */
 
 
@@ -169,15 +171,12 @@ router.post('/permissions/update',  function (req, res) {
 
 /* GET /data (OK)*/
 router.get('/newDevice/:nb', function (req, res) {
-    db.insertDevice(callback);
-  
-    //callback function
-    function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
-        else
-            res.respond(result, 200);
-    }
+    
+    certs.generateCertificates(req.params.nb, '../../CERTS/CA/ca.pem', '../../CERTS/CA/ca.key', "Ek12Bb@.", function() {
+        certs.createDevices(function() {
+            res.status(200).send("ALL DONE");
+        });
+    });
 });
 
 router.get('/result', function (req, res) {
