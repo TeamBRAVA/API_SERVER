@@ -37,4 +37,5 @@ module.exports.ensureCertAuthenticated = function ( req, res, next ) {
 	        }
 	    });
 	}
+    next();
 }
