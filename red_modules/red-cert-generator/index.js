@@ -31,12 +31,13 @@ exports.generateCertificates = function(n,pem,key,passphrase, callback) {
 
 exports.createDevices = function (callback) {
 	// read and parse the list of passphrases
-	fs.readFile('./tmp/passphrases/passphrases.txt', 'utf-8', function (err, data) {
+	fs.readFile(path.join(__dirname, './tmp/passphrases/passphrases.txt'), 'utf-8', function (err, data) {
+		console.log(err);
 		var passphrases = data.split('\n');
 		passphrases.splice(-1,1);
 
 		// read the directory for all certificates
-		fs.readdir('./tmp/certificates/crt', function ( err, files ) {
+		fs.readdir(path.join(__dirname, './tmp/certificates/crt'), function ( err, files ) {
 			if(err) throw err;
 
 			for(var i=0; i<files.length; i++) {
