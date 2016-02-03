@@ -16,7 +16,7 @@ function ensureAuthenticated(req, res, next){
         var bearer = bearerHeader.split(" ");
         bearerToken = bearer[1];
         
-        if (db.authUser(bearerToken,callback)){
+        if (db.authUser(bearerToken)){
             next(); //call db Data function that will retrieve data
         }
         else{
@@ -30,7 +30,7 @@ function ensureAuthenticated(req, res, next){
 
 
 //update the object **TO BE IMPLEMENTED**
-router.get('/device/update', ensureAuthenticated, function (req, res) {
+router.get('/device/update', function (req, res) {
     //call update function
   
     //callback function
@@ -43,7 +43,7 @@ router.get('/device/update', ensureAuthenticated, function (req, res) {
 
 
 /* GET data identified with key from device : id*/
-router.get('/device/:_id/:datatype', ensureAuthenticated, function (req, res) {
+router.get('/device/:_id/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
         "_id": req.params._id,
@@ -63,7 +63,7 @@ router.get('/device/:_id/:datatype', ensureAuthenticated, function (req, res) {
 
 
 /* GET data identified with key and date from device : id*/
-router.get('/device/:_id/:datatype/:date', ensureAuthenticated, function (req, res) {
+router.get('/device/:_id/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
         "_id": req.params._id,
@@ -83,7 +83,7 @@ router.get('/device/:_id/:datatype/:date', ensureAuthenticated, function (req, r
 });
 
 /* POST new data on the server */
-router.post('/device', ensureAuthenticated, function (req, res) {
+router.post('/device', function (req, res) {
     //Create the object
     var device = {
         _id: req.body._id,

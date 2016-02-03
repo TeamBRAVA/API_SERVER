@@ -30,9 +30,9 @@ var permissions = {
 // Insert a new device
 exports.insertDevice = function (callback) {
     db.collection('device').insert({}, function (err, result) {
-        if (result) console.log('A new device is added!');
-
-        callback(err, result);
+        if(result.ok == 1){
+            callback(err, result.insertedIds);
+        }else callback("error creating device");
     });
 }
 

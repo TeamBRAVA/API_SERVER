@@ -37,13 +37,12 @@ exports.updateUser = function (obj, callback) {
 }
 
 // Authenticate User
-exports.authUser = function (obj, callback) {
+exports.authUser = function (obj) {
     db.collection('user').findOne({ token: obj }, function (err, res) {  // also check the expiration date of the token
         if (res != null ) {
             return true;
         }
         else {
-            callback(err, "Authorization Denied.");
             return false;
         }
     });
