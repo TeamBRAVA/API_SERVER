@@ -1,12 +1,11 @@
 var express = require('express');
 var router = express.Router();
 require('./response');
-var db = require('../DB/dbData');
+var db = require('../DB/dbDevices');
 
-/* API for IOT */
+/*API FOR THE DEVICES AND THEIR PERMISSIONS */
 
-
-//update the object
+//update the object **TO BE IMPLEMENTED**
 router.get('/device/update', function (req, res) {
     //call update function
   
@@ -20,12 +19,13 @@ router.get('/device/update', function (req, res) {
 
 
 /* GET data identified with key from device : id*/
-router.get('/device/:deviceid/:datatype', function (req, res) {
+router.get('/device/:_id/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
-        "deviceid": req.params.deviceid,
+        "_id": req.params._id,
         "datatype": req.params.datatype
     };
+    
     //call db Data function that will retrieve data
     db.pullDatatype(condition, callback);
   
@@ -41,10 +41,10 @@ router.get('/device/:deviceid/:datatype', function (req, res) {
 
 
 /* GET data identified with key and date from device : id*/
-router.get('/device/:deviceid/:datatype/:date', function (req, res) {
+router.get('/device/:_id/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
-        "deviceid": req.params.deviceid,
+        "_id": req.params._id,
         "datatype": req.params.datatype,
         "date": req.params.date
     };
@@ -60,12 +60,11 @@ router.get('/device/:deviceid/:datatype/:date', function (req, res) {
     }
 });
 
-/* POST /data (OK)*/
-//the body must have three values in it : deviceid, datatype
+/* POST new data on the server */
 router.post('/device', function (req, res) {
     //Create the object
     var device = {
-        deviceid: req.body.deviceid,
+        _id: req.body._id,
         datatype: req.body.datatype,
         value: req.body.value,
     }
@@ -83,7 +82,7 @@ router.post('/device', function (req, res) {
 
 
 
-/* GET user permisssion data identified with userid */
+/* GET user permisssions data identified with userid */
 router.get('/permissions/:userid', function (req, res) {
     //get from url which user we want
     var condition = {
@@ -101,57 +100,11 @@ router.get('/permissions/:userid', function (req, res) {
     }
 });
 
-
-/* POST user/data (OK)*/
-//the body must have three values in it : deviceid, datatype, permission
-router.post('/user/new', function (req, res) {
-    //Create the object
-    var user = {
-        userid: req.body.userid,
-        token: req.body.token,
-        expirationdate: req.body.expirationdate
-    }
-    db.insertUser(user, callback);
-  
-    //callback function
-    function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
-        else
-            res.respond(result);
-    }
-});
-
-
-
-/* POST user/data (OK)*/
-//the body must have three values in it : deviceid, datatype, permission
-router.post('/user/update', function (req, res) {
-    //Create the object
-    var user = {
-        userid: req.body.userid,
-        token: req.body.token,
-        expirationdate: req.body.expirationdate
-    }
-    db.updateUser(user, callback);
-  
-    //callback function
-    function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
-        else
-            res.respond(result);
-    }
-});
-
-
-
-/* POST permissions/data (OK)*/
-//the body must have three values in it : deviceid, datatype, permission
+/* POST new permissions for a user on a certain device */
 router.post('/permissions/new', function (req, res) {
     //Create the object
     var permissions = {
-        deviceid: req.body.deviceid,
+        _id: req.body._id,
         userid: req.body.userid,
         permisssion: req.body.permission
     }
@@ -168,12 +121,11 @@ router.post('/permissions/new', function (req, res) {
 
 
 
-/* POST permissions/data (OK)*/
-//the body must have three values in it : deviceid, datatype, permission
+/* POST to update existing permissions*/
 router.post('/permissions/update', function (req, res) {
     //Create the object
     var permissions = {
-        deviceid: req.body.deviceid,
+        _id: req.body._id,
         userid: req.body.userid,
         permisssion: req.body.permission
     }
@@ -194,10 +146,10 @@ router.post('/permissions/update', function (req, res) {
 /*dev code (TO DELETE)*/
 
 /* GET /data (OK)*/
-router.get('/data', function (req, res) {
+router.get('/newDevice/:id', function (req, res) {
 
     var device = {
-        deviceid: '1',
+        _id: req.params.id,
     }
     db.insertDevice(device, callback);
   

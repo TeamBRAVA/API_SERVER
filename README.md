@@ -1,4 +1,4 @@
-# projectX
+# API_SERVER
 
 First of all, you need mongoDB to be installed and running
 To do so : 
