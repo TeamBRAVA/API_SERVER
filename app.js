@@ -6,9 +6,8 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var devicesAPI = require('./API/devices');
 var usersAPI = require('./API/users');
-
-var auth = require('./AUTH/index.js');
-
+var auth = require('./AUTH/certAuth');
+var userAuth = require('./AUTH/userAuth');
 var app = express();
 
 app.use(logger('dev'));
@@ -23,6 +22,7 @@ app.use(function(req, res, next) {
 });
 app.use(auth.certAuthenticate);
 
+app.use('/', userAuth);
 app.use('/', auth.ensureCertAuthenticated, devicesAPI);
 app.use('/',usersAPI);
 

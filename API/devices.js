@@ -123,7 +123,7 @@ router.get('/permissions/:userid', function (req, res) {
 });
 
 /* POST new permissions for a user on a certain device */
-router.post('/permissions/new', function (req, res) {
+router.post('/permissions/new',  function (req, res) {
     //Create the object
     var permissions = {
         _id: req.body._id,
@@ -144,7 +144,7 @@ router.post('/permissions/new', function (req, res) {
 
 
 /* POST to update existing permissions*/
-router.post('/permissions/update', function (req, res) {
+router.post('/permissions/update',  function (req, res) {
     //Create the object
     var permissions = {
         _id: req.body._id,
