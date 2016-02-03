@@ -4,8 +4,7 @@ var db = require('./connect');
 Description: 
 
 wiki: http://wiki.red.jankobox.fr
-*/
-/*
+
 Data structure: 
 
 var device = {
@@ -85,7 +84,6 @@ exports.updateVersion = function (obj, callback) {
 
 // Push data into the chosen device
 exports.pushData = function (obj, callback) {
-
     db.collection('device').findOne({ _id: obj._id }, function (err, res) {
         if (res != null) {
             var today = new Date();
@@ -98,9 +96,6 @@ exports.pushData = function (obj, callback) {
             callback(err, "The device does not exist.");
         }
     });
-
-
-
 }
 
 
@@ -151,5 +146,5 @@ exports.updatePermission = function (obj, callback) {
 exports.find = function (callback) {
     db.collection('device').find().toArray(function (err, result) {
         callback(err, result);
-    })
+    });
 }

@@ -1,21 +1,22 @@
-var jwt = require('jsonwebtoken');  //https://npmjs.org/package/node-jsonwebtoken
-var expressJwt = require('express-jwt'); //https://npmjs.org/package/express-jwt
-var express = require('express');
-var router = express.Router();
+var express 	= require('express');
+var router 		= express.Router();
+var jwt 		= require('jsonwebtoken');  //https://npmjs.org/package/node-jsonwebtoken
+var expressJwt 	= require('express-jwt'); //https://npmjs.org/package/express-jwt
+var fs 			= require('fs');
 
+router.post('/user/authenticate', function (req, res) {
+	var credentials = {
+	    username: 'X',
+	    password: 'Y',
+	    _id: 1
+	  };
 
-router.post('/authenticate', function (req, res) {
+  	//Sending user credentials inside the token
+  	// sign with RSA SHA256 
+	var cert = fs.readFileSync('../../CERTS/token.key');  // getting the private key 
+	var token = jwt.sign(credentials, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes
+  	res.json({ token: token });
 
-  var newUser = {
-    username: 'X',
-    password: 'Y',
-    _id: 1
-  };
-
-  // We are sending the profile inside the token
-  var token = jwt.sign(profile, secret, { expiresInMinutes: 60*5 });
-
-  res.json({ token: token });
 });
 
 module.exports = router;
