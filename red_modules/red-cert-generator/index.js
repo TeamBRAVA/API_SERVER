@@ -32,6 +32,7 @@ exports.generateCertificates = function(n,pem,key,passphrase, callback) {
 exports.createDevices = function (callback) {
 	// read and parse the list of passphrases
 	fs.readFile('./tmp/passphrases/passphrases.txt', 'utf-8', function (err, data) {
+		console.log(err);
 		var passphrases = data.split('\n');
 		passphrases.splice(-1,1);
 
