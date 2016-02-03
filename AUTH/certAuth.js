@@ -36,6 +36,7 @@ module.exports.ensureCertAuthenticated = function ( req, res, next ) {
 	        	res.status(401).send("No Device Found in the Database");
 	        }
 	    });
+	} else {
+		res.status(401).send("Unauthorized");
 	}
-	res.status(401).send("Unauthorized");
 }
