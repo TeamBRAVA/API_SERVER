@@ -181,7 +181,7 @@ router.get('/newDevice/:nb', function (req, res) {
 });
 
 router.get('/result', function (req, res) {
-    db.find(function (err, result) {
+    db.find(req.device.id, function (err, result) {
         if (err) return console.error(err);
         res.respond(result);
     })
