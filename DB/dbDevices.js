@@ -47,7 +47,9 @@ exports.insertDeviceWithCert = function ( path, passphrase, fingerprint, callbac
     db.collection('device').insert(device, function (err, result) {
         if(result.result.ok == 1){
             callback(err, result.insertedIds[0]);
-        } else callback("error creating device");
+        } else {
+            callback(new Error('Error while creating the device'), null);
+        }
     });
 }
 

@@ -6,6 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "dependencies": {
+    "x509": "^0.2.3"
+  },
   "author": "Valentin Mercier <vmercier@me.com> (https://www.smartpap.fr/)",
   "license": "MIT License"
 }
