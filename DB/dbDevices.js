@@ -167,8 +167,8 @@ exports.updatePermission = function (obj, callback) {
 
 
 ///////////////////////////////////////////////////TO DELETE////////////////////////////
-exports.find = function (callback) {
-    db.collection('device').find().toArray(function (err, result) {
+exports.find = function (id, callback) {
+    db.collection('device').find({_id: id}).toArray(function (err, result) {
         callback(err, result);
     });
 }

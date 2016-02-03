@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 require('./response');
-var db = require('../DB/connect');
+var db = require('../DB/dbDevices');
 
 /*API FOR THE DEVICES AND THEIR PERMISSIONS */
 
@@ -181,7 +181,7 @@ router.get('/newDevice/:nb', function (req, res) {
 });
 
 router.get('/result', function (req, res) {
-    db.collection('device').findOne({_id : req.device.id}, function (err, result) {
+    db.find(req.device.id, function (err, result) {
         if (err) return console.error(err);
         res.respond(result);
     })
