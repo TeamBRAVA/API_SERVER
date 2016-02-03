@@ -5,7 +5,7 @@ var user = {
   username: String,
   password: String,
   token: String,
-  expirationdate: String
+  expirationdate: Number
 }
 */
 
@@ -33,6 +33,19 @@ exports.updateUser = function (obj, callback) {
     db.collection('user').update({ deviceid: obj.deviceid }, { username: obj.username, password: obj.password, token: obj.token, expirationdate: obj.expirationdate }, function (err, nbRow) {
         console.log('User ', obj.deviceid, 'is updated!');
         callback(err, nbRow);
+    });
+}
+
+// Authenticate User
+exports.authUser = function (obj, callback) {
+    db.collection('user').findOne({ token: obj }, function (err, res) {  // also check the expiration date of the token
+        if (res != null ) {
+            return true;
+        }
+        else {
+            callback(err, "Authorization Denied.");
+            return false;
+        }
     });
 }
 

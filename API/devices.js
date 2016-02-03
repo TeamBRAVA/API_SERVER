@@ -5,8 +5,32 @@ var db = require('../DB/dbDevices');
 
 /*API FOR THE DEVICES AND THEIR PERMISSIONS */
 
+
+// Middleware Auth. Function
+function ensureAuthenticated(req, res, next){
+
+    var bearerToken;
+    var bearerHeader = req.headers["authorization"];
+
+    if (typeof bearerHeader !== 'undefined') {
+        var bearer = bearerHeader.split(" ");
+        bearerToken = bearer[1];
+        
+        if (db.authUser(bearerToken,callback)){
+            next(); //call db Data function that will retrieve data
+        }
+        else{
+            res.send(401); // HTTP 401 Unauthorized
+        } 
+    }
+    else{
+        res.send(401); // HTTP 401 Unauthorized
+    }
+};
+
+
 //update the object **TO BE IMPLEMENTED**
-router.get('/device/update', function (req, res) {
+router.get('/device/update', ensureAuthenticated, function (req, res) {
     //call update function
   
     //callback function
@@ -19,29 +43,27 @@ router.get('/device/update', function (req, res) {
 
 
 /* GET data identified with key from device : id*/
-router.get('/device/:_id/:datatype', function (req, res) {
+router.get('/device/:_id/:datatype', ensureAuthenticated, function (req, res) {
     //get from url which data we want
     var condition = {
         "_id": req.params._id,
         "datatype": req.params.datatype
     };
-    
-    //call db Data function that will retrieve data
-    db.pullDatatype(condition, callback);
-  
+    //call db data function to retrieve asked data
+    db.pullDatatype(condition, callback);    
+
     //callback function
     function callback(err, result) {
         if (err)
             res.respond(err, 404);
         else
             res.respond(result);
-    }
+    }    
 });
 
 
-
 /* GET data identified with key and date from device : id*/
-router.get('/device/:_id/:datatype/:date', function (req, res) {
+router.get('/device/:_id/:datatype/:date', ensureAuthenticated, function (req, res) {
     //get from url which data we want
     var condition = {
         "_id": req.params._id,
@@ -61,7 +83,7 @@ router.get('/device/:_id/:datatype/:date', function (req, res) {
 });
 
 /* POST new data on the server */
-router.post('/device', function (req, res) {
+router.post('/device', ensureAuthenticated, function (req, res) {
     //Create the object
     var device = {
         _id: req.body._id,
