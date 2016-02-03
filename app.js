@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var devicesAPI = require('./API/devices');
 var usersAPI = require('./API/users');
 
-var auth = require('./AUTH/index');
+var auth = require('./AUTH/index.js');
 
 var app = express();
 

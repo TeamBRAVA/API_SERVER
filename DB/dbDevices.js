@@ -29,8 +29,8 @@ var permissions = {
 //////////////////////////DEVICE FUNCTIONS
 
 // Insert a new device
-exports.insertDevice = function (device, callback) {
-    db.collection('device').insert(device, function (err, result) {
+exports.insertDevice = function (callback) {
+    db.collection('device').insert({}, function (err, result) {
         if (result) console.log('A new device is added!');
 
         callback(err, result);

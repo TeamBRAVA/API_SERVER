@@ -146,12 +146,8 @@ router.post('/permissions/update', function (req, res) {
 /*dev code (TO DELETE)*/
 
 /* GET /data (OK)*/
-router.get('/newDevice/:id', function (req, res) {
-
-    var device = {
-        _id: req.params.id,
-    }
-    db.insertDevice(device, callback);
+router.get('/newDevice', function (req, res) {
+    db.insertDevice(callback);
   
     //callback function
     function callback(err, result) {
