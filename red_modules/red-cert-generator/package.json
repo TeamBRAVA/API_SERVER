@@ -1,0 +1,11 @@
+{
+  "name": "red-cert-generator",
+  "version": "1.0.0",
+  "description": "A utility that can generates many RED-signed certificates",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Valentin Mercier <vmercier@me.com> (https://www.smartpap.fr/)",
+  "license": "MIT License"
+}
