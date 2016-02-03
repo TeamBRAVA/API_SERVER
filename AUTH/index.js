@@ -24,12 +24,13 @@ module.exports.certAuthenticate = function ( req, res, next ) {
 module.exports.ensureCertAuthenticated = function ( req, res, next ) {
 	if( req.client.sslVerify === true && req.client.sslCert != undefined) {
 		db.collection('device').findOne({ fingerprint: req.client.sslCert.fingerprint }, function (err, results) {
-	        if (results != null)
+	        if (results != null) {
 	            console.log("One device found ! \n\n" + results);
 	        	next();
-	        else
+	        } else {
 	           	console.log("The device does not exist ! \n\n" +err);
 	        	res.send(401, "No Device Found");
+	        }
 	    });
 	}
 }
