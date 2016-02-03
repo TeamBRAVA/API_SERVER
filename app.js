@@ -21,10 +21,10 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.use(auth.certAuthenticate);
+//app.use(auth.certAuthenticate);
 
 app.use('/', userAuth);
-app.use('/', auth.ensureCertAuthenticated, devicesAPI);
+app.use('/', /*auth.ensureCertAuthenticated,*/ devicesAPI);
 app.use('/', usersAPI);
 
 

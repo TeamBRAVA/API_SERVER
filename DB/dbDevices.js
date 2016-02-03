@@ -11,8 +11,11 @@ var device = {
   _id: String,
   token: String,
   expirationdate: String,
-  pathtocertificate: String,
-  certificatekey: String,
+  certificate : {
+    path : String,
+    passphrase : String,
+    fingerprint : String
+  }
   installedversionRED: String,
   softwarelist: [String], 
   data: [ { datatype: String, value: String, date: Date.now } ]
@@ -27,11 +30,32 @@ var permissions = {
 
 //////////////////////////DEVICE FUNCTIONS
 
+// Insert Device with it's corresponding 
+exports.insertDeviceWithCert = function ( path, passphrase, fingerprint, callback ) {
+    var device = {
+        token : null,
+        expirationdate : null,
+        certificate : {
+            path : path,
+            passphrase : passphrase,
+            fingerprint : fingerprint
+        },
+        installedversionRED : null,
+        softwarelist : [],
+        data : []
+    };
+    db.collection('device').insert(device, function (err, result) {
+        if(result.result.ok == 1){
+            callback(err, result.insertedIds[0]);
+        } else callback("error creating device");
+    });
+}
+
 // Insert a new device
 exports.insertDevice = function (callback) {
     db.collection('device').insert({}, function (err, result) {
-        if(result.ok == 1){
-            callback(err, result.insertedIds);
+        if(result.result.ok == 1){
+            callback(err, result.insertedIds[0]);
         }else callback("error creating device");
     });
 }

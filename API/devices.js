@@ -168,7 +168,7 @@ router.post('/permissions/update',  function (req, res) {
 /*dev code (TO DELETE)*/
 
 /* GET /data (OK)*/
-router.get('/newDevice', function (req, res) {
+router.get('/newDevice/:nb', function (req, res) {
     db.insertDevice(callback);
   
     //callback function
@@ -176,7 +176,7 @@ router.get('/newDevice', function (req, res) {
         if (err)
             res.respond(err, 404);
         else
-            res.respond(result);
+            res.respond(result, 200);
     }
 });
 
