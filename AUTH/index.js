@@ -32,4 +32,6 @@ module.exports.ensureCertAuthenticated = function ( req, res, next ) {
 	        	res.send(401, "No Device Found");
 	    });
 	}*/
+    
+    next();
 }
