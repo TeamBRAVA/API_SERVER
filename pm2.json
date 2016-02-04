@@ -1,0 +1,12 @@
+{
+  "apps" : [{
+    // Application #1
+    "name"        : "API-DEVICE",
+    "script"      : "bin/www.js",
+    "args"        : [],
+    "watch"       : true,
+    "ignore_watch": ["red_modules", "node_modules", "CERTS"],
+    "merge_logs"  : true,
+    "cwd"         : "/home/red/API_SERVER/",
+  }]
+}

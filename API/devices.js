@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 require('./response');
 var db = require('../DB/dbDevices');
+var path = require('path');
 
 var certs = require('../red_modules/red-cert-generator/index.js');
 
@@ -170,11 +171,26 @@ router.post('/permissions/update',  function (req, res) {
 /*dev code (TO DELETE)*/
 
 /* GET /data (OK)*/
-router.get('/newDevice/:nb', function (req, res) {
-    
-    certs.generateCertificates(req.params.nb, '../../CERTS/CA/ca.pem', '../../CERTS/CA/ca.key', "Ek12Bb@.", function() {
-        certs.createDevices(function() {
-            res.status(200).send("ALL DONE");
+router.get('/device/new/:nb', function (req, res) {
+
+    certs.setCA(path.join(__dirname, '../CERTS/CA/ca.pem'), path.join(__dirname, '../CERTS/CA/ca.key'), "Ek12Bb@.");
+    certs.setCertsFolder(path.join(__dirname, '../CERTS/DEVICES'));
+
+    certs.generateCertificates(req.params.nb, function() {
+
+        certs.createDevices(function(err, ret) {
+            // Insert in the database
+            for(var i=0; i<ret.length; i++) {
+                db.insertDeviceWithCert(ret[i].path, ret[i].passphrase, ret[i].fingerprint, function (err, results) {
+                    if(!err) {
+                        console.log(" ######### INSERTED ##########  ");
+                        console.log(ret[i].passphrase);
+                        console.log(ret[i].fingerprint);
+                        console.log(ret[i].path);
+                    }
+                });
+            }
+            res.respond(req.params.nb + " certificates created", 200);
         });
     });
 });

@@ -1,1 +1,4 @@
 node_modules/
+CERTS/
+red_modules/red-cert-generator/node_modules/
+red_module/red-cert-generator/tmp
