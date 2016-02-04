@@ -2,7 +2,7 @@
   "apps" : [{
     // Application #1
     "name"        : "API-DEVICE",
-    "script"      : "bin/www.js",
+    "script"      : "bin/www",
     "args"        : [],
     "watch"       : true,
     "ignore_watch": ["red_modules", "node_modules", "CERTS"],
