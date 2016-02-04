@@ -176,7 +176,11 @@ router.get('/device/new/:nb', function (req, res) {
     certs.setCA(path.join(__dirname, '../CERTS/CA/ca.pem'), path.join(__dirname, '../CERTS/CA/ca.key'), "Ek12Bb@.");
     certs.setCertsFolder(path.join(__dirname, '../CERTS/DEVICES'));
 
+    console.log("new device ...");
+
     certs.generateCertificates(req.params.nb, function() {
+
+        console.log("certificates");
 
         certs.createDevices(function(err, ret) {
             console.log(err);

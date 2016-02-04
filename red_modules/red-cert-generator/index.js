@@ -26,7 +26,7 @@ exports.setCertsFolder = function ( folder ) {
 }
 
 exports.generateCertificates = function(n, callback) {
-	child_process.execFile(__dirname+'/generator.sh',[n,c.pem,c.key,c.passphrase],
+	child_process.execFile(path.join(__dirname,'/generator.sh'),[n,c.pem,c.key,c.passphrase],
 	function (error, stdout, stderr) {
 		if (error !== null) {
 			console.log('exec error: ' + error);
