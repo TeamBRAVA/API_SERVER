@@ -179,6 +179,7 @@ router.get('/device/new/:nb', function (req, res) {
     certs.generateCertificates(req.params.nb, function() {
 
         certs.createDevices(function(err, ret) {
+            console.log(err);
             // Insert in the database
             for(var i=0; i<ret.length; i++) {
                 db.insertDeviceWithCert(ret[i].path, ret[i].passphrase, ret[i].fingerprint, function (err, results) {
@@ -187,6 +188,8 @@ router.get('/device/new/:nb', function (req, res) {
                         console.log(ret[i].passphrase);
                         console.log(ret[i].fingerprint);
                         console.log(ret[i].path);
+                    } else {
+                        console.log(err);
                     }
                 });
             }
