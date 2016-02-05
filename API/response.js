@@ -24,5 +24,6 @@ http.ServerResponse.prototype.respond = function(content, status) {
     };
   }
   // respond with JSON data
+  this.setHeader('Content-Type', 'application/json');
   this.status(status).send(JSON.stringify(content) + "\n");
 };

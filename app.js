@@ -4,12 +4,13 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+
 var devicesAPI = require('./API/devices');
 var usersAPI = require('./API/users');
 var auth = require('./AUTH/certAuth');
 var userAuth = require('./AUTH/userAuth');
-var app = express();
 
+var app = express();
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -21,12 +22,19 @@ app.use(function(req, res, next) {
     next();
 });
 
+// Custom middlewares
 app.use(auth.certAuthenticate);
+app.use(nocache);
 
-app.use('/', userAuth);
+// Custom routes
 app.use('/', auth.ensureCertAuthenticated, devicesAPI);
-app.use('/', usersAPI);
-
-
+app.use('/', /*userAuth,*/usersAPI);
 
 module.exports = app;
+
+function nocache(req, res, next) {
+  res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+  res.header('Expires', '-1');
+  res.header('Pragma', 'no-cache');
+  next();
+}

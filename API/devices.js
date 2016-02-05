@@ -3,6 +3,7 @@ var router = express.Router();
 require('./response');
 var db = require('../DB/dbDevices');
 var path = require('path');
+var async = require('async');
 
 var certs = require('../red_modules/red-cert-generator/index.js');
 
@@ -32,6 +33,27 @@ function ensureAuthenticated(req, res, next){
 };
 
 
+////////////////////////////////////////////////////////////////////////////////
+/*dev code (TO DELETE)*/
+
+// Get results from self device
+router.get('device/result', function (req, res) {
+    db.find(req.device.id, function (err, result) {
+        if (err) return console.error(err);
+        res.respond(result);
+    });
+});
+
+// Get results from other devices (by id)
+router.get('device/result/:id', function (req, res) {
+    db.find(req.params.id, function (err, result) {
+        if (err) return console.error(err);
+        res.respond(result);
+    });
+});
+/////////////////////////////////////////////////////////////////////////////////////
+
+
 //update the object **TO BE IMPLEMENTED**
 router.get('/device/update', function (req, res) {
     //call update function
@@ -43,13 +65,101 @@ router.get('/device/update', function (req, res) {
     }
 });
 
+// Create new devices with the corresponding certs inside de database ### OK ###
+router.get('/device/new/:nb', function (req, res) {
 
+    // Set some absolute path
+    certs.setCA(path.join(__dirname, '../CERTS/CA/ca.pem'), path.join(__dirname, '../CERTS/CA/ca.key'), "Ek12Bb@.");
+    certs.setCertsFolder(path.join(__dirname, '../CERTS/DEVICES'));
 
-/* GET data identified with key from device : id*/
-router.get('/device/:_id/:datatype', function (req, res) {
+    // Generate the certs
+    certs.generateCertificates(req.params.nb, function() {
+
+        // create devices inside the database
+        certs.createDevices(function (err, devices) {
+            var nb = 0;
+            // Insert in the database
+            async.each(devices, function (device, callback) {
+                db.insertDeviceWithCert(device.path, device.passphrase, device.fingerprint, function (err, results) {
+                    if(!err)
+                        nb++;
+                    else
+                        console.log(err);
+                    callback();
+                });
+            }, function done() {
+                res.respond(nb + " certificates created", 200);
+            });            
+        });
+    });
+});
+
+/* GET data from other device represented by it's id and that match the datatype (aka key) (need permissions)*/
+router.get('/device/other/:id/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
-        "_id": req.params._id,
+        "_id": req.params.id,
+        "datatype": req.params.datatype
+    };
+    //call db data function to retrieve asked data
+    db.pullDatatype(condition, callback);    
+
+    //callback function
+    function callback(err, result) {
+        if (err)
+            res.respond(err, 404);
+        else
+            res.respond(result);
+    }
+});
+
+
+/* GET data identified with key and date from device : id (need permissions)*/
+router.get('/device/other/:id/:datatype/:date', function (req, res) {
+    //get from url which data we want
+    var condition = {
+        "_id": req.params.id,
+        "datatype": req.params.datatype,
+        "date": req.params.date
+    };
+    //call db data function to retrieve asked data
+    db.pullDatatypeAndDate(condition, callback);
+  
+    //callback function
+    function callback(err, result) {
+        if (err)
+            res.respond(err, 404);
+        else
+            res.respond(result);
+    }
+});
+
+/* POST data on the server for other devices represented by their id (need permissions)*/
+router.post('/device/other/:id', function (req, res) {
+    //Create the object
+    var device = {
+        _id: req.params.id,
+        datatype: req.body.datatype,
+        value: req.body.value,
+    }
+    //we call db data function that will take, the object, translate it into model object and then save it
+    db.pushData(device, callback);
+  
+    //callback function
+    function callback(err, result) {
+        if (err)
+            res.respond(err, 404);
+        else
+            res.respond(result);
+    }
+});
+
+
+/* GET data from itself, that match the datatype (aka key)*/
+router.get('/device/:datatype', function (req, res) {
+    //get from url which data we want
+    var condition = {
+        "_id": req.device.id,
         "datatype": req.params.datatype
     };
     //call db data function to retrieve asked data
@@ -65,11 +175,11 @@ router.get('/device/:_id/:datatype', function (req, res) {
 });
 
 
-/* GET data identified with key and date from device : id*/
-router.get('/device/:_id/:datatype/:date', function (req, res) {
+/* GET data from itself, that match the datatype (aka key) and the date*/
+router.get('/device/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
-        "_id": req.params._id,
+        "_id": req.device.id,
         "datatype": req.params.datatype,
         "date": req.params.date
     };
@@ -89,7 +199,7 @@ router.get('/device/:_id/:datatype/:date', function (req, res) {
 router.post('/device', function (req, res) {
     //Create the object
     var device = {
-        _id: req.body._id,
+        _id: req.device.id,
         datatype: req.body.datatype,
         value: req.body.value,
     }
@@ -164,46 +274,5 @@ router.post('/permissions/update',  function (req, res) {
             res.respond(result);
     }
 });
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-/*dev code (TO DELETE)*/
-
-/* GET /data (OK)*/
-router.get('/device/new/:nb', function (req, res) {
-
-    certs.setCA(path.join(__dirname, '../CERTS/CA/ca.pem'), path.join(__dirname, '../CERTS/CA/ca.key'), "Ek12Bb@.");
-    certs.setCertsFolder(path.join(__dirname, '../CERTS/DEVICES'));
-
-    certs.generateCertificates(req.params.nb, function() {
-
-        certs.createDevices(function(err, ret) {
-            console.log(err);
-            // Insert in the database
-            for(var i=0; i<ret.length; i++) {
-                db.insertDeviceWithCert(ret[i].path, ret[i].passphrase, ret[i].fingerprint, function (err, results) {
-                    if(!err) {
-                        console.log(" ######### INSERTED ##########  ");
-                        console.log(ret[i].passphrase);
-                        console.log(ret[i].fingerprint);
-                        console.log(ret[i].path);
-                    } else {
-                        console.log(err);
-                    }
-                });
-            }
-            res.respond(req.params.nb + " certificates created", 200);
-        });
-    });
-});
-
-router.get('/result', function (req, res) {
-    db.find(req.device.id, function (err, result) {
-        if (err) return console.error(err);
-        res.respond(result);
-    })
-});
-/////////////////////////////////////////////////////////////////////////////////////
 
 module.exports = router;

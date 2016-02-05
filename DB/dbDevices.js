@@ -9,6 +9,8 @@ Data structure:
 
 var device = {
   _id: String,
+  owner: String,
+  creationDate,
   token: String,
   expirationdate: String,
   certificate : {
@@ -33,6 +35,8 @@ var permissions = {
 // Insert Device with it's corresponding 
 exports.insertDeviceWithCert = function ( path, passphrase, fingerprint, callback ) {
     var device = {
+        owner: null,
+        creationDate: Date.now(),
         token : null,
         expirationdate : null,
         certificate : {
@@ -53,7 +57,8 @@ exports.insertDeviceWithCert = function ( path, passphrase, fingerprint, callbac
     });
 }
 
-// Insert a new device
+// Insert a new device  
+// ### DON'T USE THIS METHOD ! ###
 exports.insertDevice = function (callback) {
     db.collection('device').insert({}, function (err, result) {
         if(result.result.ok == 1){
