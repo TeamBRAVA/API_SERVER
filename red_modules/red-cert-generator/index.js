@@ -1,10 +1,9 @@
 var child_process = require('child_process');
-var util = require('util');
 var fs = require('fs');
 var path = require('path');
-var x509 = require('x509');
 var crypto = require('crypto');
-
+var async = require('async');
+var pem = require('pem');
 
 var c = {
 	pem : "",
@@ -48,7 +47,7 @@ exports.createDevices = function (callback) {
 	fs.readFile(path.join(__dirname, './tmp/passphrases/passphrases.txt'), 'utf-8', function (err, data) {
 		
 		if(err) {
-			callback(err, null);
+			callback(err);
 			return;
 		}
 
@@ -56,34 +55,47 @@ exports.createDevices = function (callback) {
 		passphrases.splice(-1,1);
 
 		// read the directory for all certificates
-		fs.readdir(path.join(__dirname, './tmp/certificates/crt'), function ( err, files ) {
+		fs.readdir(path.join(__dirname, './tmp/certificates/'), function ( err, files ) {
 			if(err) {
-				callback(err, null);
+				callback(err);
 				return;
 			}
-
 			var ret = [];
-			err = [];
+			var err = [];
 
-			for(var i=0; i<files.length; i++) {
+				async.each(files, function(item, cb) {
 
-				var random = Date.now() + '-' +  crypto.randomBytes(5).toString('hex').slice(0,10) + ".pem";	// Create random file name
-				var index = parseInt(files[i].replace('.crt', ''));		// Get the index based on the filename
-				var passphrase = passphrases[index - 1];		// Get the passphrase in the file using that index
-				var p = path.join(__dirname, './tmp/certificates/crt', files[i]);	// create the absolute path to the crt files
-				var newP = path.join(c.certs, random ); // create the new path for the pem files
-				var cert = x509.parseCert(p);		// Parse the content of the cert
-
-				var error = fs.renameSync(p.replace(/crt/g, 'pem'), newP);	// Move the pem file to a persistent location
-				fs.unlink(p);	// Unlink unasynchronously after cp
-
-				if(! error) {		// If there is no errors then treat the datas
-					ret.push({passphrase: passphrase, fingerprint: cert.fingerPrint, path: newP})
-				} else {
-					err.push(error);
-				}
-			}
-			callback(err, ret);
+					var random = Date.now() + '-' +  crypto.randomBytes(5).toString('hex').slice(0,10) + ".pem";	// Create random file name
+					var index = parseInt(item.replace('.pem', ''));		// Get the index based on the filename
+					var passphrase = passphrases[index - 1];		// Get the passphrase in the file using that index
+					var p = path.join(__dirname, './tmp/certificates/', item);	// create the absolute path to the crt files
+					var newP = path.join(c.certs, random ); // create the new path for the pem files
+					var certificate = fs.readFileSync(p);
+					pem.getFingerprint(certificate.toString(), function ( error, fingerprint ) {
+						if(error) {
+							err.push(error);
+							cb();
+							return;
+						}
+						error = fs.renameSync(p.replace(/crt/g, 'pem'), newP);	// Move the pem file to a persistent location
+						if(! error) {		// If there is no errors then treat the datas
+							ret.push({passphrase: passphrase, fingerprint: fingerprint.fingerprint, path: newP})
+						} else {
+							err.push(error);
+						}
+						cb();
+					});		// Parse the content of the cert
+				}, function done() {
+					// Clear temporary directories
+					fs.readdir(path.join(__dirname, './tmp/certificates/'), function ( err, files ) { 
+						files.forEach(function (file) {
+							fs.unlink(path.join(__dirname, './tmp/certificates/', file));
+						});
+					});
+					fs.unlink(path.join(__dirname, './tmp/passphrases/passphrases.txt'), function() {});	// remove passphrases
+					callback(err, ret);
+				});
+			
 		});
 	});
 }

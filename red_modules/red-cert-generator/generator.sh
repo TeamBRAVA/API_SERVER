@@ -21,48 +21,43 @@ fi
 
 
 # Clear environment
-rm device.key &> /dev/null
-rm device.csr &> /dev/null
-rm device.crt &> /dev/null
-rm device.p12 &> /dev/null
-rm device.key &> /dev/null
+rm $BASEDIR/device.key &> /dev/null
+rm $BASEDIR/device.csr &> /dev/null
+rm $BASEDIR/device.crt &> /dev/null
+rm $BASEDIR/device.p12 &> /dev/null
+rm $BASEDIR/device.key &> /dev/null
 
 mkdir $BASEDIR &> /dev/null
 mkdir $BASEDIR/certificates &> /dev/null
-mkdir $BASEDIR/certificates/crt &> /dev/null
-mkdir $BASEDIR/certificates/pem &> /dev/null
 mkdir $BASEDIR/passphrases &> /dev/null
 
-rm -rf $BASEDIR/certificates/crt/* &> /dev/null
-rm -rf $BASEDIR/certificates/pem/* &> /dev/null
+rm -rf $BASEDIR/certificates/* &> /dev/null
 rm -rf $BASEDIR/passphrases/* &> /dev/null
 touch $BASEDIR/passphrases/passphrases.txt
 
 for i in `seq 1 $ncerts`
 do
-	#echo -n "Generating certificate #"$i"... "
-	passphrase=$(hexdump -n 75 -v -e '/1 "%02X"' /dev/urandom)
-	openssl genrsa -des3 -out device.key -passout pass:$passphrase 2048 &> /dev/null
-	openssl req -new -key device.key -out device.csr -passin pass:$passphrase -subj "/C=FR/ST=Ile-de-France/L=Paris/O=RED/CN=DEVICE" &> /dev/null
-	openssl x509 -req -days 36500 '-in' device.csr -CA $ca_pem_path -CAkey $ca_key_path -set_serial 01 -out device.crt -passin pass:$ca_passphrase &> /dev/null
-	if ! [ -s "device.crt" ] ; then
+	passphrase=$(hexdump -n 5 -v -e '/1 "%02X"' /dev/urandom)
+	serial=$(hexdump -n 2 -v -e '/1 "%02X"' /dev/urandom)
+	openssl genrsa -des3 -out $BASEDIR/device.key -passout pass:$passphrase 2048 &> /dev/null
+	openssl req -new -key $BASEDIR/device.key -out $BASEDIR/device.csr -passin pass:$passphrase -subj "/C=FR/ST=Ile-de-France/L=Paris/O=RED/CN=DEVICE" &> /dev/null
+	openssl x509 -req -days 36500 '-in' $BASEDIR/device.csr -CA $ca_pem_path -CAkey $ca_key_path -set_serial $serial -out $BASEDIR/device.crt -passin pass:$ca_passphrase &> /dev/null
+	if ! [ -s $BASEDIR/"device.crt" ] ; then
 		echo ""
    		echo "$ca_passphrase The specified CA KEY file passphrase is not correct." >&2
-   		rm device.key &> /dev/null
-   		rm device.csr &> /dev/null
-   		rm device.crt &> /dev/null
+   		rm $BASEDIR/device.key &> /dev/null
+   		rm $BASEDIR/device.csr &> /dev/null
+   		rm $BASEDIR/device.crt &> /dev/null
    		exit 0
 	fi
-	openssl pkcs12 -export -clcerts -in device.crt -inkey device.key -out device.p12 -passin pass:$passphrase -passout pass:$passphrase &> /dev/null
-	openssl pkcs12 -in device.p12 -out device.pem -clcerts -passin pass:$passphrase -passout pass:$passphrase &> /dev/null
-	rm device.key &> /dev/null
-	rm device.csr &> /dev/null
-	#rm device.crt &> /dev/null
-	rm device.p12 &> /dev/null
-	mv device.crt $BASEDIR/certificates/crt/$i.crt
-	mv device.pem $BASEDIR/certificates/pem/$i.pem
+	openssl pkcs12 -export -clcerts -in $BASEDIR/device.crt -inkey $BASEDIR/device.key -out $BASEDIR/device.p12 -passin pass:$passphrase -passout pass:$passphrase &> /dev/null
+	openssl pkcs12 -in $BASEDIR/device.p12 -out $BASEDIR/device.pem -clcerts -passin pass:$passphrase -passout pass:$passphrase &> /dev/null
+	rm $BASEDIR/device.key &> /dev/null
+	rm $BASEDIR/device.csr &> /dev/null
+	rm $BASEDIR/device.crt &> /dev/null
+	rm $BASEDIR/device.p12 &> /dev/null
+	mv $BASEDIR/device.pem $BASEDIR/certificates/$i.pem
 	echo $passphrase >> $BASEDIR/passphrases/passphrases.txt
-	#echo "ok"
 done
 
 echo $i" certificates have been successfully generated"
