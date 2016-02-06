@@ -22,7 +22,7 @@ app.use(nocache);
 app.use(cors);
 
 // Custom routes
-app.use('/', /*auth.ensureCertAuthenticated,*/ devicesAPI);
+app.use('/', auth.ensureCertAuthenticated, devicesAPI);
 app.use('/', /*userAuth,*/usersAPI);
 
 module.exports = app;

@@ -53,8 +53,7 @@ do
 	rm $BASEDIR/device.key &> /dev/null
 	rm $BASEDIR/device.csr &> /dev/null
 	rm $BASEDIR/device.crt &> /dev/null
-	#rm $BASEDIR/device.p12 &> /dev/null
-	mv $BASEDIR/device.p12 $BASEDIR/certificates/$i.p12
+	rm $BASEDIR/device.p12 &> /dev/null
 	mv $BASEDIR/device.pem $BASEDIR/certificates/$i.pem
 	echo $passphrase >> $BASEDIR/passphrases/passphrases.txt
 done
