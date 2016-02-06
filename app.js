@@ -22,11 +22,13 @@ app.use(nocache);
 app.use(cors);
 
 // Custom routes
-app.use('/', auth.ensureCertAuthenticated, devicesAPI);
+app.use('/', /*auth.ensureCertAuthenticated,*/ devicesAPI);
 app.use('/', /*userAuth,*/usersAPI);
 
 module.exports = app;
 
+
+// Custom middlewares definition
 function nocache(req, res, next) {
   res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
   res.header('Expires', '-1');
