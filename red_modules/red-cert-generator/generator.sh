@@ -38,10 +38,9 @@ touch $BASEDIR/passphrases/passphrases.txt
 for i in `seq 1 $ncerts`
 do
 	passphrase=$(hexdump -n 5 -v -e '/1 "%02X"' /dev/urandom)
-	serial=$(hexdump -n 2 -v -e '/1 "%02X"' /dev/urandom)
 	openssl genrsa -des3 -out $BASEDIR/device.key -passout pass:$passphrase 2048 &> /dev/null
 	openssl req -new -key $BASEDIR/device.key -out $BASEDIR/device.csr -passin pass:$passphrase -subj "/C=FR/ST=Ile-de-France/L=Paris/O=RED/CN=DEVICE" &> /dev/null
-	openssl x509 -req -days 36500 '-in' $BASEDIR/device.csr -CA $ca_pem_path -CAkey $ca_key_path -set_serial $serial -out $BASEDIR/device.crt -passin pass:$ca_passphrase &> /dev/null
+	openssl x509 -req -days 36500 '-in' $BASEDIR/device.csr -CA $ca_pem_path -CAkey $ca_key_path -set_serial 01 -out $BASEDIR/device.crt -passin pass:$ca_passphrase &> /dev/null
 	if ! [ -s $BASEDIR/"device.crt" ] ; then
 		echo ""
    		echo "$ca_passphrase The specified CA KEY file passphrase is not correct." >&2

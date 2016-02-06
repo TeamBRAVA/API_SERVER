@@ -9,9 +9,11 @@ module.exports.certAuthenticate = function ( req, res, next ) {
 	req.device = {};
 	req.device.ssl = {};
 
-	if(req.headers['x-ssl-verify']) {
-		req.device.ssl.verified = true;	// set the flag to request client object
-	} else {	// Not allowed, no informations about it
+	if(req.headers['x-ssl-verify'] == "SUCCESS") {	// The cert was verified by the CA
+		req.device.ssl.verified = true;	
+	} else if (req.headers['x-ssl-cert'] == "NONE" ) {	// The cert is not signed by our CA or has expired
+		req.device.ssl.verified = false;
+	} else {	// No other possibilities, but in case ....
 		req.device.ssl.verified = false;
 	}
 	if(req.headers['x-ssl-cert']) {

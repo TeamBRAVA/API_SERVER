@@ -15,16 +15,11 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(function(req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
-    next();
-});
 
 // Custom middlewares
 app.use(auth.certAuthenticate);
 app.use(nocache);
+app.use(cors);
 
 // Custom routes
 app.use('/', auth.ensureCertAuthenticated, devicesAPI);
@@ -37,4 +32,11 @@ function nocache(req, res, next) {
   res.header('Expires', '-1');
   res.header('Pragma', 'no-cache');
   next();
+}
+
+function cors(req, res, next){
+	res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
+    next();
 }

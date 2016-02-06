@@ -37,7 +37,7 @@ function ensureAuthenticated(req, res, next){
 /*dev code (TO DELETE)*/
 
 // Get results from self device
-router.get('device/result', function (req, res) {
+router.get('/device/result', function (req, res) {
     db.find(req.device.id, function (err, result) {
         if (err) return console.error(err);
         res.respond(result);
@@ -45,7 +45,7 @@ router.get('device/result', function (req, res) {
 });
 
 // Get results from other devices (by id)
-router.get('device/result/:id', function (req, res) {
+router.get('/device/result/:id', function (req, res) {
     db.find(req.params.id, function (err, result) {
         if (err) return console.error(err);
         res.respond(result);
