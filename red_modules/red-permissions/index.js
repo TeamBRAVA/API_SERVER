@@ -163,6 +163,7 @@ var app = {
 		var request = {
 			'from.collection' : from.device != undefined ? 'device' : 'user',
 			'to.collection' : to.device != undefined ? 'device' : 'permission',
+			'status' : 'granted'
 		};
 		request['from.id'] = from[request['from.collection']];
 		request['to.id'] = to[request['to.collection']];
@@ -217,7 +218,7 @@ var app = {
 		to.collection = Object.keys(to)[0];
 		from.id = from[from.collection];
 		to.id = to[to.collection];
-		
+
 		// if the requestor is the target
 		if(to.collection === from.collection && to.id === from.id ) {
 			if( to.collection === "device" ) {	// If it's a device

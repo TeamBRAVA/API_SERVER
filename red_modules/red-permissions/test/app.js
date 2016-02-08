@@ -16,8 +16,18 @@ var that = {
 	console.log("Result : " + util.inspect(result, {depth: 4}) );
 });*/
 
-/*perm.verify( {user : "56b5e4fc7a80b13b2149b901"}, {user : "56b5e4fc7a80b13b2149b901"}, {iterations: "write"}, function (err, result) {
+/*perm.verify( {device : "56b5e4fc7a80b13b2149b901"}, {device : "56b5e4fc7a80b13b2149b900"}, {iterations: "write"}, function (err, result) {
 	console.log("VERIFY");
 	console.log("Error : " + util.inspect(err));
 	console.log("Result : " + util.inspect(result, {depth: 4}) );
+});*/
+
+/*perm.remove('56b730d2263fc1c72769f000', function (err, result) {
+	console.log("REMOVE");
+	console.log("Error : " + util.inspect(err));
+	//console.log("Result : " + util.inspect(result, {depth: 4}) );
+	perm.list('device', "56b5e4fc7a80b13b2149b901", function (err, result) {
+		console.log("LIST");
+		console.log(util.inspect(result, {depth: 4}));
+	});
 });*/
