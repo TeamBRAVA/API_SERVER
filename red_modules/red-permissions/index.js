@@ -154,6 +154,12 @@ var app = {
 
 	/* from : { device : id || user : id }, to : { device : id || permission : id }, access : { key : "read/write"} */
 	verify : function ( from, to, access, callback) {
+
+		// Parse the arguments
+		if(Object.keys(from).length != 1 && Object.keys(to).length != 1) {
+			callback(new Error("Arguments 'from' and 'to' must contain only one parameter"), false);
+			return;
+		}
 		var request = {
 			'from.collection' : from.device != undefined ? 'device' : 'user',
 			'to.collection' : to.device != undefined ? 'device' : 'permission',
@@ -161,31 +167,85 @@ var app = {
 		request['from.id'] = from[request['from.collection']];
 		request['to.id'] = to[request['to.collection']];
 
-		db.collection('permission').findOne(request, function (err, result) {
-			if(err) {
-				callback(err, false);
+		this.checkRules(from, to , function (err, res) {
+			console.log("checkRules : " + res);
+			if(err) { console.log(err); }
+			if(res === true ) {	// The rules have more priority than other permissions
+				callback(err, true);
 				return;
 			}
-			var keys = Object.keys(access);
-			if( keys.length == 1 ) {
-				// Get the permission for that key in the database results
-				var auth = result.permissions[keys[0]];
-				if(auth === "write" && (access[keys[0]] === "read" || access[keys[0]] === "write") ) {
-					callback(err, true);
-				} else if (auth === "read" && access[keys[0]] === "read" ) {
-					callback(err, true);
-				} else {
-					callback(new Error("Unauthorized to access data"), false);
+			// NOT FINDONE BUT FIND ALL !!!!!!!!!!
+			db.collection('permission').findOne(request, function (err, result) {
+				if(err || !result) {
+					callback(err, false);
+					return;
 				}
-			} else {
-				callback(new Error("'access' parameter must contain ONE key like {key : 'read'} or {key : 'write'} "), false);
+				var keys = Object.keys(access);
+				if( keys.length == 1 ) {
+					// Get the permission for that key in the database results
+					var auth = result.permissions[keys[0]];
+					if(auth === "write" && (access[keys[0]] === "read" || access[keys[0]] === "write") ) {
+						callback(err, true);
+					} else if (auth === "read" && access[keys[0]] === "read" ) {
+						callback(err, true);
+					} else {
+						callback(new Error("Unauthorized to access data"), false);
+					}
+				} else {
+					callback(new Error("'access' parameter must contain ONE key like {key : 'read'} or {key : 'write'} "), false);
+				}
+			});
+		});		
+	},
+
+	/* 	si un device veut modifier ses permissions il peut le faire tout seul
+			-> to.collection = 'device' && to.id = 'idDuDevice'
+		si un utilisateur veut modifier ses propres permissions il peut le faire
+			-> to.collection = 'user' && to.id = 'idDuMec'
+		si un utilisateur veut modifier les permissions de ses devices il peut le faire
+			-> to.collection = 'device' && to.id = 'celui dun device du mec'
+		si un device veut récupérer les informations de son owner il peut le faire
+			-> to.collection : user && to.id = 'id de from.owner'
+	*/
+	checkRules : function (from, to, callback) {
+		// Parse the arguments
+		if(Object.keys(from).length != 1 && Object.keys(to).length != 1) {
+			callback(new Error("Arguments 'from' and 'to' must contain only one parameter"), false);
+			return;
+		}
+		from.collection = Object.keys(from)[0];
+		to.collection = Object.keys(to)[0];
+		from.id = from[from.collection];
+		to.id = to[to.collection];
+		
+		// if the requestor is the target
+		if(to.collection === from.collection && to.id === from.id ) {
+			if( to.collection === "device" ) {	// If it's a device
+				callback(null, true);
+			} else if ( to.collection === "user" ) { // If it's a user
+				callback(null, true);
 			}
-		});
-	}
-
-	// TODO ??? ?
-	isOwner : function (id, callback) {
-
+		} else if ( to.collection === "device" && from.collection === "user" ) {
+			// Find if the device is owned by the user
+			db.collection('user').count({_id : mongo.helper.toObjectID(from.id), devices : { '$elemMatch' :  to.id } }, function (err, count) {
+				if(err || count == 0) {
+					callback(err, false);
+					return;
+				}
+				callback(err, true);
+			});
+		} else if ( to.collection === "user" && from.collection === "device" ) {
+			// Find if the user has the devices in its set
+			db.collection('user').count({_id : mongo.helper.toObjectID(to.id), devices : { '$elemMatch' : from.id } }, function (err, count) {
+				if(err || count == 0) {
+					callback(err, false);
+					return;
+				}
+				callback(err, true);
+			});
+		} else {
+			callback(null, false);
+		}
 	}
 };
 

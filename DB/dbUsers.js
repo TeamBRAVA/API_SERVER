@@ -5,6 +5,7 @@ var user = {
   username: String,
   password: String,
   token: String,
+  devices : [ String ],
   expirationdate: Number
 }
 */
