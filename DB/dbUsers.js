@@ -43,7 +43,7 @@ exports.updateUser = function (obj, callback) {
 }
 
 // Authenticate User
-exports.authUser = function (obj) {
+exports.authUser = function (obj, callback) {
     //First verify the token then make a search
 
     //Getting the certificate
@@ -52,7 +52,8 @@ exports.authUser = function (obj) {
     //Verifying the token if it is expired 
     jwt.verify(obj, cert, { algorithms: ['RS256'] , ignoreExpiration: false }, function(err, decoded) {
       if(err) { //Checking features of token (the expiration date)
-        return false;
+        callback(err,false);
+        return;
       //console.log(decoded); //To see what it contains
       //res.send(decoded);
       }
