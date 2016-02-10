@@ -1,4 +1,8 @@
 var db = require('./connect');
+var express = require('express');
+var jwt = require('jsonwebtoken');  //https://npmjs.org/package/node-jsonwebtoken
+var expressJwt = require('express-jwt'); //https://npmjs.org/package/express-jwt
+var fs = require('fs');
 /* 
 var user = {
   _id: String,
@@ -39,13 +43,27 @@ exports.updateUser = function (obj, callback) {
 
 // Authenticate User
 exports.authUser = function (obj) {
-    db.collection('user').findOne({ token: obj }, function (err, res) {  // also check the expiration date of the token
-        if (res != null ) {
+    //First verify the token then make a search
+
+    //Getting the certificate
+    var cert = fs.readFileSync('../../CERTS/token.key');
+
+    //Verifying the token if it is expired 
+    jwt.verify(obj, cert, { algorithms: ['RS256'] , ignoreExpiration: false }, function(err, decoded) {
+      if(err) { //Checking features of token (the expiration date)
+        return false;
+      //console.log(decoded); //To see what it contains
+      //res.send(decoded);
+      }
+      else{
+        //Search and match
+        db.collection('user').findOne({ token: obj }, function (err, res) {
+          if (res != null ) 
             return true;
-        }
-        else {
+          else 
             return false;
-        }
+        });
+      }   
     });
 }
 

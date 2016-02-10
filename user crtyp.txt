@@ -1,0 +1,68 @@
+
+
+
+For the USER data in DB;
+
+
+1) I think we should not keep
+
+username and the password in DB withouth encryption
+
+they should be kept in a token (in an ecrypted way).
+
+So we shoud just have this;
+
+user{
+
+	_id: String,
+
+	token:String,
+
+	expirationdate: Number
+
+}
+
+
+In first sign-in operation, username and pass taken by angular front-end
+
+webpage than they passed in API in a encrypted way (like a token) like;
+
+
+router.post('/user/new'){
+
+	var=newUser{
+
+		userid: req.body.userid,
+
+        	token (username:password): req.body.token,
+
+        	expirationdate: req.body.expirationdate
+		
+	}
+
+	....
+
+	db.insertUser(newUser, callback);
+
+	....
+		
+
+}
+
+
+then in database this token (username:password) should be stored in token 
+
+variable as mentioned above. So , with this way we never reveal the user credentials.
+
+
+and
+
+
+2) When we make a request to get user data, we should not pass (reveal) username in API
+
+without encrypting it. We sould pass it in API as a token that we can decrypt the token to 
+
+obtain the username to fetch the userdata.
+
+
+
