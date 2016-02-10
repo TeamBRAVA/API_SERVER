@@ -53,7 +53,7 @@ router.post('/user/login', function (req, res) {
 			var token = jwt.sign(credentials, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
 
 			//record the token in the user
-
+			// we neeed an updateuser function in pierre's index ? 
 
 		  	res.json({ token: token });
 		}
