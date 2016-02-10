@@ -1,5 +1,6 @@
 // To connect the database
 var db = require('./connect');
+var mongo =require('mongoskin');
 /* 
 Description: 
 
@@ -132,7 +133,7 @@ exports.pushData = function (obj, callback) {
 
 // Get data of specified device according to the specific datatype
 exports.pullDatatype = function (obj, callback) {
-    db.collection('device').find({ "_id": obj._id, "data.datatype": obj.datatype }, { "data": { $elemMatch: { datatype: obj.datatype } }, "data.value": 1, "_id": 0 }).toArray(function (err, result) {
+    db.collection('device').find({ "_id": mongo.helper.toObjectID(obj._id), "data.datatype": obj.datatype }, { "data": { $elemMatch: { datatype: obj.datatype } }, "data.value": 1, "_id": 0 }).toArray(function (err, result) {
         callback(err, result);
     });
 }
@@ -175,7 +176,7 @@ exports.updatePermission = function (obj, callback) {
 
 ///////////////////////////////////////////////////TO DELETE////////////////////////////
 exports.find = function (id, callback) {
-    db.collection('device').find({_id: id}).toArray(function (err, result) {
+    db.collection('device').find({_id: mongo.helper.toObjectID(id)}).toArray(function (err, result) {
         callback(err, result);
     });
 }

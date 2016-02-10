@@ -34,8 +34,8 @@ module.exports.ensureCertAuthenticated = function ( req, res, next ) {
 	if( req.device.ssl.verified === true && req.device.ssl.fingerprint) {		// If the client certificate is valid and is found
 		db.collection('device').findOne({ "certificate.fingerprint": req.device.ssl.fingerprint }, function (err, results) {	// Check inside the database
 	        if (results != null) {
-	            console.log("Device : " + results._id + " initiate a connection ....");		// Authentication complete the id is pass for other middlewares
-	            req.device.id = results._id;
+	            console.log("Device : " + results._id.toString() + " initiate a connection ....");		// Authentication complete the id is pass for other middlewares
+	            req.device.id = results._id.toString();
 	        	next();
 	        } else {
 	           	console.log("The device that initiate the connection doesn't exist !\nErrors : " + err);		// Authentication failed the cert is not ine the database
