@@ -6,6 +6,7 @@ var path = require('path');
 var async = require('async');
 
 var certs = require('../red_modules/red-cert-generator/index.js');
+var perm = require('../red_modules/red-permissions/index.js');
 
 /*API FOR THE DEVICES AND THEIR PERMISSIONS */
 
@@ -101,8 +102,24 @@ router.get('/device/other/:id/:datatype', function (req, res) {
         "_id": req.params.id,
         "datatype": req.params.datatype
     };
-    //call db data function to retrieve asked data
-    db.pullDatatype(condition, callback);    
+
+    var access = {};
+    access[req.params.datatype] = "read";
+    var from = {device : req.device.id};
+    var to = {device : req.params.id};
+
+    perm.verify(from, to, access, function (err, result) {
+        if(err) {
+            res.respond(err, 500);
+            return;
+        }
+        if(result == true) {
+            //call db data function to retrieve asked data
+            db.pullDatatype(condition, callback);
+        } else {
+            res.respond("Unauthorized to access data", 403);    // Forbidden
+        }
+    });
 
     //callback function
     function callback(err, result) {
