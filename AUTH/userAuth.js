@@ -12,7 +12,7 @@ router.post('/user/register', function (req, res) {
 	    mail: req.body.mail
 	  };
 	  //Check is username if it is already exists
-	  red_users.findUsername(username, function(err,result){
+	  red_users.findUsername(credentials.username, function(err,result){
 	  	if (result == null){
 		  	//Sending user credentials inside the token
 			var cert = fs.readFileSync('../../CERTS/token.key');  // getting the private key 

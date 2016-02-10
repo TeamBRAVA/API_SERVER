@@ -23,7 +23,8 @@ app.use(cors);
 
 // Custom routes
 app.use('/', auth.ensureCertAuthenticated, devicesAPI);
-app.use('/', /*userAuth,*/usersAPI);
+app.use('/', usersAPI); //to delete !!
+app.use('/',userAuth); //routes for the user authentication
 
 module.exports = app;
 
@@ -37,8 +38,8 @@ function nocache(req, res, next) {
 }
 
 function cors(req, res, next){
-	res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
+	res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
     next();
 }
