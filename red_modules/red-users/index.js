@@ -37,6 +37,12 @@ var app = {
 			callback(new Error("You must provide a password in String format inside the first parameter"));
 			return;
 		}
+		//New
+		if( ! (user.token && typeof user.token == "string") ) {
+			callback(new Error("You must provide a token in String format inside the first parameter"));
+			return;
+		}
+		//
 		if( !( user.mail && typeof user.mail == "string" && validateEmail(user.mail) ) ) {
 			callback(new Error("You must provide a valid mail"));
 			return;
@@ -60,8 +66,8 @@ var app = {
 				password : user.hash,
 				mail : user.mail,
 				token : {
-					value : null,
-					expireIn : null
+					value : user.token,
+					expireIn : user.expireIn
 				},
 				devices : []
 			}
