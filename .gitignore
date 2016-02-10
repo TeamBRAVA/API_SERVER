@@ -3,3 +3,4 @@ CERTS/
 red_modules/red-cert-generator/node_modules/
 red_module/red-cert-generator/tmp/
 red_module/red-permissions/node_modules/
+red_module/red-users/node_modules/

@@ -1,14 +1,15 @@
 {
-  "name": "red-permissions",
+  "name": "red-users",
   "version": "1.0.0",
-  "description": "A utility that can verify the access to the data in the RED database",
+  "description": "A utility that manage the users set in the database and exports some utility functions",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "async": "^1.5.2",
-    "mongoskin": "^2.0.3"
+    "mongoskin": "^2.0.3",
+    "password-hash": "^1.2.2"
   },
   "author": "Pierre Jankowiez <p.jankowiez@gmail.com>",
   "license": "MIT License"

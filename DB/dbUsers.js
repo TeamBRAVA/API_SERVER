@@ -4,6 +4,7 @@ var user = {
   _id: String,
   username: String,
   password: String,
+  salt : String,
   token: String,
   devices : [ String ],
   expirationdate: Number
