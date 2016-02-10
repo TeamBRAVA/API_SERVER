@@ -25,11 +25,11 @@ function ensureAuthenticated(req, res, next){
             next(); //call db Data function that will retrieve data
         }
         else{
-            res.send(401); // HTTP 401 Unauthorized
+            res.status(401).send({message: 'Invalid Token'});
         } 
     }
     else{
-        res.send(401); // HTTP 401 Unauthorized
+        res.status(401).send({message: 'Invalid Token'});
     }
 };
 
