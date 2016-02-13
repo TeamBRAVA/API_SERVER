@@ -10,7 +10,6 @@ var perm = require('../red_modules/red-permissions/index.js');
 
 /*API FOR THE DEVICES AND THEIR PERMISSIONS */
 
-
 // Middleware Auth. Function
 function ensureAuthenticated(req, res, next){
 
@@ -36,8 +35,17 @@ function ensureAuthenticated(req, res, next){
 
 ////////////////////////////////////////////////////////////////////////////////
 /*dev code (TO DELETE)*/
-
-// Get results from self device
+/**
+ *  @swagger
+ *  /device/result:
+ *    get:
+ *      description: Get results from self device
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: all informations on the device connected
+ */ 
 router.get('/device/result', function (req, res) {
     db.find(req.device.id, function (err, result) {
         if (err) return console.error(err);
@@ -45,6 +53,17 @@ router.get('/device/result', function (req, res) {
     });
 });
 
+/**
+ *  @swagger
+ *  /device/result/:id:
+ *    get:
+ *      description: Get results from self device
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: all informations on the device connected
+ */ 
 // Get results from other devices (by id)
 router.get('/device/result/:id', function (req, res) {
     db.find(req.params.id, function (err, result) {
