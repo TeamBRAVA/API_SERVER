@@ -19,6 +19,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
 
 /* SWAGGER INITIALISATION */
 var options = {
@@ -32,14 +33,11 @@ var options = {
 };
 
 var swaggerSpec = swagger(options);
-console.log(swaggerSpec);
 
-//save swagger file inside a yaml file for the swagger-ui process
-fs.writeFile("swagger.json", JSON.stringify(swaggerSpec), function(err) {
-    if(err) {
-        return console.log(err);
-    }
-    console.log("The file was saved!");
+//route for the swagger json (TODO : maybe move it in a separate file !!)
+app.get('/api-docs.json', function(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
 });
 /***************************************** */
 

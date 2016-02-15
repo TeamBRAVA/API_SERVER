@@ -1,1 +1,0 @@
-{"info":{"title":"RED API","version":"1.0.0"},"swagger":"2.0","paths":{"/device/result":{"get":{"description":"Get results from self device","produces":["application/json"],"responses":{"200":{"description":"ok"}}}}},"definitions":{}}
