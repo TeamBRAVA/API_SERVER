@@ -335,6 +335,25 @@ router.get('/device/:datatype/:date', function (req, res) {
  *      description: Post data
  *      produces:
  *        - application/json
+ *      parameters:
+ *        - name: body
+ *          description: data scheme needed to be sent
+ *          in: body
+ *          required: true
+ *          schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - datatype
+ *              - value
+ *            properties:
+ *              id:
+ *                 type: string
+ *              datatype:
+ *                 type: string
+ *              value:
+ *                 type: string
+ *
  *      responses:
  *        200:
  *          description: return the number of modified element
