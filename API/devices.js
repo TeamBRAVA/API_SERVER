@@ -44,7 +44,7 @@ function ensureAuthenticated(req, res, next){
  *        - application/json
  *      responses:
  *        200:
- *          description: all informations on the device connected
+ *          description: all information on the device connected
  *
  */ 
 router.get('/device/result', function (req, res) {
@@ -64,7 +64,7 @@ router.get('/device/result', function (req, res) {
  *        - application/json
  *      responses:
  *        200:
- *          description: all informations on the device connected
+ *          description: all information on the device connected
  */ 
 // Get results from other devices (by id)
 router.get('/device/result/:id', function (req, res) {
@@ -431,6 +431,7 @@ router.post('/permissions/new',  function (req, res) {
  *  @swagger
  *  /permissions/update:
  *    post:
+ *      tags: [Permissions]
  *      description: Post new permission for the user
  *      produces:
  *        - application/json
