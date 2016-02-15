@@ -25,11 +25,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 var options = {
   swaggerDefinition: {
     info: {
-      title: 'RED API', // Title (required) 
-      version: '1.0.0', // Version (required) 
+      title: 'RED API',  
+      description : 'This documentation is about RED API routes, you can find more on : [http://red-cloud.io](http://red-cloud.io)',
+      version: '1.0.0',  
     },
   },
-  apis: ['./API/devices.js','./API/users.js'], // Path to the API docs 
+  apis: ['./API/devices.js','./AUTH/userAuth.js'], // Path to the API docs 
 };
 
 var swaggerSpec = swagger(options);
