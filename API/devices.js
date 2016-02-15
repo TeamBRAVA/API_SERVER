@@ -31,6 +31,26 @@ function ensureAuthenticated(req, res, next){
         res.status(401).send({message: 'Invalid Token'});
     }
 };
+/**@swagger
+ * definition:
+ *   NewPerm:
+ *     type: object
+ *     required:
+ *       - id
+ *       - datatype
+ *       - value
+ *     properties:
+ *       id:
+ *         type: string
+ *       datatype:
+ *         type: string
+ *       value:
+ *         type: string
+ *
+ *
+ *
+ */
+
 
 ////////////////////////////////////////////////////////////////////////////////
 /*dev code (TO DELETE)*/
@@ -341,19 +361,7 @@ router.get('/device/:datatype/:date', function (req, res) {
  *          in: body
  *          required: true
  *          schema:
- *            type: object
- *            required:
- *              - id
- *              - datatype
- *              - value
- *            properties:
- *              id:
- *                 type: string
- *              datatype:
- *                 type: string
- *              value:
- *                 type: string
- *
+ *            $ref: '#/definitions/NewPerm'
  *      responses:
  *        200:
  *          description: return the number of modified element
@@ -420,9 +428,29 @@ router.get('/permissions/:userid', function (req, res) {
  *      description: Post new permission for a user on a specified device
  *      produces:
  *        - application/json
+ *      parameters:
+ *        - name: body
+ *          description: data scheme needed to be sent
+ *          in: body
+ *          required: true
+ *          schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - userid
+ *              - permission
+ *            properties:
+ *              id:
+ *                 type: string
+ *              userid:
+ *                 type: string
+ *              permission:
+ *                 type: string
+ *
  *      responses:
  *        200:
- *          description:
+ *          description: Get the number of changes done
+ *
  *
  */
 router.post('/permissions/new',  function (req, res) {
@@ -433,7 +461,7 @@ router.post('/permissions/new',  function (req, res) {
         permisssion: req.body.permission
     }
     db.insertPermission(permissions, callback);
-  
+
     //callback function
     function callback(err, result) {
         if (err)
@@ -454,6 +482,13 @@ router.post('/permissions/new',  function (req, res) {
  *      description: Post new permission for the user
  *      produces:
  *        - application/json
+ *      parameters:
+ *        - name: body
+ *          description: data scheme needed to be sent
+ *          in: body
+ *          required: true
+ *          schema:
+ *            $ref: '#/definitions/NewPerm'
  *      responses:
  *        200:
  *          description:
