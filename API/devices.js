@@ -32,19 +32,20 @@ function ensureAuthenticated(req, res, next){
     }
 };
 
-
 ////////////////////////////////////////////////////////////////////////////////
 /*dev code (TO DELETE)*/
 /**
  *  @swagger
  *  /device/result:
  *    get:
+ *      tags: [Devices]
  *      description: Get results from device itself
  *      produces:
  *        - application/json
  *      responses:
  *        200:
  *          description: all informations on the device connected
+ *
  */ 
 router.get('/device/result', function (req, res) {
     db.find(req.device.id, function (err, result) {
@@ -57,6 +58,7 @@ router.get('/device/result', function (req, res) {
  *  @swagger
  *  /device/result/:id:
  *    get:
+ *      tags: [Devices]
  *      description: Get results from self device
  *      produces:
  *        - application/json
@@ -79,6 +81,7 @@ router.get('/device/result/:id', function (req, res) {
  *  @swagger
  *  /device/other/:id:
  *    get:
+ *      tags: [Devices]
  *      description: look for update and apply if needed
  *      produces:
  *        - application/json
@@ -102,6 +105,7 @@ router.get('/device/update', function (req, res) {
  *  @swagger
  *  /device/new/:nb:
  *    get:
+ *      tags: [Devices]
  *      description: Create new devices, associated to the certificates
  *      produces:
  *        - application/json
@@ -142,6 +146,7 @@ router.get('/device/new/:nb', function (req, res) {
  *  @swagger
  *  /device/other/:id/:datatype:
  *    get:
+ *      tags: [Devices]
  *      description: Get the data from on id , matching the data type
  *      produces:
  *        - application/json
@@ -191,6 +196,7 @@ router.get('/device/other/:id/:datatype', function (req, res) {
  *  @swagger
  *  /device/other/:id/:datatype/:date:
  *    get:
+ *      tags: [Devices]
  *      description: Get the data from on id , matching the data type and date
  *      produces:
  *        - application/json
@@ -224,6 +230,7 @@ router.get('/device/other/:id/:datatype/:date', function (req, res) {
  *  @swagger
  *  /device/other/:id:
  *    post:
+ *      tags: [Devices]
  *      description: Post data for linked devices
  *      produces:
  *        - application/json
@@ -258,6 +265,7 @@ router.post('/device/other/:id', function (req, res) {
  *  @swagger
  *  /device/:datatype:
  *    get:
+ *      tags: [Devices]
  *      description: Get data from itself, with the data type specified
  *      produces:
  *        - application/json
@@ -290,6 +298,7 @@ router.get('/device/:datatype', function (req, res) {
  *  @swagger
  *  /device/:datatype/:date:
  *    get:
+ *      tags: [Devices]
  *      description: Get data from itself matching the date & the data type
  *      produces:
  *        - application/json
@@ -322,6 +331,7 @@ router.get('/device/:datatype/:date', function (req, res) {
  *  @swagger
  *  /device:
  *    post:
+ *      tags: [Devices]
  *      description: Post data
  *      produces:
  *        - application/json
@@ -356,6 +366,7 @@ router.post('/device', function (req, res) {
  *  @swagger
  *  /device/permissions/:userid:
  *    get:
+ *      tags: [Permissions]
  *      description: Get the permission of the user id provided
  *      produces:
  *        - application/json
@@ -386,6 +397,7 @@ router.get('/permissions/:userid', function (req, res) {
  *  @swagger
  *  /permission/new:
  *    post:
+ *      tags: [Permissions]
  *      description: Post new permission for a user on a specified device
  *      produces:
  *        - application/json
