@@ -4,13 +4,6 @@ var jwt = require('jsonwebtoken');  //https://npmjs.org/package/node-jsonwebtoke
 var expressJwt = require('express-jwt'); //https://npmjs.org/package/express-jwt
 var fs = require('fs');
 var red_users = require('../red_modules/red-users/');
-/**
- * @swagger
- *   tags: 
- *     name: User
- *     description: routes for users management
- */
-
 /**@swagger
  * definition: 
  *   NewUser:

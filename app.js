@@ -27,8 +27,21 @@ var options = {
     info: {
       title: 'RED API',  
       description : 'This documentation is about RED API routes, you can find more on : [http://red-cloud.io](http://red-cloud.io)',
-      version: '1.0.0',  
+      version: '1.0.0', 
     },
+    tags: [
+    {
+        name: 'Devices',
+        description: 'routes to manage devices'
+    },
+    {
+        name: 'Permissions',
+        description: 'routes to manage permissions'
+    },
+    {
+        name: 'Users',
+        description: 'routes to manage users'
+    }]
   },
   apis: ['./API/devices.js','./AUTH/userAuth.js'], // Path to the API docs 
 };
