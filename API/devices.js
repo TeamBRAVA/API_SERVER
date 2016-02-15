@@ -39,7 +39,7 @@ function ensureAuthenticated(req, res, next){
  *  @swagger
  *  /device/result:
  *    get:
- *      description: Get results from self device
+ *      description: Get results from device itself
  *      produces:
  *        - application/json
  *      responses:
@@ -75,6 +75,18 @@ router.get('/device/result/:id', function (req, res) {
 
 
 //update the object **TO BE IMPLEMENTED**
+/**
+ *  @swagger
+ *  /device/other/:id:
+ *    get:
+ *      description: look for update and apply if needed
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: get the link to dl the update package
+ *
+ */
 router.get('/device/update', function (req, res) {
     //call update function
   
@@ -86,6 +98,17 @@ router.get('/device/update', function (req, res) {
 });
 
 // Create new devices with the corresponding certs inside de database ### OK ###
+/**
+ *  @swagger
+ *  /device/new/:nb:
+ *    get:
+ *      description: Create new devices, associated to the certificates
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: NONE
+ */
 router.get('/device/new/:nb', function (req, res) {
 
     // Set some absolute path
@@ -115,6 +138,19 @@ router.get('/device/new/:nb', function (req, res) {
 });
 
 /* GET data from other device represented by it's id and that match the datatype (aka key) (need permissions)*/
+/**
+ *  @swagger
+ *  /device/other/:id/:datatype:
+ *    get:
+ *      description: Get the data from on id , matching the data type
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: data type
+ *        403:
+ *          description: Unauthorized access
+ */
 router.get('/device/other/:id/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
@@ -151,6 +187,19 @@ router.get('/device/other/:id/:datatype', function (req, res) {
 
 
 /* GET data identified with key and date from device : id (need permissions)*/
+/**
+ *  @swagger
+ *  /device/other/:id/:datatype/:date:
+ *    get:
+ *      description: Get the data from on id , matching the data type and date
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: data type
+ *        403:
+ *          description: Unauthorized access
+ */
 router.get('/device/other/:id/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
@@ -171,6 +220,19 @@ router.get('/device/other/:id/:datatype/:date', function (req, res) {
 });
 
 /* POST data on the server for other devices represented by their id (need permissions)*/
+/**
+ *  @swagger
+ *  /device/other/:id:
+ *    post:
+ *      description: Post data for linked devices
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: ??the result ??
+ *        403:
+ *          description: Unauthorized access
+ */
 router.post('/device/other/:id', function (req, res) {
     //Create the object
     var device = {
@@ -192,6 +254,18 @@ router.post('/device/other/:id', function (req, res) {
 
 
 /* GET data from itself, that match the datatype (aka key)*/
+/**
+ *  @swagger
+ *  /device/:datatype:
+ *    get:
+ *      description: Get data from itself, with the data type specified
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: The specific data
+ *
+ */
 router.get('/device/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
@@ -212,6 +286,18 @@ router.get('/device/:datatype', function (req, res) {
 
 
 /* GET data from itself, that match the datatype (aka key) and the date*/
+/**
+ *  @swagger
+ *  /device/:datatype/:date:
+ *    get:
+ *      description: Get data from itself matching the date & the data type
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: the specified data
+ *
+ */
 router.get('/device/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
@@ -232,6 +318,18 @@ router.get('/device/:datatype/:date', function (req, res) {
 });
 
 /* POST new data on the server */
+/**
+ *  @swagger
+ *  /device:
+ *    post:
+ *      description: Post data
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: return the number of modified element
+ *
+ */
 router.post('/device', function (req, res) {
     //Create the object
     var device = {
@@ -253,7 +351,19 @@ router.post('/device', function (req, res) {
 
 
 
-/* GET user permisssions data identified with userid */
+/* GET user permissions data identified with userid */
+/**
+ *  @swagger
+ *  /device/permissions/:userid:
+ *    get:
+ *      description: Get the permission of the user id provided
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: permissions of the user
+ *
+ */
 router.get('/permissions/:userid', function (req, res) {
     //get from url which user we want
     var condition = {
@@ -272,6 +382,18 @@ router.get('/permissions/:userid', function (req, res) {
 });
 
 /* POST new permissions for a user on a certain device */
+/**
+ *  @swagger
+ *  /permission/new:
+ *    post:
+ *      description: Post new permission for a user on a specified device
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description:
+ *
+ */
 router.post('/permissions/new',  function (req, res) {
     //Create the object
     var permissions = {
@@ -293,6 +415,18 @@ router.post('/permissions/new',  function (req, res) {
 
 
 /* POST to update existing permissions*/
+/**
+ *  @swagger
+ *  /permissions/update:
+ *    post:
+ *      description: Post new permission for the user
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description:
+ *
+ */
 router.post('/permissions/update',  function (req, res) {
     //Create the object
     var permissions = {
