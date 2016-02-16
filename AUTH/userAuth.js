@@ -4,7 +4,45 @@ var jwt = require('jsonwebtoken');  //https://npmjs.org/package/node-jsonwebtoke
 var expressJwt = require('express-jwt'); //https://npmjs.org/package/express-jwt
 var fs = require('fs');
 var red_users = require('../red_modules/red-users/');
+/**@swagger
+ * definition: 
+ *   NewUser:
+ *     type: object
+ *     required:
+ *       - username
+ *       - email
+ *       - password
+ *     properties:
+ *       username:
+ *         type: string
+ *       email:
+ *         type: string
+ *         format: email
+ *       password:
+ *         type: string
+ *         format: password
+ * 
+ */
 
+/**
+ *  @swagger
+ *  /user/register:
+ *    post:
+ *      tags: [Users]
+ *      description: register as a new user
+ *      produces:
+ *        - application/json
+ *      parameters:
+ *        - name: body
+ *          description: user credentials to be added in the database
+ *          in: body
+ *          required: true
+ *          schema: 
+ *            $ref: '#/definitions/NewUser'
+ *      responses:
+ *        401:
+ *          description: invalid inputs
+ */
 router.post('/user/register', function (req, res) {
 	var credentials = {
 	    username: req.body.username,
@@ -40,6 +78,27 @@ router.post('/user/register', function (req, res) {
 	});
 });
 
+/**
+ *  @swagger
+ *  /user/login:
+ *    post:
+ *      tags: [Users]
+ *      description: login to the dashboard, with the username and password provided
+ *      produces:
+ *        - application/json
+ *      parameters:
+ *        - name: body
+ *          description: user credentials to be added in the database
+ *          in: body
+ *          required: true
+ *          schema: 
+ *            $ref: '#/definitions/NewUser'
+ *      responses:
+ *        200:
+ *          description: authentified and the token is sent back to the user
+ *        401:
+ *          description: invalid inputs
+ */
 router.post('/user/login', function (req, res) {
 	var credentials = {
 	    username: req.body.username,

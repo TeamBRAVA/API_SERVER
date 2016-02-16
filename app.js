@@ -10,21 +10,61 @@ var usersAPI = require('./API/users');
 var auth = require('./AUTH/certAuth');
 var userAuth = require('./AUTH/userAuth');
 
+var fs = require('fs');
+var swagger = require('swagger-jsdoc');
+
+//express and parsers initialization
 var app = express();
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+
+/* SWAGGER INITIALISATION */
+var options = {
+  swaggerDefinition: {
+    info: {
+      title: 'RED API',  
+      description : 'This documentation is about RED API routes, you can find more on : [http://red-cloud.io](http://red-cloud.io)',
+      version: '1.0.0', 
+    },
+    tags: [
+    {
+        name: 'Devices',
+        description: 'routes to manage devices'
+    },
+    {
+        name: 'Permissions',
+        description: 'routes to manage permissions'
+    },
+    {
+        name: 'Users',
+        description: 'routes to manage users'
+    }]
+  },
+  apis: ['./API/devices.js','./AUTH/userAuth.js'], // Path to the API docs 
+};
+
+var swaggerSpec = swagger(options);
+
+//route for the swagger json (TODO : maybe move it in a separate file !!)
+app.get('/api-docs.json', function(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+/***************************************** */
 
 // Custom middlewares
+app.use(cors);
 app.use(auth.certAuthenticate);
 app.use(nocache);
-app.use(cors);
 
 // Custom routes
 app.use('/', auth.ensureCertAuthenticated, devicesAPI);
 app.use('/', usersAPI); //to delete !!
 app.use('/',userAuth); //routes for the user authentication
+
 
 module.exports = app;
 
