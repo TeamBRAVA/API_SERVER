@@ -1,0 +1,14 @@
+{
+  "name": "red-cert-auth",
+  "version": "1.0.0",
+  "description": "A utility that manage the authentication of the device using certificates",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "pem": "~1.8.1"
+  },
+  "author": "Pierre Jankowiez <p.jankowiez@gmail.com>",
+  "license": "MIT License"
+}

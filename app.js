@@ -5,12 +5,14 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var devicesAPI = require('./API/devices');
-var usersAPI = require('./API/users');
-var auth = require('./AUTH/certAuth');
-var userAuth = require('./AUTH/userAuth');
+//Require the routes
+var devices = require('./routes/devices');
+var users = require('./routes/users');
 
-var fs = require('fs');
+//require certificat authentication functions
+var auth = require('./red_modules/red-cert-auth');
+
+//require swagger for the API documentation (http://swagger.io)
 var swagger = require('swagger-jsdoc');
 
 //express and parsers initialization
@@ -22,6 +24,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 /* SWAGGER INITIALISATION */
+/*swagger-jsdoc uses a options object to define general informations about the api */
 var options = {
   swaggerDefinition: {
     info: {
@@ -43,12 +46,13 @@ var options = {
         description: 'routes to manage users'
     }]
   },
-  apis: ['./API/devices.js','./AUTH/userAuth.js'], // Path to the API docs 
+  apis: ['./routes/devices.js','./routes/users.js'], // Path to the files containing the documented routes
 };
 
+//generate the json text
 var swaggerSpec = swagger(options);
 
-//route for the swagger json (TODO : maybe move it in a separate file !!)
+//route for the swagger json
 app.get('/api-docs.json', function(req, res) {
   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);
@@ -61,9 +65,8 @@ app.use(auth.certAuthenticate);
 app.use(nocache);
 
 // Custom routes
-app.use('/', auth.ensureCertAuthenticated, devicesAPI);
-app.use('/', usersAPI); //to delete !!
-app.use('/',userAuth); //routes for the user authentication
+app.use('/', auth.ensureCertAuthenticated, devices);
+app.use('/',users); //routes for the user authentication
 
 
 module.exports = app;

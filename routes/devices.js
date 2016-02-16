@@ -4,8 +4,8 @@ require('./response');
 var db = require('../DB/dbDevices');
 var path = require('path');
 var async = require('async');
-var certs = require('../red_modules/red-cert-generator/index.js');
-var perm = require('../red_modules/red-permissions/index.js');
+var certs = require('../red_modules/red-cert-generator');
+var perm = require('../red_modules/red-permissions');
 var red_users = require('../red_modules/red-users/');
 
 /*API FOR THE DEVICES AND THEIR PERMISSIONS */

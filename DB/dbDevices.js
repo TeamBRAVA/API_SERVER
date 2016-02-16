@@ -1,10 +1,11 @@
 // To connect the database
 var db = require('./connect');
-var mongo =require('mongoskin');
+var mongo = require('mongoskin');
 /* 
 Description: 
 
 wiki: http://wiki.red.jankobox.fr
+API documentation: http://api.red-cloud.io
 
 Data structure: 
 
@@ -33,24 +34,24 @@ var permissions = {
 
 //////////////////////////DEVICE FUNCTIONS
 
-// Insert Device with it's corresponding 
-exports.insertDeviceWithCert = function ( path, passphrase, fingerprint, callback ) {
+// Insert Device with it's corresponding certificate
+exports.insertDeviceWithCert = function (path, passphrase, fingerprint, callback) {
     var device = {
         owner: null,
         creationDate: Date.now(),
-        token : null,
-        expirationdate : null,
-        certificate : {
-            path : path,
-            passphrase : passphrase,
-            fingerprint : fingerprint
+        token: null,
+        expirationdate: null,
+        certificate: {
+            path: path,
+            passphrase: passphrase,
+            fingerprint: fingerprint
         },
-        installedversionRED : null,
-        softwarelist : [],
-        data : []
+        installedversionRED: null,
+        softwarelist: [],
+        data: []
     };
     db.collection('device').insert(device, function (err, result) {
-        if(result.result.ok == 1){
+        if (result.result.ok == 1) {
             callback(err, result.insertedIds[0]);
         } else {
             callback(new Error('Error while creating the device'), null);
@@ -62,9 +63,9 @@ exports.insertDeviceWithCert = function ( path, passphrase, fingerprint, callbac
 // ### DON'T USE THIS METHOD ! ###
 exports.insertDevice = function (callback) {
     db.collection('device').insert({}, function (err, result) {
-        if(result.result.ok == 1){
+        if (result.result.ok == 1) {
             callback(err, result.insertedIds[0]);
-        }else callback("error creating device");
+        } else callback("error creating device");
     });
 }
 
@@ -176,7 +177,7 @@ exports.updatePermission = function (obj, callback) {
 
 ///////////////////////////////////////////////////TO DELETE////////////////////////////
 exports.find = function (id, callback) {
-    db.collection('device').find({_id: mongo.helper.toObjectID(id)}).toArray(function (err, result) {
+    db.collection('device').find({ _id: mongo.helper.toObjectID(id) }).toArray(function (err, result) {
         callback(err, result);
     });
 }

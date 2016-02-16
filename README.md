@@ -13,5 +13,5 @@ To start the server:
 - type : node bin/www
 - DONE ! you server is on localhost:3000
 
-This is an API server, so no webpages, only json text
-to find where you can go, check API/index.js to find the routes
+API documentation is on / (http://localhost:3000)
+API swagger file is on /api-docs.json (http://localhost:3000/api-docs.json)
