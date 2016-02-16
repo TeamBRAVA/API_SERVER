@@ -2,9 +2,12 @@ var passwordHash = require('password-hash');
 var mongo = require('mongoskin');
 var async = require('async');
 var util = require('util');
-
 var db = mongo.db('mongodb://localhost/RED_DB');
-
+//New
+var express = require('express');
+var jwt = require('jsonwebtoken');  //https://npmjs.org/package/node-jsonwebtoken
+var expressJwt = require('express-jwt'); //https://npmjs.org/package/express-jwt
+var fs = require('fs');
 
 /* 
 var user = {
@@ -187,10 +190,40 @@ var app = {
 		});
 	},
 
+	//New
+	validateToken : function ( bearerToken, callback ) {
+		if( !( callback instanceof Function )) {
+			throw new Error("You have to provide a function callback as last parameter");
+		}
+		if ( !(bearerToken && typeof bearerToken == "string") ) {
+			callback(new Error("You must provide a token (String) as first parameter"));
+			return;
+		}
+		else{
+			findOne({ token: bearerToken }, function (err, res) {
+    			if (res != null ){ 
+					//Getting the certificate
+				    var cert = fs.readFileSync('../../CERTS/token.key');
+				    jwt.verify( bearerToken, cert, { algorithms: ['RS256'] , ignoreExpiration: false }, function(err, decoded) { //Checking features of token (the expiration date)
+						if(err) { 
+					        callback(new Error("outdatedtoken"), false);
+					    }
+					    else{
+					    	callback(err, true);
+					    }
+    				});
+    			}	
+    			else{
+    				callback(new Error("tokenunmatcherror"), false);
+    			}
+    		});
+		}
+	},
+
 	// User : { username or mail , password (plaintext) }
 	// Callback( err, boolean)
 	verify : function ( user, callback ) {
-		if( !( callback instanceof Function )) {
+		if( !(callback instanceof Function) ) {
 			throw new Error("You have to provide a function callback as last parameter");
 		}
 		if( !(user && user instanceof Object) ) {
@@ -205,7 +238,14 @@ var app = {
 			callback( new Error("You must provide a password inside the first argument"), false);
 			return;
 		}
-
+		//New
+		if( !(user.token && typeof user.token == "string") ) {
+			callback( new Error("You must provide a token inside the first argument"), false);
+			return;
+		}
+		
+		//New
+		//1. CHECK USERNAME/MAIL AND PASS IF THEY MATCH OR NOT
 		findOne( { '$or' : [{username : user.username}, {mail : user.mail}] }, function (err, result) {
 			if(err) {
 				callback(err, false);
@@ -216,11 +256,30 @@ var app = {
 				return;
 			}
 			if( passwordHash.verify(user.password, result.password)) {
-				callback(err, true);
-			} else {
-				callback(err, false);
+				//2. (USERNAME AND PASS ARE OK) -> CHECK IF THE TOKEN MATCHES OR NOT
+				findOne({ token: user.token }, function (err, res) {
+    				if (res != null ){ 
+						//Getting the certificate
+					    var cert = fs.readFileSync('../../CERTS/token.key');
+					    //3. (USERNAME AND PASS ARE OK & TOKEN MATCHES) -> CHECK IF TOKEN IS OUTDATED OR NOT
+					    jwt.verify(user.token, cert, { algorithms: ['RS256'] , ignoreExpiration: false }, function(err, decoded) { //Checking features of token (the expiration date)
+							if(err) { 
+						        callback(new Error("outdatedtoken"), false);
+						    }
+						    else{
+						    	//4. (USERNAME AND PASS ARE OK & TOKEN MATCHES & TOKEN UPTODATE)
+						    	callback(err, user.token); //everything is ok return token
+						    }
+    					});
+    				}	
+    				else{
+    					callback(new Error("tokenunmatcherror"), false);
+    				}
+    			});
 			}
-
+			else{
+				callback(new Error("passworderror"), false);
+			}
 		});
 	},
 

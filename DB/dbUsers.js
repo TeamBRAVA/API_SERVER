@@ -43,7 +43,7 @@ exports.updateUser = function (obj, callback) {
 }
 
 // Authenticate User
-exports.authUser = function (obj, callback) {
+/*exports.authUser = function (obj, callback) {
     //First verify the token then make a search
 
     //Getting the certificate
@@ -52,7 +52,7 @@ exports.authUser = function (obj, callback) {
     //Verifying the token if it is expired 
     jwt.verify(obj, cert, { algorithms: ['RS256'] , ignoreExpiration: false }, function(err, decoded) {
       if(err) { //Checking features of token (the expiration date)
-        callback(err,false);
+        callback(err,false); //Outdated
         return;
       //console.log(decoded); //To see what it contains
       //res.send(decoded);
@@ -63,10 +63,10 @@ exports.authUser = function (obj, callback) {
           if (res != null ) 
             return true;
           else 
-            return false;
+            return false; //User not found
         });
       }   
     });
 }
-
+*/
 ////////////////////////////////////PERMISSIONS ON USERS

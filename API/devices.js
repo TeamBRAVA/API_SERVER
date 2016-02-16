@@ -4,9 +4,9 @@ require('./response');
 var db = require('../DB/dbDevices');
 var path = require('path');
 var async = require('async');
-
 var certs = require('../red_modules/red-cert-generator/index.js');
 var perm = require('../red_modules/red-permissions/index.js');
+var red_users = require('../red_modules/red-users/');
 
 /*API FOR THE DEVICES AND THEIR PERMISSIONS */
 
@@ -21,7 +21,7 @@ function ensureAuthenticated(req, res, next){
         var bearer = bearerHeader.split(" ");
         bearerToken = bearer[1];
         
-        if (db.authUser(bearerToken)){
+        if (red_users.validateToken(bearerToken)){
             next(); //call db Data function that will retrieve data
         }
         else{
