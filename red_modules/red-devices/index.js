@@ -73,7 +73,7 @@ var app = {
 
     // Update Token and Expiration Date
     updateToken: function (obj, callback) {
-        db.collection('device').update({ _id: obj._id }, { token: obj.token, expirationdate: obj.expDate }, function (err, nbRow) {
+        db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { token: obj.token, expirationdate: obj.expDate }, function (err, nbRow) {
             console.log('Token is updated!');
             callback(err, nbRow);
         });
@@ -82,7 +82,7 @@ var app = {
 
     // Update Certificate Key
     certificateKey: function (obj, callback) {
-        db.collection('device').update({ _id: obj._id }, { certificatekey: obj.certfkey }, function (err, nbRow) {
+        db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { certificatekey: obj.certfkey }, function (err, nbRow) {
             console.log('Certificate key is updated!');
             callback(err, nbRow);
         });
@@ -91,7 +91,7 @@ var app = {
 
     // Get Path to certificate
     certificatePath: function (obj, callback) {
-        db.collection('device').update({ _id: obj._id }, { pathtocertificate: obj.path }, function (err, nbRow) {
+        db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { pathtocertificate: obj.path }, function (err, nbRow) {
             console.log('Path to the Certificate is updated!');
             callback(err, nbRow);
         });
@@ -100,7 +100,7 @@ var app = {
 
     // Push software into the chosen device
     addNewSoftware: function (obj, callback) {
-        db.collection('device').update({ _id: obj._id }, { "$addToSet": { "softwarelist": obj.newsoftware } }, function (err, nbRow) {
+        db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { "$addToSet": { "softwarelist": obj.newsoftware } }, function (err, nbRow) {
             console.log('Softwarelist of device', obj._id, 'is updated!');
             callback(err, nbRow);
         });
@@ -109,19 +109,19 @@ var app = {
 
     // Update the installed version of RED
     updateVersion: function (obj, callback) {
-        db.collection('device').update({ _id: obj._id }, { installedversionRED: obj.v }, function (err, nbRow) {
+        db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { installedversionRED: obj.v }, function (err, nbRow) {
             console.log('Installed version of RED is updated for device ', obj._id);
             callback(err, nbRow);
         });
     },
 
-
+    //var obj = {_id: "string", datatype: "string", value: "string"}
     // Push data into the chosen device
     pushData: function (obj, callback) {
-        db.collection('device').findOne({ _id: obj._id }, function (err, res) {
-            if (res != null) {
+        db.collection('device').findOne({ _id: mongo.helper.toObjectID(obj._id) }, function (err, res) {
+            if (res != undefined) {
                 var today = new Date();
-                db.collection('device').update({ _id: obj._id }, { '$push': { data: { datatype: obj.datatype, value: obj.value, date: today } } }, function (err, nbRow) {
+                db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { '$push': { data: { datatype: obj.datatype, value: obj.value, date: today } } }, function (err, nbRow) {
                     console.log('New data are pushed into device ', obj._id);
                     callback(err, nbRow);
                 });
@@ -132,19 +132,32 @@ var app = {
         });
     },
 
-
+    //var obj = {_id: "string", datatype: "string"}
     // Get data of specified device according to the specific datatype
     pullDatatype: function (obj, callback) {
-        db.collection('device').find({ "_id": mongo.helper.toObjectID(obj._id), "data.datatype": obj.datatype }, { "data": { $elemMatch: { datatype: obj.datatype } }, "data.value": 1, "_id": 0 }).toArray(function (err, result) {
-            callback(err, result);
-        });
+        db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj._id), "data.datatype": obj.datatype }, { "data": { $slice: -1 } }, function (err, result) {
+            if (err) console.log(err);
+            
+            var toReturn = {
+                value: result.data[0].value,
+                date: result.data[0].date
+            }
+            callback(err, toReturn);
+        })
     },
 
 
     // Get data of specified device according to the specific datatype and date
     pullDatatypeAndDate: function (obj, callback) {
-        db.collection('device').find({ "_id": obj._id, "data.datatype": obj.datatype, "data.date": obj.date }, { "data": { $elemMatch: { datatype: obj.datatype, date: obj.date } }, "data.value": 1, "_id": 0 }).toArray(function (err, result) {
-            callback(err, result);
+        db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj._id), "data.datatype": obj.datatype, "data.date": obj.date }, function (err, result) {
+            if (err) console.log(err);
+            
+            var toReturn = {
+                value: result.data[0].value,
+                date: result.data[0].date
+            }
+            
+            callback(err, toReturn);
         });
     },
 
@@ -169,7 +182,7 @@ var app = {
 
     // Update a user's permission on a device
     updatePermission: function (obj, callback) {
-        db.collection('permissions').update({ _id: obj._id, userid: obj.userid }, { permission: obj.permission }, function (err, nbRow) {
+        db.collection('permissions').update({ _id: mongo.helper.toObjectID(obj._id), userid: obj.userid }, { permission: obj.permission }, function (err, nbRow) {
             console.log('Permissions given to device ', obj._id, 'is updated!');
             callback(err, nbRow);
         });

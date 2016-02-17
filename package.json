@@ -1,6 +1,21 @@
 {
-  "name": "API_SERVER",
+  "name": "api_red",
   "version": "0.0.0",
+  "description":"",
+  "homepage": "http://red-cloud.io",
+  "author": "Pierre Jankowiez <p.jankowiez@gmail.com>",
+  "contributors": [
+      "Thomas Berthaud <berthaud@edu.ece.fr>",
+      "Loic Berthelot",
+      "Emre Karagözoğlu",
+      "Paul Le Tilly",
+      "Valentin Mercier"
+     
+  ],
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/TeamBRAVA/API_SERVER.git"
+  },
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
