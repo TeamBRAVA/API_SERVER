@@ -24,6 +24,7 @@ exports.setCertsFolder = function ( folder ) {
 	c.certs = folder;
 }
 
+// Generate the certificate, executing the shell script
 exports.generateCertificates = function(n, callback) {
 	child_process.execFile(path.join(__dirname,'/generator.sh'),[n,c.pem,c.key,c.passphrase],
 	function (error, stdout, stderr) {

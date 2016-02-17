@@ -48,8 +48,6 @@ function ensureAuthenticated(req, res, next){
  *       value:
  *         type: string
  *
- *
- *
  */
 
 
@@ -108,7 +106,7 @@ router.get('/device/result/:id', function (req, res) {
  *        - application/json
  *      responses:
  *        200:
- *          description: get the link to dl the update package
+ *          description: return the last version name.
  *
  */
 router.get('/device/update', function (req, res) {
