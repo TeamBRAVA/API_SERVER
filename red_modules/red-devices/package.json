@@ -1,0 +1,14 @@
+{
+  "name": "red-devices",
+  "version": "1.0.0",
+  "description": "contains all the function managing the devices and their data stored in MongoDB",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "mongoskin": "^2.0.3"
+  },
+  "author": "Pierre Jankowiez <p.jankowiez@gmail.com>",
+  "license": "MIT License"
+}

@@ -1,7 +1,8 @@
 var pem = require('pem');
 var util = require('util');
 
-var db = require('../../DB/connect.js');
+var mongo = require('mongoskin');
+var db = mongo.db('mongodb://localhost/RED_DB');
 
 var app = {
     // Get all informations about certificates and then add it to the parse req object ### OK ###

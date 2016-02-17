@@ -1,12 +1,13 @@
 var express = require('express');
 var router = express.Router();
-require('./response');
-var db = require('../DB/dbDevices');
 var path = require('path');
 var async = require('async');
+require('./response');
+
+var devices = require('../red_modules/red-devices');
 var certs = require('../red_modules/red-cert-generator');
 var perm = require('../red_modules/red-permissions');
-var red_users = require('../red_modules/red-users/');
+var red_users = require('../red_modules/red-users');
 
 /*API FOR THE DEVICES AND THEIR PERMISSIONS */
 
@@ -21,7 +22,7 @@ function ensureAuthenticated(req, res, next){
         bearerToken = bearer[1];
         
         if (red_users.validateToken(bearerToken)){
-            next(); //call db Data function that will retrieve data
+            next(); //call devices Data function that will retrieve data
         }
         else{
             res.status(401).send({message: 'Invalid Token'});
@@ -68,7 +69,7 @@ function ensureAuthenticated(req, res, next){
  *
  */ 
 router.get('/device/result', function (req, res) {
-    db.find(req.device.id, function (err, result) {
+    devices.find(req.device.id, function (err, result) {
         if (err) return console.error(err);
         res.respond(result);
     });
@@ -88,7 +89,7 @@ router.get('/device/result', function (req, res) {
  */ 
 // Get results from other devices (by id)
 router.get('/device/result/:id', function (req, res) {
-    db.find(req.params.id, function (err, result) {
+    devices.find(req.params.id, function (err, result) {
         if (err) return console.error(err);
         res.respond(result);
     });
@@ -147,7 +148,7 @@ router.get('/device/new/:nb', function (req, res) {
             var nb = 0;
             // Insert in the database
             async.each(devices, function (device, callback) {
-                db.insertDeviceWithCert(device.path, device.passphrase, device.fingerprint, function (err, results) {
+                devices.insertDeviceWithCert(device.path, device.passphrase, device.fingerprint, function (err, results) {
                     if(!err)
                         nb++;
                     else
@@ -194,8 +195,8 @@ router.get('/device/other/:id/:datatype', function (req, res) {
             return;
         }
         if(result == true) {
-            //call db data function to retrieve asked data
-            db.pullDatatype(condition, callback);
+            //call devices data function to retrieve asked data
+            devices.pullDatatype(condition, callback);
         } else {
             res.respond("Unauthorized to access data", 403);    // Forbidden
         }
@@ -233,8 +234,8 @@ router.get('/device/other/:id/:datatype/:date', function (req, res) {
         "datatype": req.params.datatype,
         "date": req.params.date
     };
-    //call db data function to retrieve asked data
-    db.pullDatatypeAndDate(condition, callback);
+    //call devices data function to retrieve asked data
+    devices.pullDatatypeAndDate(condition, callback);
   
     //callback function
     function callback(err, result) {
@@ -267,8 +268,8 @@ router.post('/device/other/:id', function (req, res) {
         datatype: req.body.datatype,
         value: req.body.value,
     }
-    //we call db data function that will take, the object, translate it into model object and then save it
-    db.pushData(device, callback);
+    //we call devices data function that will take, the object, translate it into model object and then save it
+    devices.pushData(device, callback);
   
     //callback function
     function callback(err, result) {
@@ -300,8 +301,8 @@ router.get('/device/:datatype', function (req, res) {
         "_id": req.device.id,
         "datatype": req.params.datatype
     };
-    //call db data function to retrieve asked data
-    db.pullDatatype(condition, callback);    
+    //call devices data function to retrieve asked data
+    devices.pullDatatype(condition, callback);    
 
     //callback function
     function callback(err, result) {
@@ -334,8 +335,8 @@ router.get('/device/:datatype/:date', function (req, res) {
         "datatype": req.params.datatype,
         "date": req.params.date
     };
-    //call db data function to retrieve asked data
-    db.pullDatatypeAndDate(condition, callback);
+    //call devices data function to retrieve asked data
+    devices.pullDatatypeAndDate(condition, callback);
   
     //callback function
     function callback(err, result) {
@@ -374,8 +375,8 @@ router.post('/device', function (req, res) {
         datatype: req.body.datatype,
         value: req.body.value,
     }
-    //we call db data function that will take, the object, translate it into model object and then save it
-    db.pushData(device, callback);
+    //we call devices data function that will take, the object, translate it into model object and then save it
+    devices.pushData(device, callback);
   
     //callback function
     function callback(err, result) {
@@ -407,8 +408,8 @@ router.get('/permissions/:userid', function (req, res) {
     var condition = {
         "userid": req.params.userid,
     };
-    //call db Data function that will retrieve data
-    db.pullUserPermission(condition, callback);
+    //call devices Data function that will retrieve data
+    devices.pullUserPermission(condition, callback);
   
     //callback function
     function callback(err, result) {
@@ -460,7 +461,7 @@ router.post('/permissions/new',  function (req, res) {
         userid: req.body.userid,
         permisssion: req.body.permission
     }
-    db.insertPermission(permissions, callback);
+    devices.insertPermission(permissions, callback);
 
     //callback function
     function callback(err, result) {
@@ -501,7 +502,7 @@ router.post('/permissions/update',  function (req, res) {
         userid: req.body.userid,
         permisssion: req.body.permission
     }
-    db.updatePermission(permissions, callback);
+    devices.updatePermission(permissions, callback);
   
     //callback function
     function callback(err, result) {
