@@ -113,12 +113,17 @@ router.post('/user/login', function (req, res) {
 		else if (result == false) {
 			//check the error message returned by verify() to see the reason
 			//if username and pass ok but token is outdated then create a new token and send it back
-
-			//if passworderror do nothing
-
-			//if tokenunmatcherror do nothing
-
-			res.status(401).send({message: 'User is not authorized.'}); //401 Unauthorized
+			if (err.message=="outdatedtoken"){
+				var cert = fs.readFileSync('../../CERTS/token.key');  // getting the private key 
+				var newToken = jwt.sign(credentials, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
+				res.json({ token: newToken });
+			}
+			else if (err.message=="tokenunmatcherror") {
+				res.status(401).send({message: 'User is not authorized.'}); //401 Unauthorized
+			}
+			else{ //passworderror
+				res.status(401).send({message: 'Wrong Password'}); //401 Unauthorized
+			};
 		}
 	});
 });
