@@ -31,11 +31,30 @@ var permissions = {
   permission: String
 }
 */
+/**
+ * @fileOverview devices functions.
+ * @author <a href="mailto:berthaud@edu.ece.fr">Thomas Berthaud</a>
+ * @version 1.0.0
+ */
 
-var app = {
+/** @namespace */
+var devices = {
     //////////////////////////DEVICE FUNCTIONS
+    
+    /**
+     * callback that sends back the new device's id
+     * @callback insertDeviceWithcertCallback
+     * @param {string} err contains the error message if there was one
+     * @param {string} result contains the id of the new Device created 
+     */
 
-    // Insert Device with it's corresponding certificate
+    /** 
+     * Insert a new Device with it's corresponding certificate
+     * @param {string} path The path of the certificate
+     * @param {string} passphrase The password of the certificate
+     * @param {string} fingerprint The fingerprint of the certificate
+     * @param {insertDeviceWithcertCallback} callback send back the result of the query
+     */
     insertDeviceWithCert: function (path, passphrase, fingerprint, callback) {
         var device = {
             owner: null,
@@ -69,9 +88,22 @@ var app = {
             } else callback("error creating device");
         });
     },
+    
+    /**
+     * callback send back the number of rows affected by the query
+     * @callback updateCallback
+     * @param {string} err contains the error message if there was one
+     * @param {object} result contains the number of rows affected by the update (to be modified)
+     */
 
-
-    // Update Token and Expiration Date
+    /** 
+     * Update Token and Expiration Date
+     * @param {object} obj the object containing the fields to update
+     * @param {string} obj._id the device's id
+     * @param {string} obj.token the new token to update
+     * @param {string} obj.expDate the token's expiration date
+     * @param {updateCallback} callback send back the result of the query
+     */
     updateToken: function (obj, callback) {
         db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { token: obj.token, expirationdate: obj.expDate }, function (err, nbRow) {
             console.log('Token is updated!');
@@ -79,8 +111,13 @@ var app = {
         });
     },
 
-
-    // Update Certificate Key
+    /** 
+     * Update Certificate Key
+     * @param {object} obj the object containing the fields to update
+     * @param {string} obj._id the device's id
+     * @param {string} obj.certfkey the new certificate key
+     * @param {updateCallback} callback send back the result of the query
+     */
     certificateKey: function (obj, callback) {
         db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { certificatekey: obj.certfkey }, function (err, nbRow) {
             console.log('Certificate key is updated!');
@@ -88,8 +125,13 @@ var app = {
         });
     },
 
-
-    // Get Path to certificate
+    /** 
+     * Update Certificate path
+     * @param {object} obj the object containing the fields to update
+     * @param {string} obj._id the device's id
+     * @param {string} obj.path the new certificate path
+     * @param {updateCallback} callback send back the result of the query
+     */
     certificatePath: function (obj, callback) {
         db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { pathtocertificate: obj.path }, function (err, nbRow) {
             console.log('Path to the Certificate is updated!');
@@ -97,8 +139,13 @@ var app = {
         });
     },
 
-
-    // Push software into the chosen device
+    /** 
+     * Push a new software into the chosen device
+     * @param {object} obj the object containing the fields to update
+     * @param {string} obj._id the device's id
+     * @param {string} obj.newsoftware the new software
+     * @param {updateCallback} callback send back the result of the query
+     */
     addNewSoftware: function (obj, callback) {
         db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { "$addToSet": { "softwarelist": obj.newsoftware } }, function (err, nbRow) {
             console.log('Softwarelist of device', obj._id, 'is updated!');
@@ -106,17 +153,28 @@ var app = {
         });
     },
 
-
-    // Update the installed version of RED
+    /** 
+     * Update the installed version of RED
+     * @param {object} obj the object containing the fields to update
+     * @param {string} obj._id the device's id
+     * @param {string} obj.v the new version of RED software
+     * @param {updateCallback} callback send back the result of the query
+     */
     updateVersion: function (obj, callback) {
         db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { installedversionRED: obj.v }, function (err, nbRow) {
             console.log('Installed version of RED is updated for device ', obj._id);
             callback(err, nbRow);
         });
     },
-
-    //var obj = {_id: "string", datatype: "string", value: "string"}
-    // Push data into the chosen device
+    
+    /** 
+     * Push new data into the chosen device
+     * @param {object} obj the object containing the fields to update
+     * @param {string} obj._id the device's id
+     * @param {string} obj.datatype the type of data
+     * @param {string} obj.value the value to store
+     * @param {updateCallback} callback send back the result of the query
+     */
     pushData: function (obj, callback) {
         db.collection('device').findOne({ _id: mongo.helper.toObjectID(obj._id) }, function (err, res) {
             if (res != undefined) {
@@ -132,8 +190,22 @@ var app = {
         });
     },
 
-    //var obj = {_id: "string", datatype: "string"}
-    // Get data of specified device according to the specific datatype
+    /**
+     * callback send back an object containing the value asked
+     * @callback pullCallback
+     * @param {string} err contains the error message if there was one
+     * @param {object} result contains the number of rows affected by the update
+     * @param {string} result.value the value to be returned
+     * @param {string} result.date the date on which the value has been saved
+     */
+    
+    /** 
+     * Get last entry of specified device according to the datatype given in parameter
+     * @param {object} obj the object containing the fields to search for
+     * @param {string} obj._id the device's id
+     * @param {string} obj.datatype the type of data
+     * @param {pullCallback} callback send back the result of the query
+     */
     //possiblity of improvement with $filter (mongodb) but need version 3.2 of mongodb (current 3.0)
     pullDatatype: function (obj, callback) {
         db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj._id), "data.datatype": obj.datatype }, function (err, result) {
@@ -163,8 +235,14 @@ var app = {
         })
     },
 
-
-    // Get data of specified device according to the specific datatype and date
+    /** 
+     * Get last entry of specified device according to the datatype and time given in parameter
+     * @param {object} obj the object containing the fields to search for
+     * @param {string} obj._id the device's id
+     * @param {string} obj.datatype the type of data
+     * @param {string} obj.date the time on which the data was saved
+     * @param {pullCallback} callback send back the result of the query
+     */
     pullDatatypeAndDate: function (obj, callback) {
         db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj._id), "data.datatype": obj.datatype, "data.date": obj.date }, function (err, result) {
             if (err) console.log(err);
@@ -190,8 +268,15 @@ var app = {
     },
 
     //////////////////////////PERMISSIONS ON DEVICES
-
-    // Insert a new permission
+    /** 
+     * Insert a new permission (to be modified)
+     * @param {object} permission the object containing the fields to search for
+     * @param {string} obj._id the device's id
+     * @param {string} obj.userid the user's id
+     * @param {string} obj.permission the type of permission the user has on the device
+     * @param {insertCallback} callback send back the result of the query
+     */
+    // the object is not verified...
     insertPermission: function (permission, callback) {
         db.collection('permissions').insert(permission, function (err, result) {
             if (result) console.log('A new permission is added!');
@@ -199,7 +284,12 @@ var app = {
         });
     },
 
-
+    /** 
+     * find all permissions linked to a user (to be modified)
+     * @param {object} obj the object containing the fields to search for
+     * @param {string} obj.userid the user's id
+     * @param {pullPermissionCallback} callback send back the result of the query
+     */
     // Get the user's permissions
     pullUserPermission: function (obj, callback) {
         db.collection('permissions').find({ userid: obj.userid }).toArray(function (err, result) {
@@ -207,8 +297,15 @@ var app = {
         });
     },
 
-
-    // Update a user's permission on a device
+    /** 
+     * modify a user's permission on a device
+     * @param {object} obj the object containing the fields to update
+     * @param {string} obj._id the device's id
+     * @param {string} obj.userid the user's id
+     * @param {string} obj.permission the type of permission the user has on the device
+     * @param {updateCallback} callback send back the result of the query
+     */
+    // 
     updatePermission: function (obj, callback) {
         db.collection('permissions').update({ _id: mongo.helper.toObjectID(obj._id), userid: obj.userid }, { permission: obj.permission }, function (err, nbRow) {
             console.log('Permissions given to device ', obj._id, 'is updated!');
@@ -224,4 +321,4 @@ var app = {
         });
     }
 }
-module.exports = app;
+module.exports = devices;
