@@ -4,8 +4,21 @@ var util = require('util');
 var mongo = require('mongoskin');
 var db = mongo.db('mongodb://localhost/RED_DB');
 
-var app = {
-    // Get all informations about certificates and then add it to the parse req object ### OK ###
+/**
+ * @fileOverview certificate authentication functions.
+ * @author <a href="mailto:berthaud@edu.ece.fr">Thomas Berthaud</a>
+ * @version 1.0.0
+ */
+
+/**@namespace */
+var certAuth = {
+
+    /** 
+     * Get all informations about certificates and then add it to the parse req object
+     * @param {object} req The req object of express framework, see express.js website for more informations
+     * @param {object} res The res object of express framework, see express.js website for more informations
+     * @param {object} next callback used to call the next express middleware
+     */
     certAuthenticate: function (req, res, next) {
         // get the flag for CA verified connection
         req.device = {};
@@ -30,8 +43,12 @@ var app = {
         }
     },
 
-
-    // Verify in the database if the certificate fingerprint match an entry   ### OK ###
+    /** 
+     * Verify in the database if the certificate fingerprint match an entry
+     * @param {object} req The req object of express framework, see express.js website for more informations
+     * @param {object} res The res object of express framework, see express.js website for more informations
+     * @param {object} next callback used to call the next express middleware
+     */
     ensureCertAuthenticated: function (req, res, next) {
         if (req.device.ssl.verified === true && req.device.ssl.fingerprint) {		// If the client certificate is valid and is found
             db.collection('device').findOne({ "certificate.fingerprint": req.device.ssl.fingerprint }, function (err, results) {	// Check inside the database
@@ -50,4 +67,4 @@ var app = {
     }
 }
 
-module.exports = app;
+module.exports = certAuth;

@@ -31,6 +31,7 @@ var permissions = {
   permission: String
 }
 */
+
 /**
  * @fileOverview devices functions.
  * @author <a href="mailto:berthaud@edu.ece.fr">Thomas Berthaud</a>
@@ -266,54 +267,6 @@ var devices = {
             callback(err, toReturn);
         });
     },
-
-    //////////////////////////PERMISSIONS ON DEVICES
-    /** 
-     * Insert a new permission (to be modified)
-     * @param {object} permission the object containing the fields to search for
-     * @param {string} obj._id the device's id
-     * @param {string} obj.userid the user's id
-     * @param {string} obj.permission the type of permission the user has on the device
-     * @param {insertCallback} callback send back the result of the query
-     */
-    // the object is not verified...
-    insertPermission: function (permission, callback) {
-        db.collection('permissions').insert(permission, function (err, result) {
-            if (result) console.log('A new permission is added!');
-            callback(err, result);
-        });
-    },
-
-    /** 
-     * find all permissions linked to a user (to be modified)
-     * @param {object} obj the object containing the fields to search for
-     * @param {string} obj.userid the user's id
-     * @param {pullPermissionCallback} callback send back the result of the query
-     */
-    // Get the user's permissions
-    pullUserPermission: function (obj, callback) {
-        db.collection('permissions').find({ userid: obj.userid }).toArray(function (err, result) {
-            callback(err, result);
-        });
-    },
-
-    /** 
-     * modify a user's permission on a device
-     * @param {object} obj the object containing the fields to update
-     * @param {string} obj._id the device's id
-     * @param {string} obj.userid the user's id
-     * @param {string} obj.permission the type of permission the user has on the device
-     * @param {updateCallback} callback send back the result of the query
-     */
-    // 
-    updatePermission: function (obj, callback) {
-        db.collection('permissions').update({ _id: mongo.helper.toObjectID(obj._id), userid: obj.userid }, { permission: obj.permission }, function (err, nbRow) {
-            console.log('Permissions given to device ', obj._id, 'is updated!');
-            callback(err, nbRow);
-        });
-    },
-
-
     ///////////////////////////////////////////////////TO DELETE////////////////////////////
     find: function (id, callback) {
         db.collection('device').find({ _id: mongo.helper.toObjectID(id) }).toArray(function (err, result) {
