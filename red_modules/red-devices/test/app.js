@@ -2,9 +2,21 @@ var util = require('util');
 var devices = require('../index.js');
 
 
+// devices.insertDevice(function(err,result){
+//     console.log(result);
+// });
+
+// var obj = {
+//     _id: "56c58fb6566c6db8248e64cb",
+//     datatype: "temp",
+//     value: "test"
+// }
+// devices.pushData(obj, function (err, result) {
+//     console.log("push result" + result);
+// })
 
 var objToPull = {
-    _id: "56c4d88ecd2f95b4292f133c",
+    _id: "56c58fb6566c6db8248e64cb",
     datatype: "temp"
 }
 devices.pullDatatype(objToPull, function (err, result) {
@@ -15,23 +27,12 @@ devices.pullDatatype(objToPull, function (err, result) {
 
 
 var objDate = {
-    _id: "56c4d88ecd2f95b4292f133c",
+    _id: "56c58fb6566c6db8248e64cb",
     datatype: "temp",
-    date: "Wed Feb 17 2016 21:58:16 GMT+0100"
+    date: "1455788005867"
 }
-devices.pullDatatypeAndDate(objDate,function(err,result){
+devices.pullDatatypeAndDate(objDate, function (err, result) {
     console.log("pull err: " + err);
     console.log("pull date result : ");
     console.log(result);
 })
-
-
-
-var obj = {
-    _id: "56c4d88ecd2f95b4292f133c",
-    datatype: "temp",
-    value: "1234"
-}
-/*devices.pushData(obj, function (err, result) {
-    console.log("push result" + result);
-})*/

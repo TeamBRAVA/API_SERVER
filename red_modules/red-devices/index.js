@@ -120,7 +120,7 @@ var app = {
     pushData: function (obj, callback) {
         db.collection('device').findOne({ _id: mongo.helper.toObjectID(obj._id) }, function (err, res) {
             if (res != undefined) {
-                var today = new Date();
+                var today = Date.now().toString(); //store the current date in a string
                 db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { '$push': { data: { datatype: obj.datatype, value: obj.value, date: today } } }, function (err, nbRow) {
                     console.log('New data are pushed into device ', obj._id);
                     callback(err, nbRow);
@@ -137,11 +137,14 @@ var app = {
     pullDatatype: function (obj, callback) {
         db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj._id), "data.datatype": obj.datatype }, { "data": { $slice: -1 } }, function (err, result) {
             if (err) console.log(err);
-            
-            var toReturn = {
-                value: result.data[0].value,
-                date: result.data[0].date
-            }
+
+            if (result != undefined) {
+                var toReturn = {
+                    value: result.data[0].value,
+                    date: result.data[0].date
+                }
+            } else toReturn = result;
+
             callback(err, toReturn);
         })
     },
@@ -149,14 +152,16 @@ var app = {
 
     // Get data of specified device according to the specific datatype and date
     pullDatatypeAndDate: function (obj, callback) {
-        db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj._id), "data.datatype": obj.datatype, "data.date": obj.date }, function (err, result) {
+        db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj._id), "data.datatype": obj.datatype, "data.date": obj.date }, { "data": { $slice: -1 } }, function (err, result) {
             if (err) console.log(err);
-            
-            var toReturn = {
-                value: result.data[0].value,
-                date: result.data[0].date
-            }
-            
+
+            if (result != undefined) {
+                var toReturn = {
+                    value: result.data[0].value,
+                    date: result.data[0].date
+                }
+            } else toReturn = result;
+
             callback(err, toReturn);
         });
     },
