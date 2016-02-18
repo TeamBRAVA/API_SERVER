@@ -17,7 +17,17 @@ var red_users = require('../red_modules/red-users/');
  *         type: string
  *       email:
  *         type: string
- *         format: email
+ *       password:
+ *         type: string
+ *         format: password
+ *   userLogin:
+ *     type: object
+ *     required:
+ *       - username
+ *       - password
+ *     properties:
+ *       username:
+ *         type: string
  *       password:
  *         type: string
  *         format: password
@@ -92,7 +102,7 @@ router.post('/user/register', function (req, res) {
  *          in: body
  *          required: true
  *          schema: 
- *            $ref: '#/definitions/NewUser'
+ *            $ref: '#/definitions/userLogin'
  *      responses:
  *        200:
  *          description: authentified and the token is sent back to the user

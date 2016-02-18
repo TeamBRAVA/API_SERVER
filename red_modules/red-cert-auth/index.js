@@ -4,12 +4,6 @@ var util = require('util');
 var mongo = require('mongoskin');
 var db = mongo.db('mongodb://localhost/RED_DB');
 
-/**
- * @fileOverview certificate authentication functions.
- * @author <a href="mailto:berthaud@edu.ece.fr">Thomas Berthaud</a>
- * @version 1.0.0
- */
-
 /**@namespace */
 var certAuth = {
 
