@@ -134,14 +134,28 @@ var app = {
 
     //var obj = {_id: "string", datatype: "string"}
     // Get data of specified device according to the specific datatype
+    //possiblity of improvement with $filter (mongodb) but need version 3.2 of mongodb (current 3.0)
     pullDatatype: function (obj, callback) {
-        db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj._id), "data.datatype": obj.datatype }, { "data": { $slice: -1 } }, function (err, result) {
+        db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj._id), "data.datatype": obj.datatype }, function (err, result) {
             if (err) console.log(err);
-
+            var iToReturn;
             if (result != undefined) {
+                var date, biggestDate = 0;
+                //return the last data corresponding to the datatype given in parameter
+                result.data.forEach(function (val, i, array) {
+                    if (val.datatype == obj.datatype) {
+                        date = parseInt(val.date);
+                        if (date > biggestDate) {
+                            biggestDate = date;
+                            iToReturn = i;
+                        }
+                    }
+                })
+                
+                //we retrieved the correct id, we can now build the object that will be sent back
                 var toReturn = {
-                    value: result.data[0].value,
-                    date: result.data[0].date
+                    value: result.data[iToReturn].value,
+                    date: result.data[iToReturn].date
                 }
             } else toReturn = result;
 
@@ -152,13 +166,22 @@ var app = {
 
     // Get data of specified device according to the specific datatype and date
     pullDatatypeAndDate: function (obj, callback) {
-        db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj._id), "data.datatype": obj.datatype, "data.date": obj.date }, { "data": { $slice: -1 } }, function (err, result) {
+        db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj._id), "data.datatype": obj.datatype, "data.date": obj.date }, function (err, result) {
             if (err) console.log(err);
-
+            
+            var iToReturn;
             if (result != undefined) {
+                //return the last data corresponding to the datatype and the date given in parameter
+                result.data.forEach(function (val, i, array) {
+                    if (val.datatype == obj.datatype && val.date == obj.date) {
+                        iToReturn = i;
+                    }
+                })
+                
+                //we retrieved the correct id, we can now build the object that will be sent back
                 var toReturn = {
-                    value: result.data[0].value,
-                    date: result.data[0].date
+                    value: result.data[iToReturn].value,
+                    date: result.data[iToReturn].date
                 }
             } else toReturn = result;
 
