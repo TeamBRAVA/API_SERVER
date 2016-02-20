@@ -8,7 +8,7 @@ var db = mongo.db('mongodb://localhost/RED_DB');
 var certAuth = {
 
     /** 
-     * Get all informations about certificates and then add it to the parse req object
+     * Get all informations about certificates and then add it to the req object
      * @param {object} req The req object of express framework, see express.js website for more informations
      * @param {object} res The res object of express framework, see express.js website for more informations
      * @param {object} next callback used to call the next express middleware

@@ -10,8 +10,9 @@ var devices = require('./routes/devices');
 var users = require('./routes/users');
 var docs = require('./routes/docs');
 
-//require certificat authentication functions
-var auth = require('./red_modules/red-cert-auth');
+//require certificate and token authentication functions
+var certAuth = require('./red_modules/red-cert-auth');
+var userAuth = require('./red_modules/red-user-auth');
 
 //express and parsers initialization
 var app = express();
@@ -23,13 +24,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Custom middlewares
 app.use(cors);
-app.use(auth.certAuthenticate);
+app.use(certAuth.certAuthenticate);
 app.use(nocache);
 
-// Custom routes
+/**  CUSTOM ROUTES */
+//route for swagger documentation
 app.use('/', docs);
-app.use('/', auth.ensureCertAuthenticated, devices);
-app.use('/',users); //routes for the user authentication
+
+//devices routes are accessible either with a certificate or a token
+//to be modified !!
+app.use('/', certAuth.ensureCertAuthenticated, devices); //routes protected by certificate
+
+//routes for the user authentication
+app.use('/',users);
 
 
 module.exports = app;
