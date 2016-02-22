@@ -44,7 +44,7 @@ var red_users = require('../red_modules/red-users');
  *
  */
 router.get('/user/device/result', function (req, res) {
-    devices.findDevices(req.user.token, function (err, result) {
+    devices.findAllDevices(req.user.token, function (err, result) {
         if (err) return console.error(err);
         res.respond(result);
     });
@@ -77,53 +77,31 @@ router.get('/user/device/result', function (req, res) {
  */
 // Get results from other devices (by id)
 router.get('/user/device/result/:id', function (req, res) {
-    
-    var toFind = {
-        _id: req.params.id,
-        token: req.user.token
-    }
-    devices.findDevice(toFind, function (err, result) {
-        if (err) return console.error(err);
-        res.respond(result);
+
+    var from = { user: req.user.id };
+    var to = { device: req.params.id };
+
+    perm.checkRules(from, to, function (err, result) {
+        if (err) {
+            res.respond(err, 500);
+            return;
+        }
+        if (result == true) {
+            //call devices data function to retrieve asked data
+            devices.find(req.params.id, callback);
+        } else {
+            res.respond("Unauthorized", 403);    // Forbidden
+        }
     });
-});
-/////////////////////////////////////////////////////////////////////////////////////
-
-
-//update the object **TO BE IMPLEMENTED**
-/**
- *  @swagger
- *  /user/device/update/{id}:
- *    get:
- *      tags: [Devices]
- *      description: Get the last version of the library (maybe not useful)
- *      produces:
- *        - application/json
- *      parameters:
- *        - name: id
- *          description: value type
- *          in : path
- *          required : true
- *          schema:
- *            type: string
- *
- *      responses:
- *        200:
- *          description: Return the URl of the trusty repository
- *        401:
- *          description: unauthorized, the certificate is missing or wrong
- *        404:
- *          description: value asked not found
- */
-/*router.get('/user/device/update', function (req, res) {
-    //call update function
-
+    
     //callback function
     function callback(err, result) {
-        if (err) return console.error(err);
-        //todo create response
+        if (err)
+            res.respond(err, 404);
+        else
+            res.respond(result);
     }
-});*/
+});
 
 // Create new devices with the corresponding certs inside de database ### OK ###
 /**
@@ -157,7 +135,7 @@ router.get('/user/device/new/:nb', function (req, res) {
     certs.setCertsFolder(path.join(__dirname, '../CERTS/DEVICES'));
 
     // Generate the certs
-    certs.generateCertificates(req.params.nb, function() {
+    certs.generateCertificates(req.params.nb, function () {
 
         // create devices inside the database
         certs.createDevices(function (err, devices) {
@@ -165,7 +143,7 @@ router.get('/user/device/new/:nb', function (req, res) {
             // Insert in the database
             async.each(devices, function (device, callback) {
                 devices.insertDeviceWithCert(device.path, device.passphrase, device.fingerprint, function (err, results) {
-                    if(!err)
+                    if (!err)
                         nb++;
                     else
                         console.log(err);
@@ -207,14 +185,28 @@ router.get('/user/device/new/:nb', function (req, res) {
 router.post('/user/device', function (req, res) {
     //Create the object containing fields to search for
     var device = {
-        token: req.user.token,
         _id: req.body.id,
         datatype: req.body.datatype,
         value: req.body.value,
     }
-    //we call devices data function that will take, the object, translate it into model object and then save it
-    devices.pushData(device, callback);
+    
+    //check if the user authenticated has the permission to push data on this device
+    var from = { user: req.user.id };
+    var to = { device: req.body.id };
 
+    perm.checkRules(from, to, function (err, result) {
+        if (err) {
+            res.respond(err, 500);
+            return;
+        }
+        if (result == true) {
+            //we call devices data function that will take, the object, translate it into model object and then save it
+            devices.pushData(device, callback);
+        } else {
+            res.respond("Unauthorized", 403);    // Forbidden
+        }
+    });
+    
     //callback function
     function callback(err, result) {
         if (err)
@@ -289,7 +281,7 @@ router.get('/user/permissions/:userid', function (req, res) {
  *
  *
  */
-router.post('/user/permissions/new',  function (req, res) {
+router.post('/user/permissions/new', function (req, res) {
     //Create the object
     var permissions = {
         _id: req.body._id,
@@ -330,7 +322,7 @@ router.post('/user/permissions/new',  function (req, res) {
  *          description:
  *
  */
-router.post('/user/permissions/update',  function (req, res) {
+router.post('/user/permissions/update', function (req, res) {
     //Create the object
     var permissions = {
         _id: req.body._id,
@@ -349,7 +341,7 @@ router.post('/user/permissions/update',  function (req, res) {
 });
 
 /*ADMIN ROUTE, manage the permissions requests at a higher level*/
-router.get('/user/permissions/pending',function(req,res){
+router.get('/user/permissions/pending', function (req, res) {
     //admin can see which permissions requests have a pending status.
 })
 

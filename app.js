@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 
 //Require the routes
 var devices = require('./routes/devices');
+var users = require('./routes/users');
 var usersAuth = require('./routes/users-auth');
 var docs = require('./routes/docs');
 
@@ -32,8 +33,8 @@ app.use(nocache);
 app.use('/', docs);
 
 //devices routes are accessible either with a certificate or a token
-//to be modified !!
 app.use('/', certAuth.ensureCertAuthenticated, devices); //routes protected by certificate
+app.use('/',userAuth.ensureAuthenticated, users); //routes protected by user token
 
 //routes for the user authentication
 app.use('/',usersAuth);
