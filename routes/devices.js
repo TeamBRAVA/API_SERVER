@@ -375,7 +375,6 @@ router.post('/device/other/:id', function (req, res) {
  *  /device/{datatype}:
  *    get:
  *      tags: [Devices]
-<<<<<<< HEAD
  *      description: Get the most recent value matching the data type
  *      produces:
  *        - application/json
@@ -394,30 +393,6 @@ router.post('/device/other/:id', function (req, res) {
  *        404:
  *          description: value asked not found
  *
-=======
- *      description: Get more specific data form a dated sample and a specific data type, The date is a time stamp.
- *      produces:
- *        - application/json
- *      parameters:
- *        - name: body
- *          description: data scheme needed to be sent
- *          in: path
- *          required: true
- *          schema:
- *            type: object
- *            required:
- *              - id
- *            properties:
- *              id:
- *                 type: integer
- *      responses:
- *        200:
- *          description: Return a json document with the data.
- *        401:
- *          description: Unauthorized, the certificate is missing or wrong.
- *        403:
- *          description: Forbidden, the request is out of your boundaries.
->>>>>>> c3c591bd742cec642a81694b82a8c5226b73dd17
  */
 router.get('/device/:datatype', function (req, res) {
     //get from url which data we want
@@ -442,7 +417,6 @@ router.get('/device/:datatype', function (req, res) {
 
 /**
  *  @swagger
-<<<<<<< HEAD
  *  /device/{datatype}/{date}:
  *    get:
  *      tags: [Devices]
@@ -470,39 +444,6 @@ router.get('/device/:datatype', function (req, res) {
  *        404:
  *          description: value asked not found
  *
-=======
- *  /device/other/:id/:datatype/:date:
- *    get:
- *      tags: [Devices]
- *      description: Get more specific data form a dated sample and a specific data type, The date is a time stamp.
- *      produces:
- *        - application/json
- *      parameters:
- *        - name: body
- *          description: data scheme needed to be sent
- *          in: body
- *          required: true
- *          schema:
- *            type: object
- *            required:
- *              - id
- *              - datatype
- *              - date
- *            properties:
- *              id:
- *                 type: integer
- *              datatype:
- *                 type: string
- *              date:
- *                 type: string
- *      responses:
- *        200:
- *          description: Return a json document with the data.
- *        401:
- *          description: Unauthorized, the certificate is missing or wrong.
- *        403:
- *          description: Forbidden, the request is out of your boundaries.
->>>>>>> c3c591bd742cec642a81694b82a8c5226b73dd17
  */
 router.get('/device/:datatype/:date', function (req, res) {
     //get from url which data we want
