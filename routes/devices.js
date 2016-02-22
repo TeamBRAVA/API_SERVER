@@ -372,7 +372,6 @@ router.post('/device/other/:id', function (req, res) {
     }
 });
 
-
 /* GET data from itself, that match the datatype (aka key)*/
 /**
  *  @swagger
