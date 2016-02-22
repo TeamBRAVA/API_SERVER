@@ -150,7 +150,7 @@ router.get('/device/update', function (req, res) {
  *          description: value asked not found
  */
 
-router.get('/device/new/:nb', function (req, res) {
+/*router.get('/device/new/:nb', function (req, res) {
 
     // Set some absolute path
     certs.setCA(path.join(__dirname, '../CERTS/CA/ca.pem'), path.join(__dirname, '../CERTS/CA/ca.key'), "Ek12Bb@.");
@@ -176,7 +176,7 @@ router.get('/device/new/:nb', function (req, res) {
             });            
         });
     });
-});
+});*/
 
 /* GET data from other device represented by it's id and that match the datatype (aka key) (need permissions)*/
 

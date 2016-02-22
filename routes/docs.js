@@ -27,7 +27,7 @@ var options = {
         description: 'routes to manage users'
     }]
   },
-  apis: ['./routes/devices.js','./routes/users-auth.js'], // Path to the files containing the documented routes
+  apis: ['./routes/devices.js','./routes/users-auth.js', './routes/users.js'], // Path to the files containing the documented routes
 };
 
 //generate the json text
