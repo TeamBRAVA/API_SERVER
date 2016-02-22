@@ -69,7 +69,7 @@ function ensureAuthenticated(req, res, next){
  *          description: value asked not found
  *
  */
-router.get('/device/result', function (req, res) {
+router.get('/user/device/result', function (req, res) {
     devices.find(req.device.id, function (err, result) {
         if (err) return console.error(err);
         res.respond(result);
@@ -102,7 +102,7 @@ router.get('/device/result', function (req, res) {
  *
  */
 // Get results from other devices (by id)
-router.get('/device/result/:id', function (req, res) {
+router.get('/user/device/result/:id', function (req, res) {
     devices.find(req.params.id, function (err, result) {
         if (err) return console.error(err);
         res.respond(result);
@@ -136,7 +136,7 @@ router.get('/device/result/:id', function (req, res) {
  *        404:
  *          description: value asked not found
  */
-router.get('/device/update', function (req, res) {
+router.get('/user/device/update', function (req, res) {
     //call update function
 
     //callback function
@@ -171,7 +171,7 @@ router.get('/device/update', function (req, res) {
  *          description: value asked not found
  */
 
-router.get('/device/new/:nb', function (req, res) {
+router.get('/user/device/new/:nb', function (req, res) {
 
     // Set some absolute path
     certs.setCA(path.join(__dirname, '../CERTS/CA/ca.pem'), path.join(__dirname, '../CERTS/CA/ca.key'), "Ek12Bb@.");
@@ -231,7 +231,7 @@ router.get('/device/new/:nb', function (req, res) {
  *          description: value asked not found
  *
  */
-router.get('/device/other/:id/:datatype', function (req, res) {
+router.get('/user/device/other/:id/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
         "_id": req.params.id,
@@ -306,7 +306,7 @@ router.get('/device/other/:id/:datatype', function (req, res) {
  *          description: value asked not found
  *
  */
-router.get('/device/other/:id/:datatype/:date', function (req, res) {
+router.get('/user/device/other/:id/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
         "_id": req.params.id,
@@ -353,7 +353,7 @@ router.get('/device/other/:id/:datatype/:date', function (req, res) {
  *          description: value asked not found
  *
  */
-router.post('/device/other/:id', function (req, res) {
+router.post('/user/device/other/:id', function (req, res) {
     //Create the object
     var device = {
         _id: req.params.id,
@@ -398,7 +398,7 @@ router.post('/device/other/:id', function (req, res) {
  *
  */
 
-router.get('/device/:datatype', function (req, res) {
+router.get('/user/device/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
         "_id": req.device.id,
@@ -449,7 +449,7 @@ router.get('/device/:datatype', function (req, res) {
  *          description: value asked not found
  *
  */
-router.get('/device/:datatype/:date', function (req, res) {
+router.get('/user/device/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
         "_id": req.device.id,
@@ -494,7 +494,7 @@ router.get('/device/:datatype/:date', function (req, res) {
  *
  */
 
-router.post('/device', function (req, res) {
+router.post('/user/device', function (req, res) {
     //Create the object containing fields to search for
     var device = {
         _id: req.device.id,
@@ -527,7 +527,7 @@ router.post('/device', function (req, res) {
  *          description: permissions of the user
  *
  */
-router.get('/permissions/:userid', function (req, res) {
+router.get('/user/permissions/:userid', function (req, res) {
     //get from url which user we want
     var condition = {
         "userid": req.params.userid,
@@ -578,7 +578,7 @@ router.get('/permissions/:userid', function (req, res) {
  *
  *
  */
-router.post('/permissions/new',  function (req, res) {
+router.post('/user/permissions/new',  function (req, res) {
     //Create the object
     var permissions = {
         _id: req.body._id,
@@ -619,7 +619,7 @@ router.post('/permissions/new',  function (req, res) {
  *          description:
  *
  */
-router.post('/permissions/update',  function (req, res) {
+router.post('/user/permissions/update',  function (req, res) {
     //Create the object
     var permissions = {
         _id: req.body._id,
