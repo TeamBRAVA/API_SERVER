@@ -34,7 +34,7 @@ var red_users = require('../red_modules/red-users');
  *  @swagger
  *  /device/result:
  *    get:
- *      tags: [getDevices]
+ *      tags: [devDevices]
  *      description: Get the result from all the pool of  devices, all the data it already produce
  *      produces:
  *        - application/json

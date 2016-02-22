@@ -36,9 +36,9 @@ var red_users = require('../red_modules/red-users');
 
 /**
  *  @swagger
- *  /user/register:
+ *  /register:
  *    post:
- *      tags: [Users]
+ *      tags: [Users Authentication]
  *      description: register as a new user
  *      produces:
  *        - application/json
@@ -53,7 +53,7 @@ var red_users = require('../red_modules/red-users');
  *        401:
  *          description: invalid inputs
  */
-router.post('/user/register', function (req, res) {
+router.post('/register', function (req, res) {
 	var credentials = {
 	    username: req.body.username,
 	    password: req.body.password,
@@ -90,9 +90,9 @@ router.post('/user/register', function (req, res) {
 
 /**
  *  @swagger
- *  /user/login:
+ *  /login:
  *    post:
- *      tags: [Users]
+ *      tags: [Users Authentication]
  *      description: login to the dashboard, with the username and password provided
  *      produces:
  *        - application/json
@@ -109,7 +109,7 @@ router.post('/user/register', function (req, res) {
  *        401:
  *          description: invalid inputs
  */
-router.post('/user/login', function (req, res) {
+router.post('/login', function (req, res) {
 	var credentials = {
 	    username: req.body.username,
 	    password: req.body.password,

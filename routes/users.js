@@ -29,7 +29,7 @@ var red_users = require('../red_modules/red-users');
  *  @swagger
  *  /user/device/result:
  *    get:
- *      tags: [getDevices]
+ *      tags: [Users]
  *      description: Get the result from all the pool of  devices, all the data it already produce
  *      produces:
  *        - application/json
@@ -63,7 +63,7 @@ router.get('/user/device/result', function (req, res) {
  *  @swagger
  *  /user/device/result/{id}:
  *    get:
- *      tags: [devDevices]
+ *      tags: [Users]
  *      description: Get the sample of data the device has produce
  *      produces:
  *        - application/json
@@ -116,7 +116,7 @@ router.get('/user/device/result/:id', function (req, res) {
  *  @swagger
  *  /user/device/new/{nb}:
  *    get:
- *      tags: [Devices]
+ *      tags: [Users]
  *      description: Get the most recent value matching the date & the data type.
  *      produces:
  *        - application/json
@@ -169,7 +169,7 @@ router.get('/user/device/new/:nb', function (req, res) {
  *  @swagger
  *  /user/device:
  *    post:
- *      tags: [Devices]
+ *      tags: [Users]
  *      description: Save data of the device sending the request
  *      produces:
  *        - application/json
