@@ -50,11 +50,12 @@ function ensureAuthenticated(req, res, next){
 
 ////////////////////////////////////////////////////////////////////////////////
 /*dev code (TO DELETE)*/
+
 /**
  *  @swagger
  *  /device/result:
  *    get:
- *      tags: [devDevices]
+ *      tags: [getDevices]
  *      description: Get the result from all the pool of  devices, all the data it already produce
  *      produces:
  *        - application/json
@@ -62,6 +63,11 @@ function ensureAuthenticated(req, res, next){
  *      responses:
  *        200:
  *          description: A json document that contain all the data related to the device.
+ *        401:
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
+ *
  */
 router.get('/device/result', function (req, res) {
     devices.find(req.device.id, function (err, result) {
@@ -73,32 +79,28 @@ router.get('/device/result', function (req, res) {
 
 /**
  *  @swagger
- *  /device/result/:id:
+ *  /device/result/{id}:
  *    get:
  *      tags: [devDevices]
  *      description: Get the sample of data the device has produce
  *      produces:
  *        - application/json
  *      parameters:
- *        - name: body
- *          description: data scheme needed to be sent
- *          in: body
- *          required: true
+ *        - name: id
+ *          description: value type
+ *          in : path
+ *          required : true
  *          schema:
- *            type: object
- *            required:
- *              - id
- *            properties:
- *              id:
- *                 type: string
- *
+ *            type: integer
  *      responses:
  *        200:
- *          description: Get the last sample of data produce by the device identified.
- *
+ *          description: most recent value corresponding to datatype sent in parameter
+ *        401:
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
  *
  */
-
 // Get results from other devices (by id)
 router.get('/device/result/:id', function (req, res) {
     devices.find(req.params.id, function (err, result) {
@@ -112,22 +114,27 @@ router.get('/device/result/:id', function (req, res) {
 //update the object **TO BE IMPLEMENTED**
 /**
  *  @swagger
- *  /device/update/:id:
+ *  /device/update/{id}:
  *    get:
  *      tags: [Devices]
- *      description: ask for the last version
+ *      description: Get the last version of the library
  *      produces:
  *        - application/json
+ *      parameters:
+ *        - name: id
+ *          description: value type
+ *          in : path
+ *          required : true
+ *          schema:
+ *            type: string
  *
  *      responses:
  *        200:
- *          description: Return a url to the trusty version
+ *          description: Return the URl of the trusty repository
  *        401:
- *          description: Unauthorized, the certificate is missing or wrong.
- *        403:
- *          description: Forbidden, the request is out of your boundaries
- *
- *
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
  */
 router.get('/device/update', function (req, res) {
     //call update function
@@ -142,29 +149,26 @@ router.get('/device/update', function (req, res) {
 // Create new devices with the corresponding certs inside de database ### OK ###
 /**
  *  @swagger
- *  /device/new/:nb:
+ *  /device/new/{nb}:
  *    get:
  *      tags: [Devices]
- *      description: Create a certain number of new trusted certificate
+ *      description: Get the most recent value matching the date & the data type.
  *      produces:
  *        - application/json
  *      parameters:
- *        - name: path
- *          description: data scheme needed to be sent
- *          in: body
- *          required: true
+ *        - name: nb
+ *          description: quantity of new certificate to create
+ *          in : path
+ *          required : true
  *          schema:
- *            type: object
- *            required:
- *              - id
- *            properties:
- *              id:
- *                 type: integer
+ *            type: integer
  *      responses:
  *        200:
- *          description: return a url to download the certificate created.
+ *          description: Return a link to download the created certificate.
  *        401:
- *          description: unauthorized, the certificate is missing or wrong.
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
  */
 
 router.get('/device/new/:nb', function (req, res) {
@@ -199,34 +203,33 @@ router.get('/device/new/:nb', function (req, res) {
 
 /**
  *  @swagger
- *  /device/other/:id/:datatype:
+ *  /device/other/{id}/{datatype}:
  *    get:
  *      tags: [Devices]
- *      description: Get the data that match the data type requested, in the last sample of data
+ *      description: Get the data that match the data type requested and his id, in the last sample of data
  *      produces:
  *        - application/json
  *      parameters:
- *        - name: body
- *          description: data scheme needed to be sent
- *          in: path
+ *        - name: id
+ *          description: id of the device targeted doing the request
+ *          in : path
+ *          required : true
+ *          schema:
+ *            type: string
+ *        - name: datatype
+ *          description:
+ *          in : path
  *          required: true
  *          schema:
- *            type: object
- *            required:
- *              - id
- *              - datatype
- *            properties:
- *              id:
- *                 type: integer
- *              datatype:
- *                 type: string
+ *            type: string
  *      responses:
  *        200:
- *          description: return in a json format the data asked.
+ *          description: value corresponding to datatype and date sent in parameter
  *        401:
- *          description: unauthorized, the certificate is missing or wrong.
- *        403:
- *          description: Forbidden, the request is out of your boundaries.
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
+ *
  */
 router.get('/device/other/:id/:datatype', function (req, res) {
     //get from url which data we want
@@ -265,39 +268,43 @@ router.get('/device/other/:id/:datatype', function (req, res) {
 
 /* GET data identified with key and date from device : id (need permissions)*/
 
+
 /**
  *  @swagger
- *  /device/other/:id/:datatype/:date:
+ *  /device/other/{id}/{datatype}/{date}:
  *    get:
  *      tags: [Devices]
  *      description: Get more specific data form a dated sample and a specific data type, The date is a time stamp.
  *      produces:
  *        - application/json
  *      parameters:
- *        - name: body
- *          description: data scheme needed to be sent
- *          in: path
+ *        - name: id
+ *          description: id of the device targeted doing the request
+ *          in : path
+ *          required : true
+ *          schema:
+ *            type: string
+ *        - name: datatype
+ *          description: Type of the data you request
+ *          in : path
  *          required: true
  *          schema:
- *            type: object
- *            required:
- *              - id
- *              - datatype
- *              - date
- *            properties:
- *              id:
- *                 type: integer
- *              datatype:
- *                 type: string
- *              date:
- *                 type: string
+ *            type: string
+ *        - name: date
+ *          description: Time stamp which value is the time when the data was saved.
+ *          in : path
+ *          required: true
+ *          schema:
+ *            type: string
+ *
  *      responses:
  *        200:
- *          description: Return a json document with the data.
+ *          description: value corresponding to datatype and date sent in parameter
  *        401:
- *          description: Unauthorized, the certificate is missing or wrong.
- *        403:
- *          description: Forbidden, the request is out of your boundaries.
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
+ *
  */
 router.get('/device/other/:id/:datatype/:date', function (req, res) {
     //get from url which data we want
@@ -320,34 +327,31 @@ router.get('/device/other/:id/:datatype/:date', function (req, res) {
 
 /* POST data on the server for other devices represented by their id (need permissions)*/
 
+
 /**
  *  @swagger
- *  /device/other/:id:
+ *  /device/other/{id}:
  *    post:
  *      tags: [Devices]
  *      description: Post specific data to all the pool of devices
  *      produces:
  *        - application/json
  *      parameters:
- *        - name: path
- *          description: data scheme needed to be sent
- *          in: body
- *          required: true
+ *        - name: id
+ *          description: id of the device targeted doing the request
+ *          in : path
+ *          required : true
  *          schema:
- *            type: object
- *            required:
- *              - id
- *            properties:
- *              id:
- *                 type: integer
+ *            type: string
  *
  *      responses:
  *        200:
- *          description: Return number of devices receiving the data.
+ *          description: value corresponding to datatype and date sent in parameter
  *        401:
- *          description: Unauthorized, the certificate is missing or wrong.
- *        403:
- *          description: Forbidden, the request is out of your boundaries.
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
+ *
  */
 router.post('/device/other/:id', function (req, res) {
     //Create the object
@@ -394,6 +398,7 @@ router.post('/device/other/:id', function (req, res) {
  *          description: value asked not found
  *
  */
+
 router.get('/device/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
