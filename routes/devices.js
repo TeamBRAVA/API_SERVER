@@ -34,15 +34,12 @@ function ensureAuthenticated(req, res, next){
 };
 /**@swagger
  * definition:
- *   NewPerm:
+ *   DataNoId:
  *     type: object
  *     required:
- *       - id
  *       - datatype
  *       - value
  *     properties:
- *       id:
- *         type: string
  *       datatype:
  *         type: string
  *       value:
@@ -282,15 +279,26 @@ router.post('/device/other/:id', function (req, res) {
 /* GET data from itself, that match the datatype (aka key)*/
 /**
  *  @swagger
- *  /device/:datatype:
+ *  /device/{datatype}:
  *    get:
  *      tags: [Devices]
- *      description: Get data from itself, with the data type specified
+ *      description: Get the most recent value matching the data type
  *      produces:
  *        - application/json
+ *      parameters:
+ *        - name: datatype
+ *          description: value type
+ *          in : path
+ *          required : true
+ *          schema: 
+ *            type: string
  *      responses:
  *        200:
- *          description: The specific data
+ *          description: most recent value corresponding to datatype sent in parameter
+ *        401:
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
  *
  */
 router.get('/device/:datatype', function (req, res) {
@@ -315,15 +323,32 @@ router.get('/device/:datatype', function (req, res) {
 /* GET data from itself, that match the datatype (aka key) and the date*/
 /**
  *  @swagger
- *  /device/:datatype/:date:
+ *  /device/{datatype}/{date}:
  *    get:
  *      tags: [Devices]
- *      description: Get data from itself matching the date & the data type
+ *      description: Get the most recent value matching the date & the data type. 
  *      produces:
  *        - application/json
+ *      parameters:
+ *        - name: datatype
+ *          description: value type
+ *          in : path
+ *          required : true
+ *          schema: 
+ *            type: string
+ *        - name: date
+ *          description: date on which the value has been saved in the database
+ *          in : path
+ *          required: true
+ *          schema:
+ *            type: string 
  *      responses:
  *        200:
- *          description: the specified data
+ *          description: value corresponding to datatype and date sent in parameter
+ *        401:
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
  *
  */
 router.get('/device/:datatype/:date', function (req, res) {
@@ -351,23 +376,27 @@ router.get('/device/:datatype/:date', function (req, res) {
  *  /device:
  *    post:
  *      tags: [Devices]
- *      description: Post data
+ *      description: Save data of the device sending the request
  *      produces:
  *        - application/json
  *      parameters:
  *        - name: body
- *          description: data scheme needed to be sent
+ *          description: object containing the datatype and value to add inside the database
  *          in: body
  *          required: true
  *          schema:
- *            $ref: '#/definitions/NewPerm'
+ *            $ref: '#/definitions/DataNoId'
  *      responses:
  *        200:
- *          description: return the number of modified element
+ *          description: amount of modified elements
+ *        401:
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description:  error message indicating the type of error
  *
  */
 router.post('/device', function (req, res) {
-    //Create the object
+    //Create the object containing fields to search for
     var device = {
         _id: req.device.id,
         datatype: req.body.datatype,
@@ -375,132 +404,6 @@ router.post('/device', function (req, res) {
     }
     //we call devices data function that will take, the object, translate it into model object and then save it
     devices.pushData(device, callback);
-  
-    //callback function
-    function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
-        else
-            res.respond(result);
-    }
-});
-
-
-
-/* GET user permissions data identified with userid */
-/**
- *  @swagger
- *  /device/permissions/:userid:
- *    get:
- *      tags: [Permissions]
- *      description: Get the permission of the user id provided
- *      produces:
- *        - application/json
- *      responses:
- *        200:
- *          description: permissions of the user
- *
- */
-router.get('/permissions/:userid', function (req, res) {
-    //get from url which user we want
-    var condition = {
-        "userid": req.params.userid,
-    };
-    //call devices Data function that will retrieve data
-    devices.pullUserPermission(condition, callback);
-  
-    //callback function
-    function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
-        else
-            res.respond(result);
-    }
-});
-
-/* POST new permissions for a user on a certain device */
-/**
- *  @swagger
- *  /permission/new:
- *    post:
- *      tags: [Permissions]
- *      description: Post new permission for a user on a specified device
- *      produces:
- *        - application/json
- *      parameters:
- *        - name: body
- *          description: data scheme needed to be sent
- *          in: body
- *          required: true
- *          schema:
- *            type: object
- *            required:
- *              - id
- *              - userid
- *              - permission
- *            properties:
- *              id:
- *                 type: string
- *              userid:
- *                 type: string
- *              permission:
- *                 type: string
- *
- *      responses:
- *        200:
- *          description: Get the number of changes done
- *
- *
- */
-router.post('/permissions/new',  function (req, res) {
-    //Create the object
-    var permissions = {
-        _id: req.body._id,
-        userid: req.body.userid,
-        permisssion: req.body.permission
-    }
-    devices.insertPermission(permissions, callback);
-
-    //callback function
-    function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
-        else
-            res.respond(result);
-    }
-});
-
-
-
-/* POST to update existing permissions*/
-/**
- *  @swagger
- *  /permissions/update:
- *    post:
- *      tags: [Permissions]
- *      description: Post new permission for the user
- *      produces:
- *        - application/json
- *      parameters:
- *        - name: body
- *          description: data scheme needed to be sent
- *          in: body
- *          required: true
- *          schema:
- *            $ref: '#/definitions/NewPerm'
- *      responses:
- *        200:
- *          description:
- *
- */
-router.post('/permissions/update',  function (req, res) {
-    //Create the object
-    var permissions = {
-        _id: req.body._id,
-        userid: req.body.userid,
-        permisssion: req.body.permission
-    }
-    devices.updatePermission(permissions, callback);
   
     //callback function
     function callback(err, result) {

@@ -52,7 +52,7 @@ var certAuth = {
                     next();
                 } else {
                     console.log("The device that initiate the connection doesn't exist !\nErrors : " + err);		// Authentication failed the cert is not ine the database
-                    res.status(401).send("No Device Found in the Database");
+                    res.status(401).send("Unauthorized");
                 }
             });
         } else {

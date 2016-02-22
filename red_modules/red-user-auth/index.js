@@ -1,4 +1,4 @@
-var red_users = require('./red-users');
+var red_users = require('../red-users');
 
 var userAuth = {
     tokenAuth: function (req, res, next) {
