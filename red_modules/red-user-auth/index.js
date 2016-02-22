@@ -44,7 +44,7 @@ var userAuth = {
         else {
             res.status(401).send({ message: 'Invalid Token' });
         }
-    };
+    }
 
 }
 
