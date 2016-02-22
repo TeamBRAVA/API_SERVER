@@ -11,27 +11,6 @@ var red_users = require('../red_modules/red-users');
 
 /*API FOR THE DEVICES AND THEIR PERMISSIONS */
 
-// Middleware Auth. Function
-function ensureAuthenticated(req, res, next){
-
-    var bearerToken;
-    var bearerHeader = req.headers["authorization"];
-
-    if (typeof bearerHeader !== 'undefined') {
-        var bearer = bearerHeader.split(" ");
-        bearerToken = bearer[1];
-        
-        if (red_users.validateToken(bearerToken)){
-            next(); //call devices Data function that will retrieve data
-        }
-        else{
-            res.status(401).send({message: 'Invalid Token'});
-        } 
-    }
-    else{
-        res.status(401).send({message: 'Invalid Token'});
-    }
-};
 /**@swagger
  * definition:
  *   NewPerm:

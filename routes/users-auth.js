@@ -113,27 +113,14 @@ router.post('/user/login', function (req, res) {
 	var credentials = {
 	    username: req.body.username,
 	    password: req.body.password,
-	  };
+	};
 	//Check is username, password and token if they are valid
 	red_users.verify(credentials, function(err,result){
 		if (result != false){
-			//Passing back the token
-		  	res.json({ token: result }); //result=token which resides inside the user object
+		  	res.json({ token: result }); 
 		}
-		else if (result == false) {
-			//check the error message returned by verify() to see the reason
-			//if username and pass ok but token is outdated then create a new token and send it back
-			if (err.message=="outdatedtoken"){
-				var cert = fs.readFileSync('../../CERTS/token.key');  // getting the private key 
-				var newToken = jwt.sign(credentials, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
-				res.json({ token: newToken });
-			}
-			else if (err.message=="tokenunmatcherror") {
-				res.status(401).send({message: 'User is not authorized.'}); //401 Unauthorized
-			}
-			else{ //passworderror
-				res.status(401).send({message: 'Wrong Password'}); //401 Unauthorized
-			};
+		else {
+			res.status(401).send({message: 'Unauthorized.'}); //401 Unauthorized
 		}
 	});
 });

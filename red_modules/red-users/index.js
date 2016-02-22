@@ -238,45 +238,20 @@ var app = {
 			callback( new Error("You must provide a password inside the first argument"), false);
 			return;
 		}
-		//New
-		if( !(user.token && typeof user.token == "string") ) {
-			callback( new Error("You must provide a token inside the first argument"), false);
-			return;
-		}
 		
-		//New
-		//1. CHECK USERNAME/MAIL AND PASS IF THEY MATCH OR NOT
+		//CHECK USERNAME/MAIL AND PASS IF THEY MATCH OR NOT
 		findOne( { '$or' : [{username : user.username}, {mail : user.mail}] }, function (err, result) {
 			if(err) {
 				callback(err, false);
-				return;
 			}
 			if( !result )  {
 				callback(err, false);
-				return;
 			}
 			if( passwordHash.verify(user.password, result.password)) {
-				//2. (USERNAME AND PASS ARE OK) -> CHECK IF THE TOKEN MATCHES OR NOT
-				findOne({ token: user.token }, function (err, res) {
-    				if (res != null ){ 
-						//Getting the certificate
-					    var cert = fs.readFileSync('../../CERTS/token.key');
-					    //3. (USERNAME AND PASS ARE OK & TOKEN MATCHES) -> CHECK IF TOKEN IS OUTDATED OR NOT
-					    jwt.verify(user.token, cert, { algorithms: ['RS256'] , ignoreExpiration: false }, function(err, decoded) { //Checking features of token (the expiration date)
-							if(err) { 
-						        callback(new Error("outdatedtoken"), false);
-						    }
-						    else{
-						    	//4. (USERNAME AND PASS ARE OK & TOKEN MATCHES & TOKEN UPTODATE)
-						    	callback(err, user.token); //everything is ok return token
-						    }
-    					});
-    				}	
-    				else{
-    					callback(new Error("tokenunmatcherror"), false);
-    				}
-    			});
-			}
+				var cert = fs.readFileSync('../../CERTS/token.key');
+				var newToken = jwt.sign(credentials, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
+				callback(err,newToken);
+   			}
 			else{
 				callback(new Error("passworderror"), false);
 			}
