@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 
 //Require the routes
 var devices = require('./routes/devices');
-var users = require('./routes/users');
+var usersAuth = require('./routes/users-auth');
 var docs = require('./routes/docs');
 
 //require certificate and token authentication functions
@@ -36,7 +36,7 @@ app.use('/', docs);
 app.use('/', certAuth.ensureCertAuthenticated, devices); //routes protected by certificate
 
 //routes for the user authentication
-app.use('/',users);
+app.use('/',usersAuth);
 
 
 module.exports = app;

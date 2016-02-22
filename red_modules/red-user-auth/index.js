@@ -2,7 +2,7 @@ var red_users = require('./red-users');
 
 var userAuth = {
     tokenAuth: function (req, res, next) {
-        var bearerToken = req.body.token;
+        var bearerToken = req.cookie.token;
         req.user.verified = false;
 
         if (bearerToken != null) {

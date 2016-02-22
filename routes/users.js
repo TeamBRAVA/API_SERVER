@@ -1,141 +1,514 @@
 var express = require('express');
 var router = express.Router();
-var jwt = require('jsonwebtoken');  //https://npmjs.org/package/node-jsonwebtoken
-var expressJwt = require('express-jwt'); //https://npmjs.org/package/express-jwt
-var fs = require('fs');
-var red_users = require('../red_modules/red-users/');
+var path = require('path');
+var async = require('async');
+require('./response');
+
+var devices = require('../red_modules/red-devices');
+var certs = require('../red_modules/red-cert-generator');
+var perm = require('../red_modules/red-permissions');
+var red_users = require('../red_modules/red-users');
+
+/*API FOR THE DEVICES AND THEIR PERMISSIONS */
+
+// Middleware Auth. Function
+function ensureAuthenticated(req, res, next){
+
+    var bearerToken;
+    var bearerHeader = req.headers["authorization"];
+
+    if (typeof bearerHeader !== 'undefined') {
+        var bearer = bearerHeader.split(" ");
+        bearerToken = bearer[1];
+        
+        if (red_users.validateToken(bearerToken)){
+            next(); //call devices Data function that will retrieve data
+        }
+        else{
+            res.status(401).send({message: 'Invalid Token'});
+        } 
+    }
+    else{
+        res.status(401).send({message: 'Invalid Token'});
+    }
+};
 /**@swagger
- * definition: 
- *   NewUser:
+ * definition:
+ *   NewPerm:
  *     type: object
  *     required:
- *       - username
- *       - email
- *       - password
+ *       - id
+ *       - datatype
+ *       - value
  *     properties:
- *       username:
+ *       id:
  *         type: string
- *       email:
+ *       datatype:
  *         type: string
- *       password:
+ *       value:
  *         type: string
- *         format: password
- *   userLogin:
- *     type: object
- *     required:
- *       - username
- *       - password
- *     properties:
- *       username:
- *         type: string
- *       password:
- *         type: string
- *         format: password
- * 
+ *
  */
 
+
+////////////////////////////////////////////////////////////////////////////////
+/*dev code (TO DELETE)*/
 /**
  *  @swagger
- *  /user/register:
- *    post:
- *      tags: [Users]
- *      description: register as a new user
+ *  /device/result:
+ *    get:
+ *      tags: [Devices]
+ *      description: Get results from device itself
  *      produces:
  *        - application/json
- *      parameters:
- *        - name: body
- *          description: user credentials to be added in the database
- *          in: body
- *          required: true
- *          schema: 
- *            $ref: '#/definitions/NewUser'
  *      responses:
- *        401:
- *          description: invalid inputs
- */
-router.post('/user/register', function (req, res) {
-	var credentials = {
-	    username: req.body.username,
-	    password: req.body.password,
-	    mail: req.body.mail
-	  };
-	//Check is username if it is already exists
-	red_users.findUsername(credentials.username, function(err,result){
-		if (result == null){
-			//Sending user credentials inside the token
-			var cert = fs.readFileSync('../../CERTS/token.key');  // getting the private key 
-			var token = jwt.sign(credentials, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
-			//Storing the token inside the user credentials
-		  	var completeCredentials = {
-			    username: req.body.username,
-			    password: req.body.password,
-			    mail: req.body.mail,
-			    token: token
-			};
-		  	//Creating a new User
-		  	red_users.insert(completeCredentials,callback);
-		  	//callback function
-		    function callback(err, result) {
-		        if (err)
-		            res.status(404).send({message: 'Cannot register the user.'}); //404 Not Found
-		        else
-		        	res.json({ token: token });
-		    }	
-	  	}
-	  	else{
-	  		res.status(400).send({message: 'User already exist, try to login.'}); //400 Bad Request
-	  	}
-	});
+ *        200:
+ *          description: all information on the device connected
+ *
+ */ 
+router.get('/device/result', function (req, res) {
+    devices.find(req.device.id, function (err, result) {
+        if (err) return console.error(err);
+        res.respond(result);
+    });
 });
 
 /**
  *  @swagger
- *  /user/login:
+ *  /device/result/:id:
+ *    get:
+ *      tags: [Devices]
+ *      description: Get results from self device
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: all information on the device connected
+ */ 
+// Get results from other devices (by id)
+router.get('/device/result/:id', function (req, res) {
+    devices.find(req.params.id, function (err, result) {
+        if (err) return console.error(err);
+        res.respond(result);
+    });
+});
+/////////////////////////////////////////////////////////////////////////////////////
+
+
+//update the object **TO BE IMPLEMENTED**
+/**
+ *  @swagger
+ *  /device/other/:id:
+ *    get:
+ *      tags: [Devices]
+ *      description: look for update and apply if needed
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: return the last version name.
+ *
+ */
+router.get('/device/update', function (req, res) {
+    //call update function
+  
+    //callback function
+    function callback(err, result) {
+        if (err) return console.error(err);
+        //todo create response
+    }
+});
+
+// Create new devices with the corresponding certs inside de database ### OK ###
+/**
+ *  @swagger
+ *  /device/new/:nb:
+ *    get:
+ *      tags: [Devices]
+ *      description: Create new devices, associated to the certificates
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: NONE
+ */
+router.get('/device/new/:nb', function (req, res) {
+
+    // Set some absolute path
+    certs.setCA(path.join(__dirname, '../CERTS/CA/ca.pem'), path.join(__dirname, '../CERTS/CA/ca.key'), "Ek12Bb@.");
+    certs.setCertsFolder(path.join(__dirname, '../CERTS/DEVICES'));
+
+    // Generate the certs
+    certs.generateCertificates(req.params.nb, function() {
+
+        // create devices inside the database
+        certs.createDevices(function (err, devices) {
+            var nb = 0;
+            // Insert in the database
+            async.each(devices, function (device, callback) {
+                devices.insertDeviceWithCert(device.path, device.passphrase, device.fingerprint, function (err, results) {
+                    if(!err)
+                        nb++;
+                    else
+                        console.log(err);
+                    callback();
+                });
+            }, function done() {
+                res.respond(nb + " certificates created", 200);
+            });            
+        });
+    });
+});
+
+/* GET data from other device represented by it's id and that match the datatype (aka key) (need permissions)*/
+/**
+ *  @swagger
+ *  /device/other/:id/:datatype:
+ *    get:
+ *      tags: [Devices]
+ *      description: Get the data from on id , matching the data type
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: data type
+ *        403:
+ *          description: Unauthorized access
+ */
+router.get('/device/other/:id/:datatype', function (req, res) {
+    //get from url which data we want
+    var condition = {
+        "_id": req.params.id,
+        "datatype": req.params.datatype
+    };
+
+    var access = {};
+    access[req.params.datatype] = "read";
+    var from = {device : req.device.id};
+    var to = {device : req.params.id};
+
+    perm.verify(from, to, access, function (err, result) {
+        if(err) {
+            res.respond(err, 500);
+            return;
+        }
+        if(result == true) {
+            //call devices data function to retrieve asked data
+            devices.pullDatatype(condition, callback);
+        } else {
+            res.respond("Unauthorized to access data", 403);    // Forbidden
+        }
+    });
+
+    //callback function
+    function callback(err, result) {
+        if (err)
+            res.respond(err, 404);
+        else
+            res.respond(result);
+    }
+});
+
+
+/* GET data identified with key and date from device : id (need permissions)*/
+/**
+ *  @swagger
+ *  /device/other/:id/:datatype/:date:
+ *    get:
+ *      tags: [Devices]
+ *      description: Get the data from on id , matching the data type and date
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: data type
+ *        403:
+ *          description: Unauthorized access
+ */
+router.get('/device/other/:id/:datatype/:date', function (req, res) {
+    //get from url which data we want
+    var condition = {
+        "_id": req.params.id,
+        "datatype": req.params.datatype,
+        "date": req.params.date
+    };
+    //call devices data function to retrieve asked data
+    devices.pullDatatypeAndDate(condition, callback);
+  
+    //callback function
+    function callback(err, result) {
+        if (err)
+            res.respond(err, 404);
+        else
+            res.respond(result);
+    }
+});
+
+/* POST data on the server for other devices represented by their id (need permissions)*/
+/**
+ *  @swagger
+ *  /device/other/:id:
  *    post:
- *      tags: [Users]
- *      description: login to the dashboard, with the username and password provided
+ *      tags: [Devices]
+ *      description: Post data for linked devices
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: ??the result ??
+ *        403:
+ *          description: Unauthorized access
+ */
+router.post('/device/other/:id', function (req, res) {
+    //Create the object
+    var device = {
+        _id: req.params.id,
+        datatype: req.body.datatype,
+        value: req.body.value,
+    }
+    //we call devices data function that will take, the object, translate it into model object and then save it
+    devices.pushData(device, callback);
+  
+    //callback function
+    function callback(err, result) {
+        if (err)
+            res.respond(err, 404);
+        else
+            res.respond(result);
+    }
+});
+
+
+/* GET data from itself, that match the datatype (aka key)*/
+/**
+ *  @swagger
+ *  /device/:datatype:
+ *    get:
+ *      tags: [Devices]
+ *      description: Get data from itself, with the data type specified
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: The specific data
+ *
+ */
+router.get('/device/:datatype', function (req, res) {
+    //get from url which data we want
+    var condition = {
+        "_id": req.device.id,
+        "datatype": req.params.datatype
+    };
+    //call devices data function to retrieve asked data
+    devices.pullDatatype(condition, callback);    
+
+    //callback function
+    function callback(err, result) {
+        if (err)
+            res.respond(err, 404);
+        else
+            res.respond(result);
+    }    
+});
+
+
+/* GET data from itself, that match the datatype (aka key) and the date*/
+/**
+ *  @swagger
+ *  /device/:datatype/:date:
+ *    get:
+ *      tags: [Devices]
+ *      description: Get data from itself matching the date & the data type
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: the specified data
+ *
+ */
+router.get('/device/:datatype/:date', function (req, res) {
+    //get from url which data we want
+    var condition = {
+        "_id": req.device.id,
+        "datatype": req.params.datatype,
+        "date": req.params.date
+    };
+    //call devices data function to retrieve asked data
+    devices.pullDatatypeAndDate(condition, callback);
+  
+    //callback function
+    function callback(err, result) {
+        if (err)
+            res.respond(err, 404);
+        else
+            res.respond(result);
+    }
+});
+
+/* POST new data on the server */
+/**
+ *  @swagger
+ *  /device:
+ *    post:
+ *      tags: [Devices]
+ *      description: Post data
  *      produces:
  *        - application/json
  *      parameters:
  *        - name: body
- *          description: user credentials to be added in the database
+ *          description: data scheme needed to be sent
  *          in: body
  *          required: true
- *          schema: 
- *            $ref: '#/definitions/userLogin'
+ *          schema:
+ *            $ref: '#/definitions/NewPerm'
  *      responses:
  *        200:
- *          description: authentified and the token is sent back to the user
- *        401:
- *          description: invalid inputs
+ *          description: return the number of modified element
+ *
  */
-router.post('/user/login', function (req, res) {
-	var credentials = {
-	    username: req.body.username,
-	    password: req.body.password,
-	  };
-	//Check is username, password and token if they are valid
-	red_users.verify(credentials, function(err,result){
-		if (result != false){
-			//Passing back the token
-		  	res.json({ token: result }); //result=token which resides inside the user object
-		}
-		else if (result == false) {
-			//check the error message returned by verify() to see the reason
-			//if username and pass ok but token is outdated then create a new token and send it back
-			if (err.message=="outdatedtoken"){
-				var cert = fs.readFileSync('../../CERTS/token.key');  // getting the private key 
-				var newToken = jwt.sign(credentials, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
-				res.json({ token: newToken });
-			}
-			else if (err.message=="tokenunmatcherror") {
-				res.status(401).send({message: 'User is not authorized.'}); //401 Unauthorized
-			}
-			else{ //passworderror
-				res.status(401).send({message: 'Wrong Password'}); //401 Unauthorized
-			};
-		}
-	});
+router.post('/device', function (req, res) {
+    //Create the object
+    var device = {
+        _id: req.device.id,
+        datatype: req.body.datatype,
+        value: req.body.value,
+    }
+    //we call devices data function that will take, the object, translate it into model object and then save it
+    devices.pushData(device, callback);
+  
+    //callback function
+    function callback(err, result) {
+        if (err)
+            res.respond(err, 404);
+        else
+            res.respond(result);
+    }
+});
+
+
+
+/* GET user permissions data identified with userid */
+/**
+ *  @swagger
+ *  /device/permissions/:userid:
+ *    get:
+ *      tags: [Permissions]
+ *      description: Get the permission of the user id provided
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: permissions of the user
+ *
+ */
+router.get('/permissions/:userid', function (req, res) {
+    //get from url which user we want
+    var condition = {
+        "userid": req.params.userid,
+    };
+    //call devices Data function that will retrieve data
+    devices.pullUserPermission(condition, callback);
+  
+    //callback function
+    function callback(err, result) {
+        if (err)
+            res.respond(err, 404);
+        else
+            res.respond(result);
+    }
+});
+
+/* POST new permissions for a user on a certain device */
+/**
+ *  @swagger
+ *  /permission/new:
+ *    post:
+ *      tags: [Permissions]
+ *      description: Post new permission for a user on a specified device
+ *      produces:
+ *        - application/json
+ *      parameters:
+ *        - name: body
+ *          description: data scheme needed to be sent
+ *          in: body
+ *          required: true
+ *          schema:
+ *            type: object
+ *            required:
+ *              - id
+ *              - userid
+ *              - permission
+ *            properties:
+ *              id:
+ *                 type: string
+ *              userid:
+ *                 type: string
+ *              permission:
+ *                 type: string
+ *
+ *      responses:
+ *        200:
+ *          description: Get the number of changes done
+ *
+ *
+ */
+router.post('/permissions/new',  function (req, res) {
+    //Create the object
+    var permissions = {
+        _id: req.body._id,
+        userid: req.body.userid,
+        permisssion: req.body.permission
+    }
+    devices.insertPermission(permissions, callback);
+
+    //callback function
+    function callback(err, result) {
+        if (err)
+            res.respond(err, 404);
+        else
+            res.respond(result);
+    }
+});
+
+
+
+/* POST to update existing permissions*/
+/**
+ *  @swagger
+ *  /permissions/update:
+ *    post:
+ *      tags: [Permissions]
+ *      description: Post new permission for the user
+ *      produces:
+ *        - application/json
+ *      parameters:
+ *        - name: body
+ *          description: data scheme needed to be sent
+ *          in: body
+ *          required: true
+ *          schema:
+ *            $ref: '#/definitions/NewPerm'
+ *      responses:
+ *        200:
+ *          description:
+ *
+ */
+router.post('/permissions/update',  function (req, res) {
+    //Create the object
+    var permissions = {
+        _id: req.body._id,
+        userid: req.body.userid,
+        permisssion: req.body.permission
+    }
+    devices.updatePermission(permissions, callback);
+  
+    //callback function
+    function callback(err, result) {
+        if (err)
+            res.respond(err, 404);
+        else
+            res.respond(result);
+    }
 });
 
 module.exports = router;
