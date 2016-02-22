@@ -44,10 +44,18 @@ var red_users = require('../red_modules/red-users');
  *
  */
 router.get('/user/device/result', function (req, res) {
-    devices.findAllDevices(req.user.token, function (err, result) {
-        if (err) return console.error(err);
-        res.respond(result);
-    });
+    // Get all the id
+    red_users.listDevices(req.user.token, function (err, result) {
+        if (err) {
+            console.error(err);
+            return res.respond(err, 404);
+        } else {
+            devices.find(req.device.id, function (err, result) {
+                if (err) return console.error(err);
+                res.respond(result);
+            });
+        }
+    })
 });
 
 

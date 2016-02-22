@@ -267,6 +267,7 @@ var devices = {
             callback(err, toReturn);
         });
     },
+
     ///////////////////////////////////////////////////TO DELETE////////////////////////////
     find: function (id, callback) {
         db.collection('device').find({ _id: mongo.helper.toObjectID(id) }).toArray(function (err, result) {

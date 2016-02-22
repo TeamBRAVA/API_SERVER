@@ -115,6 +115,22 @@ var app = {
 		    callback(err, result);
 		});
 	},
+	listDevices: function(token,callback){
+		if( !( callback instanceof Function )) {
+			throw new Error("You have to provide a function callback as last parameter");
+		}
+		if ( !(token && typeof token == "string") ) {
+			callback(new Error("You must provide a mail as first parameter"));
+			return;
+		}
+		findOne({ token: token }, function (err, result) {
+			if (err) {
+				callback(err);
+			}
+			console.log("Find by ID");
+			callback(err, result.devices);
+		});
+	},
 
 	// Find by ID
 	find : function (id, callback ) {
@@ -134,7 +150,23 @@ var app = {
 		    callback(err, result);
 		});
 	},
-
+	// not sure if useful but return _id with the token.
+	findUserByToken : function(token,callback){
+		if( !( callback instanceof Function )) {
+			throw new Error("You have to provide a function callback as last parameter");
+		}
+		if ( !(id && typeof id == "string") ) {
+			callback(new Error("You must provide a mail as first parameter"));
+			return;
+		}
+		findOne({ token : token }, function (err, result) {
+			if (err) {
+				callback(err);
+			}
+			console.log("Find by ID");
+			callback(err, result._id);
+		});
+	},
 	// Find by mail
 	findMail : function ( mail, callback ) {
 		if( !( callback instanceof Function )) {
