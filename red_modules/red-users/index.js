@@ -155,10 +155,6 @@ var app = {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
 		}
-		if ( !(id && typeof id == "string") ) {
-			callback(new Error("You must provide a mail as first parameter"));
-			return;
-		}
 		findOne({ token : token }, function (err, result) {
 			if (err) {
 				callback(err);
@@ -262,8 +258,8 @@ var app = {
 			callback( new Error("You must provide an user ( {username or mail, password(plain text) } ) as first parameter"), false);
 			return;
 		}
-		if( !(typeof user.username == "string" || (typeof user.mail == "string" && validateEmail(user.mail) ) ) ) {
-			callback( new Error("You must provide an username or mail inside the first argument"), false);
+		if( !(typeof user.username == "string" ) ) {
+			callback( new Error("You must provide an username inside the first argument"), false);
 			return;
 		}
 		if( !(user.password && typeof user.password == "string") ) {
@@ -272,7 +268,7 @@ var app = {
 		}
 		
 		//CHECK USERNAME/MAIL AND PASS IF THEY MATCH OR NOT
-		findOne( { '$or' : [{username : user.username}, {mail : user.mail}] }, function (err, result) {
+		findOne({username : user.username}, function (err, result) {
 			if(err) {
 				callback(err, false);
 			}
@@ -281,7 +277,7 @@ var app = {
 			}
 			if( passwordHash.verify(user.password, result.password)) {
 				var cert = fs.readFileSync('../../CERTS/token.key');
-				var newToken = jwt.sign(credentials, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
+				var newToken = jwt.sign(user, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
 				callback(err,newToken);
    			}
 			else{

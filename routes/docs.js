@@ -16,7 +16,7 @@ var options = {
     tags: [
     {
         name: 'Devices',
-        description: 'routes to manage devices'
+        description: 'routes to manage devices, it is protected by a device certificate'
     },
     {
         name: 'Permissions',
@@ -24,10 +24,10 @@ var options = {
     },
     {
         name: 'Users',
-        description: 'routes to manage users'
+        description: 'routes to manage users, it is protected by a token authentication'
     }]
   },
-  apis: ['./routes/devices.js','./routes/users-auth.js'], // Path to the files containing the documented routes
+  apis: ['./routes/devices.js','./routes/users-auth.js', './routes/users.js'], // Path to the files containing the documented routes
 };
 
 //generate the json text

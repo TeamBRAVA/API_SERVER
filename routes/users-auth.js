@@ -36,9 +36,9 @@ var red_users = require('../red_modules/red-users');
 
 /**
  *  @swagger
- *  /user/register:
+ *  /register:
  *    post:
- *      tags: [Users]
+ *      tags: [Users Authentication]
  *      description: register as a new user
  *      produces:
  *        - application/json
@@ -53,7 +53,7 @@ var red_users = require('../red_modules/red-users');
  *        401:
  *          description: invalid inputs
  */
-router.post('/user/register', function (req, res) {
+router.post('/register', function (req, res) {
 	var credentials = {
 	    username: req.body.username,
 	    password: req.body.password,
@@ -79,7 +79,7 @@ router.post('/user/register', function (req, res) {
 		        if (err)
 		            res.status(404).send({message: 'Cannot register the user.'}); //404 Not Found
 		        else
-		        	res.json({ token: token });
+		        	res.status(200).json({ token: token });
 		    }	
 	  	}
 	  	else{
@@ -90,9 +90,9 @@ router.post('/user/register', function (req, res) {
 
 /**
  *  @swagger
- *  /user/login:
+ *  /login:
  *    post:
- *      tags: [Users]
+ *      tags: [Users Authentication]
  *      description: login to the dashboard, with the username and password provided
  *      produces:
  *        - application/json
@@ -109,7 +109,7 @@ router.post('/user/register', function (req, res) {
  *        401:
  *          description: invalid inputs
  */
-router.post('/user/login', function (req, res) {
+router.post('/login', function (req, res) {
 	var credentials = {
 	    username: req.body.username,
 	    password: req.body.password,
@@ -117,7 +117,7 @@ router.post('/user/login', function (req, res) {
 	//Check is username, password and token if they are valid
 	red_users.verify(credentials, function(err,result){
 		if (result != false){
-		  	res.json({ token: result }); 
+		  	res.status(200).json({ token: result }); 
 		}
 		else {
 			res.status(401).send({message: 'Unauthorized.'}); //401 Unauthorized

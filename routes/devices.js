@@ -34,7 +34,7 @@ var red_users = require('../red_modules/red-users');
  *  @swagger
  *  /device/result:
  *    get:
- *      tags: [getDevices]
+ *      tags: [devDevices]
  *      description: Get the result from all the pool of  devices, all the data it already produce
  *      produces:
  *        - application/json
@@ -150,7 +150,7 @@ router.get('/device/update', function (req, res) {
  *          description: value asked not found
  */
 
-router.get('/device/new/:nb', function (req, res) {
+/*router.get('/device/new/:nb', function (req, res) {
 
     // Set some absolute path
     certs.setCA(path.join(__dirname, '../CERTS/CA/ca.pem'), path.join(__dirname, '../CERTS/CA/ca.key'), "Ek12Bb@.");
@@ -176,7 +176,7 @@ router.get('/device/new/:nb', function (req, res) {
             });            
         });
     });
-});
+});*/
 
 /* GET data from other device represented by it's id and that match the datatype (aka key) (need permissions)*/
 
@@ -270,7 +270,7 @@ router.get('/device/other/:id/:datatype', function (req, res) {
  *          schema:
  *            type: string
  *        - name: date
- *          description: Time stamp which value is the time when the data was saved.
+ *          description: Timestamp in milliseconds which value is the time when the data was saved.
  *          in : path
  *          required: true
  *          schema:
