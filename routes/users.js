@@ -593,7 +593,7 @@ router.post('/user/permissions/new',  function (req, res) {
         userid: req.body.userid,
         permisssion: req.body.permission
     }
-    devices.insertPermission(permissions, callback);
+    perm.insert(permissions, callback);
 
     //callback function
     function callback(err, result) {
