@@ -253,15 +253,21 @@ var app = {
 	pullUserPermission: function(condition,callback){
 		// we get the data for the permission
 		// we retrieve the data fromt the user
+		if( !( callback instanceof Function )) {
+			throw new Error("You have to provide a function callback as last parameter");
+		}
+		if ( !(condition && typeof condition == "string") ) {
+			callback(new Error("You must provide an ID as first parameter"));
+			return;
+		}
 		db.collection('permission').find({_id : condition} ,function(err,result){
 			if(err) {
 				callback(err);
 				return;
 			}
-			console.log("All the perssion returned");
+			console.log("permission returned");
 			callback(err, result);
-		})
-
+		});
 	}
 };
 
