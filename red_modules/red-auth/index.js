@@ -26,7 +26,9 @@ var auth = {
      */
     certAuthenticated: function (req, res, next) {
         // get the flag for CA verified connection
-        req.device = {};
+        req.device = {
+            id: null
+        };
         req.device.ssl = {};
         req.device.authenticated = false;
         
@@ -55,7 +57,6 @@ var auth = {
                 if (results != null) {
                     console.log("Device : " + results._id.toString() + " initiate a connection ....");		// Authentication complete the id is pass for other middlewares
                     req.device.id = results._id.toString();
-                    req.device.authenticated = true;
                     
                 } else {
                     console.log("The device that initiate the connection doesn't exist !\nErrors : " + err);		// Authentication failed the cert is not ine the database
@@ -79,7 +80,6 @@ var auth = {
         req.user = {
             token: null,
             id: null,
-            authenticated: false
         }
         var bearerToken;
         var bearerHeader = req.headers["authorization"];
@@ -137,13 +137,18 @@ var auth = {
      * @param {object} res The res object of express framework, see express.js website for more informations
      * @param {object} next callback used to call the next express middleware
      */
-    doubleAuth: function (req, res, next) {
-        if (req.user.authenticated || req.device.authenticated) {
+    gateway: function (req, res, next) {
+        console.log("token"+req.user.token);
+        console.log("cert"+req.device.id);
+        if(req.user.token != null && req.device.id != null){
+            console.log("error, should not be authenticated as a device AND a user");
+            res.status(404).send({ err: "can't have a certificate AND a token "});
+        } else if (req.user.token != null || req.device.id != null) {
             next();
-        } else if(!req.user.authenticated) {
-            res.status(401).send({ message: 'wrong token' });
-        } else if(!req.device.authenticated){
-            res.status(401).send({ message: 'wrong certificate' });
+        } else if(req.user.token == null && req.device.id == null) {
+            res.status(401).send({ err: 'no token or certificate' });
+        }else {
+            res.status(404).send({ err: 'problem with authentication' });
         }
     }
 

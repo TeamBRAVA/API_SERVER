@@ -38,7 +38,7 @@ app.use('/', docs);
 app.use('/',usersAuth);
 
 //ensure authenticated, everything under this function is protected by token or certificate authentication
-app.use('/',auth.doubleAuth);
+app.use('/',auth.gateway);
 
 //devices routes are accessible either with a certificate or a token
 app.use('/', devices);
