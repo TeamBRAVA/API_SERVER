@@ -249,6 +249,19 @@ var app = {
 		} else {
 			callback(null, false);
 		}
+	},
+	pullUserPermission: function(condition,callback){
+		// we get the data for the permission
+		// we retrieve the data fromt the user
+		db.collection('permission').find({_id : condition} ,function(err,result){
+			if(err) {
+				callback(err);
+				return;
+			}
+			console.log("All the perssion returned");
+			callback(err, result);
+		})
+
 	}
 };
 

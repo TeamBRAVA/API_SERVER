@@ -274,5 +274,6 @@ var devices = {
             callback(err, result);
         });
     }
+
 }
 module.exports = devices;
