@@ -35,14 +35,11 @@ app.use(auth.tokenAuthenticated);
 app.use('/', docs);
 
 //routes for the user authentication
-app.use('/',usersAuth);
-
-//ensure authenticated, everything under this function is protected by token or certificate authentication
-app.use('/',auth.gateway);
+app.use('/', usersAuth);
 
 //devices routes are accessible either with a certificate or a token
-app.use('/', devices);
-app.use('/', users);
+app.use('/', auth.gateway, devices);
+app.use('/', auth.gateway, users);
 
 module.exports = app;
 
