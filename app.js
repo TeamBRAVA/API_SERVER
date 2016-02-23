@@ -12,8 +12,7 @@ var usersAuth = require('./routes/users-auth');
 var docs = require('./routes/docs');
 
 //require certificate and token authentication functions
-var certAuth = require('./red_modules/red-cert-auth');
-var userAuth = require('./red_modules/red-user-auth');
+var auth = require('./red_modules/red-auth');
 
 //express and parsers initialization
 var app = express();
@@ -25,8 +24,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Custom middlewares
 app.use(cors);
-app.use(certAuth.certAuthenticate);
 app.use(nocache);
+
+//retrieve info from requests to be authenticated
+app.use(auth.certAuthenticated);
+app.use(auth.tokenAuthenticated);
 
 /**  CUSTOM ROUTES */
 //route for swagger documentation
@@ -35,9 +37,12 @@ app.use('/', docs);
 //routes for the user authentication
 app.use('/',usersAuth);
 
+//ensure authenticated, everything under this function is protected by token or certificate authentication
+app.use('/',auth.doubleAuth);
+
 //devices routes are accessible either with a certificate or a token
-//app.use('/', certAuth.ensureCertAuthenticated, devices); //routes protected by certificate
-app.use('/', userAuth.ensureAuthenticated, users); //routes protected by user token
+app.use('/', devices);
+app.use('/', users);
 
 module.exports = app;
 
