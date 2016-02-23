@@ -270,7 +270,7 @@ router.get('/device/other/:id/:datatype', function (req, res) {
  *          schema:
  *            type: string
  *        - name: date
- *          description: Time stamp which value is the time when the data was saved.
+ *          description: Timestamp in milliseconds which value is the time when the data was saved.
  *          in : path
  *          required: true
  *          schema:

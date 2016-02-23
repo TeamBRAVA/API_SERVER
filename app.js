@@ -32,13 +32,12 @@ app.use(nocache);
 //route for swagger documentation
 app.use('/', docs);
 
-//devices routes are accessible either with a certificate or a token
-app.use('/', certAuth.ensureCertAuthenticated, devices); //routes protected by certificate
-app.use('/',userAuth.ensureAuthenticated, users); //routes protected by user token
-
 //routes for the user authentication
 app.use('/',usersAuth);
 
+//devices routes are accessible either with a certificate or a token
+app.use('/', certAuth.ensureCertAuthenticated, devices); //routes protected by certificate
+app.use('/',userAuth.ensureAuthenticated, users); //routes protected by user token
 
 module.exports = app;
 
