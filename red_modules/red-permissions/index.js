@@ -250,6 +250,7 @@ var app = {
 			callback(null, false);
 		}
 	},
+
 	pullUserPermission: function(condition,callback){
 		// we get the data for the permission
 		// we retrieve the data fromt the user
