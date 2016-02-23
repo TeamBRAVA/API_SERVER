@@ -112,6 +112,7 @@ router.post('/register', function (req, res) {
 router.post('/login', function (req, res) {
 	var credentials = {
 	    username: req.body.username,
+        mail: req.body.mail,
 	    password: req.body.password,
 	};
 	//Check is username, password and token if they are valid

@@ -281,7 +281,7 @@ var app = {
 			}
 			if( passwordHash.verify(user.password, result.password)) {
 				var cert = fs.readFileSync('../../CERTS/token.key');
-				var newToken = jwt.sign(credentials, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
+				var newToken = jwt.sign(user, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
 				callback(err,newToken);
    			}
 			else{
