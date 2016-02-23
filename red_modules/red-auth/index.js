@@ -52,21 +52,21 @@ var auth = {
                         if (results != null) {
                             console.log("Device : " + results._id.toString() + " initiate a connection ....");		// Authentication complete the id is pass for other middlewares
                             req.device.id = results._id.toString();
-
+                            next();
                         } else {
                             console.log("The device that initiate the connection doesn't exist !\nErrors : " + err);		// Authentication failed the cert is not ine the database
-                   
+                            next();
                         }
                     });
                 } else {
                     console.log("ssl is not verified or fingerprint is empty");
+                    next();
                 }
             });
         } else {
             console.log("header x-ssl-cert not correct");
+            next();
         }
-
-        next();
     },
     
     /** 
