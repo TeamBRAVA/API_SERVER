@@ -10,6 +10,7 @@ var userAuth = {
         if (typeof bearerHeader !== 'undefined') {
             var bearer = bearerHeader.split(" ");
             bearerToken = bearer[1];
+            console.log(bearerToken);
 
             if (bearerToken != null) {
                 red_users.validateToken(bearerToken, function (err, result) {
@@ -28,11 +29,11 @@ var userAuth = {
                     else if (err.message == "outdatedtoken") {
                         //token outdated, need to ask for another token (see with emre)
                         console.log("outdated token");
-                        res.status(401).send("Unauthorized");
+                        res.status(401).send("error token");
                     }
                     else if (err.message == "tokenunmatcherror") {
                         //else if token does not exist, do nothing, the user is not authenticated
-                        res.status(401).send("Unauthorized");
+                        res.status(401).send("error num");
                     }
                     next();
                 });

@@ -33,7 +33,7 @@ var red_users = require('../red_modules/red-users');
  *      description: Get the result from all the pool of  devices, all the data it already produce
  *      produces:
  *        - application/json
- *
+
  *      responses:
  *        200:
  *          description: A json document that contain all the data related to the device.

@@ -36,8 +36,8 @@ app.use('/', docs);
 app.use('/',usersAuth);
 
 //devices routes are accessible either with a certificate or a token
-app.use('/', certAuth.ensureCertAuthenticated, devices); //routes protected by certificate
-app.use('/',userAuth.ensureAuthenticated, users); //routes protected by user token
+//app.use('/', certAuth.ensureCertAuthenticated, devices); //routes protected by certificate
+app.use('/', userAuth.ensureAuthenticated, users); //routes protected by user token
 
 module.exports = app;
 
