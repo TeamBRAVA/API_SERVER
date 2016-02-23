@@ -44,30 +44,28 @@ var auth = {
         if (req.headers['x-ssl-cert']) {
             var cert = req.headers['x-ssl-cert'].replace(/\t/g, '\n');	// Replace some non-desired caracters
             pem.getFingerprint(cert, function (error, f) {
-                ssl.fingerprint = f.fingerprint;
-            });
-        } else {
-            ssl.fingerprint = null;
-        }
+                ssl.fingerprint = f.fingerprint; //retrieve fingerprint
         
-        console.log(ssl);
-        
-        //check if fingerprint is ok
-        if (ssl.verified === true && ssl.fingerprint) {		// If the client certificate is valid and is found
-            db.collection('device').findOne({ "certificate.fingerprint": ssl.fingerprint }, function (err, results) {	// Check inside the database
-                if (results != null) {
-                    console.log("Device : " + results._id.toString() + " initiate a connection ....");		// Authentication complete the id is pass for other middlewares
-                    req.device.id = results._id.toString();
-                    
-                } else {
-                    console.log("The device that initiate the connection doesn't exist !\nErrors : " + err);		// Authentication failed the cert is not ine the database
+                // If the client certificate is valid and is found (i.e header is set and fingerprint is not null)
+                if (ssl.verified === true && ssl.fingerprint) {		
+                    db.collection('device').findOne({ "certificate.fingerprint": ssl.fingerprint }, function (err, results) {	// Check inside the database
+                        if (results != null) {
+                            console.log("Device : " + results._id.toString() + " initiate a connection ....");		// Authentication complete the id is pass for other middlewares
+                            req.device.id = results._id.toString();
+
+                        } else {
+                            console.log("The device that initiate the connection doesn't exist !\nErrors : " + err);		// Authentication failed the cert is not ine the database
                    
+                        }
+                    });
+                } else {
+                    console.log("ssl is not verified or fingerprint is empty");
                 }
             });
         } else {
-            console.log("ssl is not verified or fingerprint is empty");
+            console.log("header x-ssl-cert not correct");
         }
-        
+
         next();
     },
     
@@ -109,13 +107,13 @@ var auth = {
                     else if (err.message == "outdatedtoken") {
                         //token outdated, need to ask for another token (see with emre)
                         console.log("outdated token");
-                        
+
                     }
                     else if (err.message == "tokenunmatcherror") {
                         //else if token does not exist, do nothing, the user is not authenticated
                         console.log("token num match error");
                     }
-                    
+
                 });
             }
             else {
@@ -124,10 +122,10 @@ var auth = {
             }
         }
         else {
-           //no header authorization in request 
-           console.log('no token header provided');
+            //no header authorization in request 
+            console.log('no token header provided');
         }
-        
+
         next();
     },
     
@@ -138,14 +136,14 @@ var auth = {
      * @param {object} next callback used to call the next express middleware
      */
     gateway: function (req, res, next) {
-        if(req.user.token != null && req.device.id != null){
+        if (req.user.token != null && req.device.id != null) {
             console.log("error, should not be authenticated as a device AND a user");
-            res.status(404).send({ err: "can't have a certificate AND a token "});
+            res.status(404).send({ err: "can't have a certificate AND a token " });
         } else if (req.user.token != null || req.device.id != null) {
             next();
-        } else if(req.user.token == null && req.device.id == null) {
+        } else if (req.user.token == null && req.device.id == null) {
             res.status(401).send({ err: 'no token or certificate' });
-        }else {
+        } else {
             res.status(404).send({ err: 'problem with authentication' });
         }
     }
