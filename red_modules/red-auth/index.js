@@ -29,31 +29,32 @@ var auth = {
         req.device = {
             id: null
         };
-        req.device.ssl = {};
-        req.device.authenticated = false;
+        var ssl = {};
         
         //verify ssl
         if (req.headers['x-ssl-verify'] == "SUCCESS") {	// The cert was verified by the CA
-            req.device.ssl.verified = true;
+            ssl.verified = true;
         } else if (req.headers['x-ssl-cert'] == "NONE") {	// The cert is not signed by our CA or has expired
-            req.device.ssl.verified = false;
+            req.ssl.verified = false;
         } else {	// No other possibilities, but in case ....
-            req.device.ssl.verified = false;
+            ssl.verified = false;
         }
         
         //get fingerprint
         if (req.headers['x-ssl-cert']) {
             var cert = req.headers['x-ssl-cert'].replace(/\t/g, '\n');	// Replace some non-desired caracters
             pem.getFingerprint(cert, function (error, f) {
-                req.device.ssl.fingerprint = f.fingerprint;
+                ssl.fingerprint = f.fingerprint;
             });
         } else {
-            req.device.ssl.fingerprint = null;
+            ssl.fingerprint = null;
         }
         
+        console.log(ssl);
+        
         //check if fingerprint is ok
-        if (req.device.ssl.verified === true && req.device.ssl.fingerprint) {		// If the client certificate is valid and is found
-            db.collection('device').findOne({ "certificate.fingerprint": req.device.ssl.fingerprint }, function (err, results) {	// Check inside the database
+        if (ssl.verified === true && ssl.fingerprint) {		// If the client certificate is valid and is found
+            db.collection('device').findOne({ "certificate.fingerprint": ssl.fingerprint }, function (err, results) {	// Check inside the database
                 if (results != null) {
                     console.log("Device : " + results._id.toString() + " initiate a connection ....");		// Authentication complete the id is pass for other middlewares
                     req.device.id = results._id.toString();
@@ -87,7 +88,6 @@ var auth = {
         if (typeof bearerHeader !== 'undefined') {
             var bearer = bearerHeader.split(" ");
             bearerToken = bearer[1];
-            console.log(bearerToken);
 
             if (bearerToken != null) {
                 red_users.validateToken(bearerToken, function (err, result) {
@@ -138,8 +138,6 @@ var auth = {
      * @param {object} next callback used to call the next express middleware
      */
     gateway: function (req, res, next) {
-        console.log("token"+req.user.token);
-        console.log("cert"+req.device.id);
         if(req.user.token != null && req.device.id != null){
             console.log("error, should not be authenticated as a device AND a user");
             res.status(404).send({ err: "can't have a certificate AND a token "});
