@@ -89,6 +89,13 @@ var app = {
 	/*	Add the granted flag to the permission 
 		Access to this function must be verified before use !! */
 	allow : function (id, callback) {
+		if( !( callback instanceof Function )) {
+			throw new Error("You have to provide a function callback as last parameter");
+		}
+		if ( !(id && typeof id == "string") ) {
+			callback(new Error("You must provide an ID as first parameter"));
+			return;
+		}
 		db.collection('permission').update( { _id: mongo.helper.toObjectID(id) }, {'$set' : {status : 'granted'}}, function (err, result) {
 			if(err) {
 				callback(err);
@@ -102,6 +109,13 @@ var app = {
 	/*	Add the denied flag to the permission, the permission is not deleted and will appear in the list
 		Access to this function must be verified before use !! */
 	deny : function (id, callback) {
+		if( !( callback instanceof Function )) {
+			throw new Error("You have to provide a function callback as last parameter");
+		}
+		if ( !(id && typeof id == "string") ) {
+			callback(new Error("You must provide an ID as first parameter"));
+			return;
+		}
 		db.collection('permission').update( { _id: mongo.helper.toObjectID(id)}, {'$set' : {status : 'denied'}}, function (err, result) {
 			if(err) {
 				callback(err);
