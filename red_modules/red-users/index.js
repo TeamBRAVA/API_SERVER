@@ -218,7 +218,7 @@ var app = {
 		});
 	},
 
-	//New
+	//verify that token is correct
 	validateToken : function ( bearerToken, callback ) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -276,9 +276,19 @@ var app = {
 				callback(err, false);
 			}
 			if( passwordHash.verify(user.password, result.password)) {
-				var cert = fs.readFileSync('../../CERTS/token.key');
+				//generate new token
+                var cert = fs.readFileSync('../../CERTS/token.key');
 				var newToken = jwt.sign(user, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
-				callback(err,newToken);
+                
+                //store the newly generated token in mongo
+                db.collection('user').update({username : user.username}, {'$set':{'token': newToken}}, function (err, result) {
+                    if(err){
+                        callback(new Error("tokensavingerror"),false);
+                    }else{
+                        callback(err,newToken);
+                    }
+                })
+				
    			}
 			else{
 				callback(new Error("passworderror"), false);
