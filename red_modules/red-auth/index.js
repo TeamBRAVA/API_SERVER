@@ -81,7 +81,9 @@ var auth = {
             id: null,
         }
         var bearerToken;
-        var bearerHeader = req.headers["authorization"];
+        var bearerHeader = req.headers["Authorization"];
+        console.log(bearerHeader);
+        console.log(req.headers);
 
         if (typeof bearerHeader !== 'undefined') {
             var bearer = bearerHeader.split(" ");
@@ -138,13 +140,13 @@ var auth = {
     gateway: function (req, res, next) {
         if (req.user.token != null && req.device.id != null) {
             console.log("error, should not be authenticated as a device AND a user");
-            res.status(404).send({ err: "can't have a certificate AND a token " });
+            res.status(404).send({ error: "can't have a certificate AND a token " });
         } else if (req.user.token != null || req.device.id != null) {
             next();
         } else if (req.user.token == null && req.device.id == null) {
-            res.status(401).send({ err: 'no token or certificate' });
+            res.status(404).send({ error: 'no token or certificate' });
         } else {
-            res.status(404).send({ err: 'problem with authentication' });
+            res.status(404).send({ error: 'problem with authentication' });
         }
     }
 

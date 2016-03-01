@@ -120,7 +120,7 @@ router.post('/login', function (req, res) {
 		  	res.status(200).json({ token: result }); 
 		}
 		else {
-			res.status(401).send({message: 'Unauthorized.'}); //401 Unauthorized
+			res.status(401).send({message: 'Unauthorized'}); //401 Unauthorized
 		}
 	});
 });
