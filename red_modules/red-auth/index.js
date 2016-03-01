@@ -81,9 +81,7 @@ var auth = {
             id: null,
         }
         var bearerToken;
-        var bearerHeader = req.headers["Authorization"];
-        console.log(bearerHeader);
-        console.log(req.headers);
+        var bearerHeader = req.headers["authorization"];
 
         if (typeof bearerHeader !== 'undefined') {
             var bearer = bearerHeader.split(" ");
@@ -144,9 +142,9 @@ var auth = {
         } else if (req.user.token != null || req.device.id != null) {
             next();
         } else if (req.user.token == null && req.device.id == null) {
-            res.status(404).send({ error: 'no token or certificate' });
+            res.status(401).send({ error: 'no token or certificate' });
         } else {
-            res.status(404).send({ error: 'problem with authentication' });
+            res.status(401).send({ error: 'authentication error' });
         }
     }
 
