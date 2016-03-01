@@ -232,8 +232,9 @@ var app = {
     			if (res != null ){ 
 					//Getting the certificate
 				    var cert = fs.readFileSync('../../CERTS/token.key');
-				    jwt.verify( bearerToken, cert, { algorithms: ['RS256'] , ignoreExpiration: false }, function(err, decoded) { //Checking features of token (the expiration date)
+				    jwt.verify( bearerToken, cert, { algorithms: ['HS256'] , ignoreExpiration: false }, function(err, decoded) { //Checking features of token (the expiration date)
 						if(err) { 
+                            console.log(err);
 					        callback(new Error("outdatedtoken"), false);
 					    }
 					    else{
@@ -278,7 +279,7 @@ var app = {
 			if( passwordHash.verify(user.password, result.password)) {
 				//generate new token
                 var cert = fs.readFileSync('../../CERTS/token.key');
-				var newToken = jwt.sign(user, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
+				var newToken = jwt.sign(user, cert, { algorithm: 'HS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
                 
                 //store the newly generated token in mongo
                 db.collection('user').update({username : user.username}, {'$set':{'token': newToken}}, function (err, result) {

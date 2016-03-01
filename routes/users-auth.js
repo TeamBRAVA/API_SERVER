@@ -64,7 +64,7 @@ router.post('/register', function (req, res) {
 		if (result == null){
 			//Sending user credentials inside the token
 			var cert = fs.readFileSync('../../CERTS/token.key');  // getting the private key DOES NOT WORK FOR API_SERVER, do ../CERTS/token.key
-			var token = jwt.sign(credentials, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
+			var token = jwt.sign(credentials, cert, { algorithm: 'HS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
 			//Storing the token inside the user credentials
 		  	var completeCredentials = {
 			    username: req.body.username,
