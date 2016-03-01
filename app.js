@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Custom middlewares
 app.use(cors);
-app.use(nocache);
+//app.use(nocache);
 
 //retrieve info from requests to be authenticated
 app.use(auth.certAuthenticated);
@@ -46,15 +46,15 @@ module.exports = app;
 
 // Custom middlewares definition
 function nocache(req, res, next) {
-  res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
-  res.header('Expires', '-1');
-  res.header('Pragma', 'no-cache');
-  next();
+    res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    res.header('Expires', '-1');
+    res.header('Pragma', 'no-cache');
+    next();
 }
 
-function cors(req, res, next){
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST');
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With,content-type, X-Auth-Key');
+function cors(req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
     next();
 }

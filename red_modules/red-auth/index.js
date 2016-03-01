@@ -81,7 +81,7 @@ var auth = {
             id: null,
         }
         var bearerToken;
-        var bearerHeader = req.headers["X-Auth-Key"];
+        var bearerHeader = req.headers["Authorization"];
         console.log(bearerHeader);
         console.log(req.headers);
 

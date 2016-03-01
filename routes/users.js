@@ -48,7 +48,7 @@ router.get('/user/device/result', function (req, res) {
     red_users.listDevices(req.user.token, function (err, result) {
         if (err) {
             console.error(err);
-            return res.respond(err, 404);
+            res.respond(err, 404);
         } else {
             devices.find(req.device.id, function (err, result) {
                 if (err) return console.error(err);
