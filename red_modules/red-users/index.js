@@ -122,7 +122,7 @@ var app = {
 			throw new Error("You have to provide a function callback as last parameter");
 		}
 		if ( !(id && typeof id == "string") ) {
-			callback(new Error("You must provide a mail as first parameter"));
+			callback(new Error("You must provide an id (string) as first parameter"));
 			return;
 		}
 		findOne({ _id : mongo.helper.toObjectID(id) }, function (err, result) {

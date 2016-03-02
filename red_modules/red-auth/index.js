@@ -99,7 +99,7 @@ var auth = {
                             if (err) {
                                 console.log(err);
                             } else {
-                                req.user.id = result;
+                                req.user.id = result.toString();
                                 req.user.authenticated = true;
                                 
                             }
