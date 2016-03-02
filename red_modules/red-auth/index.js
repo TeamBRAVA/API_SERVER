@@ -101,32 +101,35 @@ var auth = {
                             } else {
                                 req.user.id = result;
                                 req.user.authenticated = true;
+                                
                             }
+                            next();
                         });
                     }
                     else if (err.message == "outdatedtoken") {
                         //token outdated, need to ask for another token (see with emre)
                         console.log("outdated token");
+                        next();
 
                     }
                     else if (err.message == "tokenunmatcherror") {
                         //else if token does not exist, do nothing, the user is not authenticated
                         console.log("token num match error");
+                        next();
                     }
-
                 });
             }
             else {
                 //header authorization is present but no token
                 console.log('no token in header');
+                next();
             }
         }
         else {
             //no header authorization in request 
             console.log('no token header provided');
+            next();
         }
-
-        next();
     },
     
     /** 
