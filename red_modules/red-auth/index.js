@@ -103,6 +103,7 @@ var auth = {
                                 req.user.authenticated = true;
                                 
                             }
+                            console.log(req.user.id);
                             next();
                         });
                     }

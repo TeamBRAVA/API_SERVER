@@ -50,12 +50,16 @@ router.get('/user/device/result', function (req, res) {
             console.error(err);
             res.respond(err, 404);
         } else {
-            devices.find(req.device.id, function (err, result) {
-                if (err) return console.error(err);
-                res.respond(result);
+            console.log(result);
+            devices.find(result[0].id, function (err, result) {
+                if (err){
+                    res.respond(err,404);
+                }else {
+                    res.respond(result);
+                }
             });
         }
-    })
+    });
 });
 
 

@@ -120,7 +120,7 @@ var app = {
 			throw new Error("You have to provide a function callback as last parameter");
 		}
 		if ( !(token && typeof token == "string") ) {
-			callback(new Error("You must provide a mail as first parameter"));
+			callback(new Error("You must provide a token as first parameter"));
 			return;
 		}
 		findOne({ token: token }, function (err, result) {
@@ -128,6 +128,7 @@ var app = {
 				callback(err);
 			}
 			console.log("Find by ID");
+            console.log(result.devices);
 			callback(err, result.devices);
 		});
 	},
