@@ -50,14 +50,24 @@ router.get('/user/device/result', function (req, res) {
             console.error(err);
             res.respond(err, 404);
         } else {
-            console.log(result);
-            devices.find(result[0].id, function (err, result) {
-                if (err){
-                    res.respond(err,404);
-                }else {
-                    res.respond(result);
-                }
+            var toSend = [];
+            
+            //for each user's device, retrieve its informations
+            result.foreach(function (val, index, array) {
+                devices.find(val, function (err, res) {
+                    if (err) {
+                        res.respond(err, 404);
+                    } else {
+                        if (index < result.length) {
+                            toSend.push(res);
+                        } else {
+                            res.respond(toSend);
+                        }
+
+                    }
+                });
             });
+
         }
     });
 });
