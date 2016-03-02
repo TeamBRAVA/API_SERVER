@@ -293,7 +293,7 @@ var app = {
 			return;
 		}
 		if( !(user && typeof user == "string") ) {
-			callback( new Error("You must provide a user UD as second argument"));
+			callback( new Error("You must provide a user ID as second argument"));
 			return;
 		}
 		db.collection('user').update({_id : mongo.helper.toObjectID(user) }, {'$push': { devices: device } }, function (err, result) {

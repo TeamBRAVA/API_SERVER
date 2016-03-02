@@ -392,10 +392,11 @@ var devices = {
             throw new Error("You have to provide a function callback as last parameter");
         }
         if (!(id && typeof id == "string")) {
-            callback(new Error("You must provide an id in obj"));
+            callback(new Error("You must provide an id (string)"));
             return;
         }
-        db.collection('device').find({ _id: mongo.helper.toObjectID(id) }).toArray(function (err, result) {
+        //retrieve only the device's id and its data
+        db.collection('device').find({ _id: mongo.helper.toObjectID(id) },{_id: 1, data: 1}).toArray(function (err, result) {
             callback(err, result);
         });
     }

@@ -27,13 +27,19 @@ var red_users = require('../red_modules/red-users');
 
 /**
  *  @swagger
- *  /user/device/result:
- *    get:
+ *  /user/device/add:
+ *    post:
  *      tags: [Users]
- *      description: Get the result from all the pool of  devices, all the data it already produce
+ *      description: add a device to the user's list of devices
  *      produces:
  *        - application/json
-
+ *      parameters:
+ *        - name: body
+ *          description: device's id
+ *          in: body
+ *          required: true
+ *          schema: 
+ *            type: string
  *      responses:
  *        200:
  *          description: A json document that contain all the data related to the device.
@@ -43,7 +49,36 @@ var red_users = require('../red_modules/red-users');
  *          description: value asked not found
  *
  */
-router.get('/user/device/result', function (req, res) {
+router.post('/user/device/add', function (req, res) {
+    red_users.addDevice(req.body.id, req.user.id, callback);
+    
+    //callback function
+    function callback(err, result) {
+        if (err)
+            res.respond(err, 404);
+        else
+            res.respond(result);
+    }
+});
+
+/**
+ *  @swagger
+ *  /user/device/all:
+ *    get:
+ *      tags: [Users]
+ *      description: Get the list of all devices owned by the authenticated user and their data
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: A json document that contain all the data related to the device.
+ *        401:
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
+ *
+ */
+router.get('/user/device/all', function (req, res) {
     // Get the users informations
     red_users.find(req.user.id, function (err, result) {
         if (err) {
@@ -55,15 +90,15 @@ router.get('/user/device/result', function (req, res) {
             
             //for each user's device, retrieve its informations
             result.devices.forEach(function (val, index, array) {
-                devices.find(val, function (err, res) {
+                devices.find(val, function (err, device) {
                     if (err) {
                         res.respond(err, 404);
                     } else {
                         //add each to an array that will be sent back
-                        toSend.push(res);
+                        toSend.push(device);
                         
                         //if last device, send back the result
-                        if (index == result.length - 1) {
+                        if (index == result.devices.length - 1) {
                             console.log(toSend);
                             res.respond(toSend);
                         }
@@ -79,7 +114,7 @@ router.get('/user/device/result', function (req, res) {
 
 /**
  *  @swagger
- *  /user/device/result/{id}:
+ *  /user/device/{id}:
  *    get:
  *      tags: [Users]
  *      description: Get the sample of data the device has produce
@@ -102,7 +137,7 @@ router.get('/user/device/result', function (req, res) {
  *
  */
 // Get results from other devices (by id)
-router.get('/user/device/result/:id', function (req, res) {
+router.get('/user/device/:id', function (req, res) {
 
     var from = { user: req.user.id };
     var to = { device: req.params.id };
@@ -129,18 +164,17 @@ router.get('/user/device/result/:id', function (req, res) {
     }
 });
 
-// Create new devices with the corresponding certs inside de database ### OK ###
 /**
  *  @swagger
  *  /user/device/new/{nb}:
  *    get:
  *      tags: [Users]
- *      description: Get the most recent value matching the date & the data type.
+ *      description:  Create new devices with the corresponding certs inside de database
  *      produces:
  *        - application/json
  *      parameters:
  *        - name: nb
- *          description: quantity of new certificate to create
+ *          description: quantity of new devices to create
  *          in : path
  *          required : true
  *          schema:
@@ -188,7 +222,7 @@ router.get('/user/device/new/:nb', function (req, res) {
  *  /user/device:
  *    post:
  *      tags: [Users]
- *      description: Save data of the device sending the request
+ *      description: Save data correpondong to a certain device
  *      produces:
  *        - application/json
  *      parameters:
