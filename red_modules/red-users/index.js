@@ -115,23 +115,6 @@ var app = {
 		    callback(err, result);
 		});
 	},
-	listDevices: function(token,callback){
-		if( !( callback instanceof Function )) {
-			throw new Error("You have to provide a function callback as last parameter");
-		}
-		if ( !(token && typeof token == "string") ) {
-			callback(new Error("You must provide a token as first parameter"));
-			return;
-		}
-		findOne({ token: token }, function (err, result) {
-			if (err) {
-				callback(err);
-			}
-			console.log("Find by ID");
-            console.log(result.devices);
-			callback(err, result.devices);
-		});
-	},
 
 	// Find by ID
 	find : function (id, callback ) {
@@ -151,8 +134,8 @@ var app = {
 		    callback(err, result);
 		});
 	},
-	// not sure if useful but return _id with the token.
-	findUserByToken : function(token,callback){
+	// return _id associated to the token.
+	findByToken : function(token,callback){
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
 		}
@@ -182,7 +165,7 @@ var app = {
 		    callback(err, result);
 		});
 	},
-
+    //find by username
 	findUsername : function ( username, callback ) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -200,7 +183,7 @@ var app = {
 		    callback(err, result);
 		});
 	},
-
+    //find owner of device (device parameter must be a device's id) MIGHT NOT WORK, CHECK THE MONGO FUNCTION
 	own : function ( device, callback ) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -249,7 +232,8 @@ var app = {
     		});
 		}
 	},
-
+    
+    //verify user's credentials and send back a new token if authenticated
 	// User : { username or mail , password (plaintext) }
 	// Callback( err, boolean)
 	verify : function ( user, callback ) {

@@ -44,23 +44,27 @@ var red_users = require('../red_modules/red-users');
  *
  */
 router.get('/user/device/result', function (req, res) {
-    // Get all the id
-    red_users.listDevices(req.user.token, function (err, result) {
+    // Get the users informations
+    red_users.find(req.user.id, function (err, result) {
         if (err) {
             console.error(err);
             res.respond(err, 404);
         } else {
             var toSend = [];
+            console.log(result.devices);
             
             //for each user's device, retrieve its informations
-            result.foreach(function (val, index, array) {
+            result.devices.forEach(function (val, index, array) {
                 devices.find(val, function (err, res) {
                     if (err) {
                         res.respond(err, 404);
                     } else {
-                        if (index < result.length) {
-                            toSend.push(res);
-                        } else {
+                        //add each to an array that will be sent back
+                        toSend.push(res);
+                        
+                        //if last device, send back the result
+                        if (index == result.length - 1) {
+                            console.log(toSend);
                             res.respond(toSend);
                         }
 

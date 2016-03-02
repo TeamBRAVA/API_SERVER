@@ -95,7 +95,7 @@ var auth = {
                         req.user.token = bearerToken;
                         
                         //find user id with the token
-                        red_users.findUserByToken(bearerToken, function (err, result) {
+                        red_users.findByToken(bearerToken, function (err, result) {
                             if (err) {
                                 console.log(err);
                             } else {
