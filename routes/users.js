@@ -142,14 +142,17 @@ router.get('/user/device/:id', function (req, res) {
 
     var from = { user: req.user.id };
     var to = { device: req.params.id };
-
+    
+    console.log(req.params.id);
+    
     perm.checkRules(from, to, function (err, result) {
         if (err) {
             console.log(err)
-            res.respond("Data not found", 500);
+            res.respond("Data not found", 404);
             return;
         }
         if (result == true) {
+            console.log("checkRules ok");
             //call devices data function to retrieve asked data
             devices.find(req.params.id, callback);
         } else {
