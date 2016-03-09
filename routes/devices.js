@@ -48,6 +48,7 @@ var red_users = require('../red_modules/red-users');
  *          description: value asked not found
  *
  */
+////////////NOTWORKING  :: get only one device ? 
 router.get('/device/result', function (req, res) {
     devices.find(req.device.id, function (err, result) {
         if (err) return console.error(err);
@@ -81,6 +82,8 @@ router.get('/device/result', function (req, res) {
  *
  */
 // Get results from other devices (by id)
+
+////////////WORKING
 router.get('/device/result/:id', function (req, res) {
     devices.find(req.params.id, function (err, result) {
         if (err) return console.error(err);
@@ -115,6 +118,7 @@ router.get('/device/result/:id', function (req, res) {
  *        404:
  *          description: value asked not found
  */
+/////////////NOTTESTED
 router.get('/device/update', function (req, res) {
     //call update function
   
@@ -210,10 +214,11 @@ router.get('/device/update', function (req, res) {
  *          description: value asked not found
  *
  */
+//////////////
 router.get('/device/other/:id/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
-        "id": req.params.id,
+        "_id": req.params.id,
         "datatype": req.params.datatype
     };
 
@@ -224,7 +229,8 @@ router.get('/device/other/:id/:datatype', function (req, res) {
 
     perm.verify(from, to, access, function (err, result) {
         if(err) {
-            res.respond(err, 500);
+            console.log(err);
+            res.respond(new Error("Data not found"), 500);
             return;
         }
         if(result == true) {
@@ -237,8 +243,10 @@ router.get('/device/other/:id/:datatype', function (req, res) {
 
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond(new Error("Data not found"),404);
+        }
         else
             res.respond(result);
     }
@@ -288,7 +296,7 @@ router.get('/device/other/:id/:datatype', function (req, res) {
 router.get('/device/other/:id/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
-        "id": req.params.id,
+        "_id": req.params.id,
         "datatype": req.params.datatype,
         "date": req.params.date
     };
@@ -299,7 +307,7 @@ router.get('/device/other/:id/:datatype/:date', function (req, res) {
     function callback(err, result) {
         if (err){
             console.log(err);
-            res.respond({err : "data not found"}, 404);
+            res.respond(new Error("Data not found"), 404);
         }
         else
             res.respond(result);
@@ -337,7 +345,7 @@ router.get('/device/other/:id/:datatype/:date', function (req, res) {
 router.post('/device/other/:id', function (req, res) {
     //Create the object
     var device = {
-        id: req.params.id,
+        _id: req.params.id,
         datatype: req.body.datatype,
         value: req.body.value,
     }
@@ -348,7 +356,7 @@ router.post('/device/other/:id', function (req, res) {
     function callback(err, result) {
         if (err){
             console.log(err);
-            res.respond({err : "data not found"}, 404);
+            res.respond(new Error("Data not found"), 404);
         }
         else
             res.respond(result);
@@ -384,7 +392,7 @@ router.post('/device/other/:id', function (req, res) {
 router.get('/device/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
-        "id": req.device.id,
+        "_id": req.device.id,
         "datatype": req.params.datatype
     };
     //call devices data function to retrieve asked data
@@ -394,7 +402,7 @@ router.get('/device/:datatype', function (req, res) {
     function callback(err, result) {
         if (err){
             console.log(err);
-            res.respond({err : "data not found"}, 404);
+            res.respond(new Error("Data not found"), 404);
         }
         else
             res.respond(result);
@@ -437,7 +445,7 @@ router.get('/device/:datatype', function (req, res) {
 router.get('/device/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
-        "id": req.device.id,
+        "_id": req.device.id,
         "datatype": req.params.datatype,
         "date": req.params.date
     };
@@ -448,7 +456,7 @@ router.get('/device/:datatype/:date', function (req, res) {
     function callback(err, result) {
         if (err){
             console.log(err);
-            res.respond({err : "data not found"}, 404);
+            res.respond(new Error("Data not found"), 404);
         }
         else
             res.respond(result);
@@ -484,7 +492,7 @@ router.get('/device/:datatype/:date', function (req, res) {
 router.post('/device', function (req, res) {
     //Create the object containing fields to search for
     var device = {
-        id: req.device.id,
+        _id: req.device.id,
         datatype: req.body.datatype,
         value: req.body.value,
     }
@@ -495,7 +503,7 @@ router.post('/device', function (req, res) {
     function callback(err, result) {
         if (err){
             console.log(err);
-            res.respond({err : "data not found"}, 404);
+            res.respond(new Error("Data not found"), 404);
         }
         else
             res.respond(result);
