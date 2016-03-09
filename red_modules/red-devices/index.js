@@ -60,15 +60,15 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(path && typeof path == "string")) {
+        if (!(path && typeof path === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
-        if (!(passphrase && typeof passphrase == "string")) {
+        if (!(passphrase && typeof passphrase === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
-        if (!(fingerprint && typeof fingerprint == "string")) {
+        if (!(fingerprint && typeof fingerprint === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -127,15 +127,15 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id == "string")) {
+        if (!(obj._id && typeof obj._id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
-        if (!(obj.token && typeof obj.token == "string")) {
+        if (!(obj.token && typeof obj.token === "string")) {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        if (!(obj.expDate && typeof obj.expDate == "string")) {
+        if (!(obj.expDate && typeof obj.expDate === "string")) {
             callback(new Error("You must provide a token in obj"));
             return;
         }
@@ -156,11 +156,11 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id == "string")) {
+        if (!(obj._id && typeof obj._id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
-        if (!(obj.certfkey && typeof obj.certfkey == "string")) {
+        if (!(obj.certfkey && typeof obj.certfkey === "string")) {
             callback(new Error("You must provide a token in obj"));
             return;
         }
@@ -181,11 +181,11 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id == "string")) {
+        if (!(obj._id && typeof obj._id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
-        if (!(obj.path && typeof obj.path == "string")) {
+        if (!(obj.path && typeof obj.path === "string")) {
             callback(new Error("You must provide a token in obj"));
             return;
         }
@@ -206,11 +206,11 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id == "string")) {
+        if (!(obj._id && typeof obj._id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
-        if (!(obj.newsoftware && typeof obj.newsoftware == "string")) {
+        if (!(obj.newsoftware && typeof obj.newsoftware === "string")) {
             callback(new Error("You must provide a token in obj"));
             return;
         }
@@ -231,11 +231,11 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id == "string")) {
+        if (!(obj._id && typeof obj._id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
-        if (!(obj.v && typeof obj.v == "string")) {
+        if (!(obj.v && typeof obj.v === "string")) {
             callback(new Error("You must provide a token in obj"));
             return;
         }
@@ -257,15 +257,15 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id == "string")) {
+        if (!(obj._id && typeof obj._id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
-        if (!(obj.datatype && typeof obj.datatype == "string")) {
+        if (!(obj.datatype && typeof obj.datatype === "string")) {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        if (!(obj.value && typeof obj.value == "string")) {
+        if (!(obj.value && typeof obj.value === "string")) {
             callback(new Error("You must provide a token in obj"));
             return;
         }
@@ -304,11 +304,11 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id == "string")) {
+        if (!(obj._id && typeof obj._id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
-        if (!(obj.datatype && typeof obj.datatype == "string")) {
+        if (!(obj.datatype && typeof obj.datatype === "string")) {
             callback(new Error("You must provide a token in obj"));
             return;
         }
@@ -351,22 +351,21 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id == "string")) {
+        if (!(obj._id && typeof obj._id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
-        if (!(obj.datatype && typeof obj.datatype == "string")) {
+        if (!(obj.datatype && typeof obj.datatype === "string")) {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        if (!(obj.date && typeof obj.date == "string")) {
+        if (!(obj.date && typeof obj.date === "string")) {
             callback(new Error("You must provide a token in obj"));
             return;
         }
         db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj._id), "data.datatype": obj.datatype, "data.date": obj.date }, function (err, result) {
-            if (err) console.log(err);
-
             var iToReturn;
+            console.log(result);
             if (result != null) {
                 //return the last data corresponding to the datatype and the date given in parameter
                 result.data.forEach(function (val, i, array) {
@@ -391,7 +390,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(id && typeof id == "string")) {
+        if (!(id && typeof id === "string")) {
             callback(new Error("You must provide an id (string)"));
             return;
         }

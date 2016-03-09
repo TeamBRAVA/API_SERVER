@@ -298,9 +298,9 @@ router.get('/device/other/:id/:datatype', function (req, res) {
 router.get('/device/other/:id/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
-        "_id": req.params.id,
-        "datatype": req.params.datatype,
-        "date": req.params.date
+        "_id": req.params.id.toString(),
+        "datatype": req.params.datatype.toString(),
+        "date": req.params.date.toString()
     };
     //call devices data function to retrieve asked data
     devices.pullDatatypeAndDate(condition, callback);
