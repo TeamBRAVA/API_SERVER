@@ -250,11 +250,11 @@ var app = {
 			callback(new Error("You must provide an collection name as second key"));
 			return;
 		}
-		if ( !(Object.keys(from)[1] && typeof Object.keys(from)[1] == "string") ) {
+		if ( !(from[Object.keys(from)[0]] && typeof from[Object.keys(from)[0]] == "string") ) {
 			callback(new Error("You must provide an ID as first parameter"));
 			return;
 		}
-		if ( !(Object.keys(to)[1] && typeof Object.keys(to)[1] == "string") ) {
+		if ( !(to[Object.keys(to)[0]] && typeof to[Object.keys(to)[0]] == "string") ) {
 			callback(new Error("You must provide an ID as second parameter"));
 			return;
 		}

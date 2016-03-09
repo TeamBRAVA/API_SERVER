@@ -143,7 +143,6 @@ router.get('/user/device/:id', function (req, res) {
     var from = { user: req.user.id };
     var to = { device: req.params.id };
     
-    console.log(req.params.id);
     
     perm.checkRules(from, to, function (err, result) {
         if (err) {
