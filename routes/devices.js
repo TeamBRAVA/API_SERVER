@@ -84,7 +84,7 @@ router.get('/result', function (req, res) {
 // Get results from other devices (by id)
 
 ////////////WORKING
-router.get('/device/result/:id', function (req, res) {
+router.get('/result/:id', function (req, res) {
     devices.find(req.params.id, function (err, result) {
         if (err) return console.error(err);
         res.respond(result);
@@ -119,7 +119,7 @@ router.get('/device/result/:id', function (req, res) {
  *          description: value asked not found
  */
 /////////////NOTIMPLEMENTED
-router.get('/device/update', function (req, res) {
+router.get('/update', function (req, res) {
     //call update function
   
     //callback function
@@ -215,7 +215,7 @@ router.get('/device/update', function (req, res) {
  *
  */
 //////////////WOKING
-router.get('/device/other/:id/:datatype', function (req, res) {
+router.get('/other/:id/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
         "_id": req.params.id,
