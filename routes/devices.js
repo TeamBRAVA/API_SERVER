@@ -293,8 +293,7 @@ router.get('/other/:id/:datatype', function (req, res) {
  *          description: value asked not found
  *
  */
-////////////http://dev2.red-cloud.io/device/other/56b5e4fc7a80b13b2149b900/temp/1456150962730
-//////////// BAD GATEWAY
+////////////WORKING
 router.get('/other/:id/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
