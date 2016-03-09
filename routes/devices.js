@@ -49,7 +49,7 @@ var red_users = require('../red_modules/red-users');
  *
  */
 ////////////NOTWORKING  :: get only one device ? 
-router.get('/device/result', function (req, res) {
+router.get('/result', function (req, res) {
     devices.find(req.device.id, function (err, result) {
         if (err) return console.error(err);
         res.respond(result);
