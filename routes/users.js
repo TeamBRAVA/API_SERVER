@@ -49,7 +49,7 @@ var red_users = require('../red_modules/red-users');
  *          description: value asked not found
  *
  */
-router.post('/user/device/add', function (req, res) {
+router.post('/device/add', function (req, res) {
     red_users.addDevice(req.body.id, req.user.id, callback);
     
     //callback function
@@ -79,7 +79,7 @@ router.post('/user/device/add', function (req, res) {
  *          description: value asked not found
  *
  */
-router.get('/user/device/all', function (req, res) {
+router.get('/device/all', function (req, res) {
     // Get the users informations
     red_users.find(req.user.id, function (err, result) {
         if (err) {
@@ -138,7 +138,7 @@ router.get('/user/device/all', function (req, res) {
  *
  */
 // Get results from other devices (by id)
-router.get('/user/device/:id', function (req, res) {
+router.get('/device/:id', function (req, res) {
 
     var from = { user: req.user.id };
     var to = { device: req.params.id };
@@ -193,7 +193,7 @@ router.get('/user/device/:id', function (req, res) {
  *          description: value asked not found
  */
 
-router.get('/user/device/new/:nb', function (req, res) {
+router.get('/device/new/:nb', function (req, res) {
 
     // Set some absolute path
     certs.setCA(path.join(__dirname, '../CERTS/CA/ca.pem'), path.join(__dirname, '../CERTS/CA/ca.key'), "Ek12Bb@.");
@@ -247,7 +247,7 @@ router.get('/user/device/new/:nb', function (req, res) {
  *
  */
 
-router.post('/user/device', function (req, res) {
+router.post('/device', function (req, res) {
     //Create the object containing fields to search for
     var device = {
         _id: req.body.id,
@@ -300,7 +300,7 @@ router.post('/user/device', function (req, res) {
  *          description: could not load the data
  *
  */
-router.get('/user/permissions/:userid', function (req, res) {
+router.get('/permissions/:userid', function (req, res) {
     //get from url which user we want
     var condition = {
         "userid": req.params.userid,
@@ -354,7 +354,7 @@ router.get('/user/permissions/:userid', function (req, res) {
  *
  *
  */
-router.post('/user/permissions/new', function (req, res) {
+router.post('/permissions/new', function (req, res) {
     //Create the object
     var permissions = {
         _id: req.body._id,
@@ -397,7 +397,7 @@ router.post('/user/permissions/new', function (req, res) {
  *          description:
  *
  */
-router.post('/user/permissions/update', function (req, res) {
+router.post('/permissions/update', function (req, res) {
     //Create the object
     var permissions = {
         _id: req.body._id,
@@ -418,7 +418,7 @@ router.post('/user/permissions/update', function (req, res) {
 });
 
 /*ADMIN ROUTE, manage the permissions requests at a higher level*/
-router.get('/user/permissions/pending', function (req, res) {
+router.get('/permissions/pending', function (req, res) {
     //admin can see which permissions requests have a pending status.
 })
 
