@@ -304,7 +304,7 @@ var devices = {
             if (err) {
                 callback(err);
             } else {
-                var iToReturn;
+                var iToReturn = -1;
                 if (result != null) {
                     var date, biggestDate = 0;
                     //return the last data corresponding to the datatype given in parameter
@@ -317,14 +317,19 @@ var devices = {
                             }
                         }
                     })
+                    
+                    //if -1, there is no datatype at date asked
+                    if (iToReturn != -1) {
+                        //we retrieved the correct id, we can now build the object that will be sent back
+                        var toReturn = {
+                            value: result.data[iToReturn].value,
+                            date: result.data[iToReturn].date
+                        }
 
-                    //we retrieved the correct id, we can now build the object that will be sent back
-                    var toReturn = {
-                        value: result.data[iToReturn].value,
-                        date: result.data[iToReturn].date
+                        callback(err, toReturn);
+                    } else {
+                        callback(new Error("couple id and datatype not found"));
                     }
-
-                    callback(err, toReturn);
                 } else callback(new Error("id or datatype not found"));
             }
         })
@@ -358,7 +363,7 @@ var devices = {
             if (err) {
                 callback(err);
             } else {
-                var iToReturn;
+                var iToReturn = -1;
                 //console.log(result);
                 if (result != undefined || result != null) {
                     //return the last data corresponding to the datatype and the date given in parameter
@@ -367,13 +372,19 @@ var devices = {
                             iToReturn = i;
                         }
                     })
+                    
+                    //if -1, there is no datatype at date asked
+                    if (iToReturn != -1) {
+                        //we retrieved the correct id, we can now build the object that will be sent back
+                        var toReturn = {
+                            value: result.data[iToReturn].value,
+                            date: result.data[iToReturn].date
+                        }
 
-                    //we retrieved the correct id, we can now build the object that will be sent back
-                    var toReturn = {
-                        value: result.data[iToReturn].value,
-                        date: result.data[iToReturn].date
+                        callback(err, toReturn);
+                    } else {
+                        callback(new Error("couple id and datatype not found"));
                     }
-                    callback(err, toReturn);
                 } else callback(new Error("id or datatype not found"));
             }
 
