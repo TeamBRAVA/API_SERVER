@@ -293,6 +293,7 @@ router.get('/device/other/:id/:datatype', function (req, res) {
  *          description: value asked not found
  *
  */
+////////////NOTTESTED
 router.get('/device/other/:id/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
@@ -388,7 +389,7 @@ router.post('/device/other/:id', function (req, res) {
  *          description: value asked not found
  *
  */
-
+//////////////WORKING
 router.get('/device/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
@@ -442,6 +443,7 @@ router.get('/device/:datatype', function (req, res) {
  *          description: value asked not found
  *
  */
+/////////////// BAD GATEWAY ? 
 router.get('/device/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
