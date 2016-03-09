@@ -230,7 +230,7 @@ router.get('/device/other/:id/:datatype', function (req, res) {
     perm.verify(from, to, access, function (err, result) {
         if(err) {
             console.log(err);
-            res.respond(new Error("Data not found"), 500);
+            res.respond("Data not found", 500);
             return;
         }
         if(result == true) {
@@ -245,7 +245,7 @@ router.get('/device/other/:id/:datatype', function (req, res) {
     function callback(err, result) {
         if (err){
             console.log(err);
-            res.respond(new Error("Data not found"),404);
+            res.respond("Data not found",404);
         }
         else
             res.respond(result);
@@ -307,7 +307,7 @@ router.get('/device/other/:id/:datatype/:date', function (req, res) {
     function callback(err, result) {
         if (err){
             console.log(err);
-            res.respond(new Error("Data not found"), 404);
+            res.respond("Data not found", 404);
         }
         else
             res.respond(result);
@@ -356,7 +356,7 @@ router.post('/device/other/:id', function (req, res) {
     function callback(err, result) {
         if (err){
             console.log(err);
-            res.respond(new Error("Data not found"), 404);
+            res.respond("Data not found", 404);
         }
         else
             res.respond(result);
@@ -402,7 +402,7 @@ router.get('/device/:datatype', function (req, res) {
     function callback(err, result) {
         if (err){
             console.log(err);
-            res.respond(new Error("Data not found"), 404);
+            res.respond("Data not found", 404);
         }
         else
             res.respond(result);
@@ -456,7 +456,7 @@ router.get('/device/:datatype/:date', function (req, res) {
     function callback(err, result) {
         if (err){
             console.log(err);
-            res.respond(new Error("Data not found"), 404);
+            res.respond("Data not found", 404);
         }
         else
             res.respond(result);
@@ -503,7 +503,7 @@ router.post('/device', function (req, res) {
     function callback(err, result) {
         if (err){
             console.log(err);
-            res.respond(new Error("Data not found"), 404);
+            res.respond("Data not found", 404);
         }
         else
             res.respond(result);
