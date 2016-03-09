@@ -36,6 +36,7 @@ app.use('/',function(req,res,next){
     req.user = {
         id : "56bbb4727cc2bddf7abb7ac8"
     }
+    next();
 });
 
 /**  CUSTOM ROUTES */

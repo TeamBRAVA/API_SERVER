@@ -213,7 +213,7 @@ router.get('/device/update', function (req, res) {
 router.get('/device/other/:id/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
-        "_id": req.params.id,
+        "id": req.params.id,
         "datatype": req.params.datatype
     };
 
@@ -288,7 +288,7 @@ router.get('/device/other/:id/:datatype', function (req, res) {
 router.get('/device/other/:id/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
-        "_id": req.params.id,
+        "id": req.params.id,
         "datatype": req.params.datatype,
         "date": req.params.date
     };
@@ -337,7 +337,7 @@ router.get('/device/other/:id/:datatype/:date', function (req, res) {
 router.post('/device/other/:id', function (req, res) {
     //Create the object
     var device = {
-        _id: req.params.id,
+        id: req.params.id,
         datatype: req.body.datatype,
         value: req.body.value,
     }
@@ -384,7 +384,7 @@ router.post('/device/other/:id', function (req, res) {
 router.get('/device/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
-        "_id": req.device.id,
+        "id": req.device.id,
         "datatype": req.params.datatype
     };
     //call devices data function to retrieve asked data
@@ -437,7 +437,7 @@ router.get('/device/:datatype', function (req, res) {
 router.get('/device/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
-        "_id": req.device.id,
+        "id": req.device.id,
         "datatype": req.params.datatype,
         "date": req.params.date
     };
@@ -484,7 +484,7 @@ router.get('/device/:datatype/:date', function (req, res) {
 router.post('/device', function (req, res) {
     //Create the object containing fields to search for
     var device = {
-        _id: req.device.id,
+        id: req.device.id,
         datatype: req.body.datatype,
         value: req.body.value,
     }
