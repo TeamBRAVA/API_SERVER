@@ -76,6 +76,13 @@ var app = {
 	/*	remove a permission in the database, given it's id
 		Access to this function need to be verified before use !! */
 	remove : function (id, callback) {
+		if( !( callback instanceof Function )) {
+			throw new Error("You have to provide a function callback as last parameter");
+		}
+		if ( !(id && typeof id == "string") ) {
+			callback(new Error("You must provide an ID as first parameter"));
+			return;
+		}
 		db.collection('permission').remove( { _id: mongo.helper.toObjectID(id) }, function (err, result) {
 		    if (err) {
 		    	callback(err);
@@ -132,7 +139,9 @@ var app = {
 	*/
 	list : function (collection, id, callback) {
 		var tasks, results = {};
-
+		if( !( callback instanceof Function )) {
+			throw new Error("You have to provide a function callback as last parameter");
+		}
 		if(!id) {
 			callback(new Error("You must provide an id"));
 			return;
@@ -230,6 +239,22 @@ var app = {
 			callback(new Error("Arguments 'from' and 'to' must contain only one parameter"), false);
 			return;
 		}
+		if ( !(Object.keys(from)[0] && typeof Object.keys(from)[0] == "string") ) {
+			callback(new Error("You must provide an collection name as key"));
+			return;
+		}
+		if ( !(Object.keys(to)[0] && typeof Object.keys(to)[0] == "string") ) {
+			callback(new Error("You must provide an collection name as second key"));
+			return;
+		}
+		if ( !(Object.keys(from)[1] && typeof Object.keys(from)[1] == "string") ) {
+			callback(new Error("You must provide an ID as first parameter"));
+			return;
+		}
+		if ( !(Object.keys(to)[1] && typeof Object.keys(to)[1] == "string") ) {
+			callback(new Error("You must provide an ID as second parameter"));
+			return;
+		}
 		from.collection = Object.keys(from)[0];
 		to.collection = Object.keys(to)[0];
 		from.id = from[from.collection];
@@ -246,7 +271,8 @@ var app = {
 			// Find if the device is owned by the user
 			db.collection('user').count({_id : mongo.helper.toObjectID(from.id), devices : { '$elemMatch' :  to.id } }, function (err, count) {
 				if(err || count == 0) {
-					callback(err, false);
+					// need to log the real error ?? 
+					callback(new Error(" Id s are not found, please provide existing id"), false);
 					return;
 				}
 				callback(err, true);
@@ -255,7 +281,8 @@ var app = {
 			// Find if the user has the devices in its set
 			db.collection('user').count({_id : mongo.helper.toObjectID(to.id), devices : { '$elemMatch' : from.id } }, function (err, count) {
 				if(err || count == 0) {
-					callback(err, false);
+					// Again we need to log the real error
+					callback(new Error(" Id s are not found, please provide existing id"), false);
 					return;
 				}
 				callback(err, true);

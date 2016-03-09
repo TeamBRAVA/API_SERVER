@@ -91,7 +91,8 @@ router.get('/user/device/result/:id', function (req, res) {
 
     perm.checkRules(from, to, function (err, result) {
         if (err) {
-            res.respond(err, 500);
+            console.log(err)
+            res.respond({err : "Data not found"}, 500);
             return;
         }
         if (result == true) {
@@ -204,7 +205,8 @@ router.post('/user/device', function (req, res) {
 
     perm.checkRules(from, to, function (err, result) {
         if (err) {
-            res.respond(err, 500);
+            console.log(err)
+            res.respond({err : "Data not found"}, 500);
             return;
         }
         if (result == true) {
