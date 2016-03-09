@@ -297,8 +297,10 @@ router.get('/device/other/:id/:datatype/:date', function (req, res) {
   
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond({err : "data not found"}, 404);
+        }
         else
             res.respond(result);
     }
@@ -344,8 +346,10 @@ router.post('/device/other/:id', function (req, res) {
   
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond({err : "data not found"}, 404);
+        }
         else
             res.respond(result);
     }
@@ -388,11 +392,13 @@ router.get('/device/:datatype', function (req, res) {
 
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond({err : "data not found"}, 404);
+        }
         else
             res.respond(result);
-    }    
+    }   
 });
 
 
@@ -440,8 +446,10 @@ router.get('/device/:datatype/:date', function (req, res) {
   
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond({err : "data not found"}, 404);
+        }
         else
             res.respond(result);
     }
@@ -485,8 +493,10 @@ router.post('/device', function (req, res) {
   
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond({err : "data not found"}, 404);
+        }
         else
             res.respond(result);
     }

@@ -33,7 +33,9 @@ app.use(nocache);
 //app.use(auth.tokenAuthenticated);
 
 app.use('/',function(req,res,next){
-    req.user.id = "56bbb4727cc2bddf7abb7ac8";        
+    req.user = {
+        id : "56bbb4727cc2bddf7abb7ac8"
+    }
 });
 
 /**  CUSTOM ROUTES */
