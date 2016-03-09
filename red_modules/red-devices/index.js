@@ -367,7 +367,7 @@ var devices = {
             if (err) console.log(err);
 
             var iToReturn;
-            if (result != undefined) {
+            if (result != null) {
                 //return the last data corresponding to the datatype and the date given in parameter
                 result.data.forEach(function (val, i, array) {
                     if (val.datatype == obj.datatype && val.date == obj.date) {
