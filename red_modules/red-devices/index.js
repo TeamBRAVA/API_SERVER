@@ -1,4 +1,6 @@
 // To connect the database
+var fs = require('fs');
+var jwt = require('jsonwebtoken');  //https://npmjs.org/package/node-jsonwebtoken
 var mongo = require('mongoskin');
 var db = mongo.db('mongodb://localhost/RED_DB');
 /* 
@@ -14,7 +16,6 @@ var device = {
   owner: String,
   creationDate,
   token: String,
-  expirationdate: String,
   certificate : {
     path : String,
     passphrase : String,
@@ -76,7 +77,7 @@ var devices = {
             owner: null,
             creationDate: Date.now(),
             token: null,
-            expirationdate: null,
+            corrupted : false,
             certificate: {
                 path: path,
                 passphrase: passphrase,
@@ -95,19 +96,6 @@ var devices = {
         });
     },
 
-    // Insert a new device  
-    // ### DON'T USE THIS METHOD ! ###
-    insertDevice: function (callback) {
-        if (!(callback instanceof Function)) {
-            throw new Error("You have to provide a function callback as last parameter");
-        }
-        db.collection('device').insert({}, function (err, result) {
-            if (result.result.ok == 1) {
-                callback(err, result.insertedIds[0]);
-            } else callback("error creating device");
-        });
-    },
-    
     /**
      * callback send back the number of rows affected by the query
      * @callback updateCallback
@@ -118,7 +106,7 @@ var devices = {
     /** 
      * Update Token and Expiration Date
      * @param {object} obj the object containing the fields to update
-     * @param {string} obj._id the device's id
+     * @param {string} obj.id the device's id
      * @param {string} obj.token the new token to update
      * @param {string} obj.expDate the token's expiration date
      * @param {updateCallback} callback send back the result of the query
@@ -127,7 +115,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id == "string")) {
+        if (!(obj.id && typeof obj.id == "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -139,7 +127,7 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { token: obj.token, expirationdate: obj.expDate }, function (err, nbRow) {
+        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { token: obj.token, expirationdate: obj.expDate }, function (err, nbRow) {
             console.log('Token is updated!');
             callback(err, nbRow);
         });
@@ -148,7 +136,7 @@ var devices = {
     /** 
      * Update Certificate Key
      * @param {object} obj the object containing the fields to update
-     * @param {string} obj._id the device's id
+     * @param {string} obj.id the device's id
      * @param {string} obj.certfkey the new certificate key
      * @param {updateCallback} callback send back the result of the query
      */
@@ -156,7 +144,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id == "string")) {
+        if (!(obj.id && typeof obj.id == "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -164,7 +152,7 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { certificatekey: obj.certfkey }, function (err, nbRow) {
+        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { certificatekey: obj.certfkey }, function (err, nbRow) {
             console.log('Certificate key is updated!');
             callback(err, nbRow);
         });
@@ -173,7 +161,7 @@ var devices = {
     /** 
      * Update Certificate path
      * @param {object} obj the object containing the fields to update
-     * @param {string} obj._id the device's id
+     * @param {string} obj.id the device's id
      * @param {string} obj.path the new certificate path
      * @param {updateCallback} callback send back the result of the query
      */
@@ -181,7 +169,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id == "string")) {
+        if (!(obj.id && typeof obj.id == "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -189,7 +177,7 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { pathtocertificate: obj.path }, function (err, nbRow) {
+        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { pathtocertificate: obj.path }, function (err, nbRow) {
             console.log('Path to the Certificate is updated!');
             callback(err, nbRow);
         });
@@ -206,7 +194,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id == "string")) {
+        if (!(obj.id && typeof obj.id == "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -214,8 +202,8 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { "$addToSet": { "softwarelist": obj.newsoftware } }, function (err, nbRow) {
-            console.log('Softwarelist of device', obj._id, 'is updated!');
+        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { "$addToSet": { "softwarelist": obj.newsoftware } }, function (err, nbRow) {
+            console.log('Softwarelist of device', obj.id, 'is updated!');
             callback(err, nbRow);
         });
     },
@@ -223,7 +211,7 @@ var devices = {
     /** 
      * Update the installed version of RED
      * @param {object} obj the object containing the fields to update
-     * @param {string} obj._id the device's id
+     * @param {string} obj.id the device's id
      * @param {string} obj.v the new version of RED software
      * @param {updateCallback} callback send back the result of the query
      */
@@ -231,7 +219,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id == "string")) {
+        if (!(obj.id && typeof obj.id == "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -239,8 +227,8 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { installedversionRED: obj.v }, function (err, nbRow) {
-            console.log('Installed version of RED is updated for device ', obj._id);
+        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { installedversionRED: obj.v }, function (err, nbRow) {
+            console.log('Installed version of RED is updated for device ', obj.id);
             callback(err, nbRow);
         });
     },
@@ -248,7 +236,7 @@ var devices = {
     /** 
      * Push new data into the chosen device
      * @param {object} obj the object containing the fields to update
-     * @param {string} obj._id the device's id
+     * @param {string} obj.id the device's id
      * @param {string} obj.datatype the type of data
      * @param {string} obj.value the value to store
      * @param {updateCallback} callback send back the result of the query
@@ -257,7 +245,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id == "string")) {
+        if (!(obj.id && typeof obj.id == "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -269,10 +257,10 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        db.collection('device').findOne({ _id: mongo.helper.toObjectID(obj._id) }, function (err, res) {
+        findOne({ _id: mongo.helper.toObjectID(obj.id) }, function (err, res) {
             if (res != undefined) {
                 var today = Date.now().toString(); //store the current date in a string
-                db.collection('device').update({ _id: mongo.helper.toObjectID(obj._id) }, { '$push': { data: { datatype: obj.datatype, value: obj.value, date: today } } }, function (err, nbRow) {
+                db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { '$push': { data: { datatype: obj.datatype, value: obj.value, date: today } } }, function (err, nbRow) {
                     console.log('New data are pushed into device ', obj._id);
                     callback(err, nbRow);
                 });
@@ -295,7 +283,7 @@ var devices = {
     /** 
      * Get last entry of specified device according to the datatype given in parameter
      * @param {object} obj the object containing the fields to search for
-     * @param {string} obj._id the device's id
+     * @param {string} obj.id the device's id
      * @param {string} obj.datatype the type of data
      * @param {pullCallback} callback send back the result of the query
      */
@@ -304,7 +292,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id == "string")) {
+        if (!(obj.id && typeof obj.id == "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -312,7 +300,7 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj._id), "data.datatype": obj.datatype }, function (err, result) {
+        findOne({ "_id": mongo.helper.toObjectID(obj.id), "data.datatype": obj.datatype }, function (err, result) {
             if (err) console.log(err);
             var iToReturn;
             if (result != undefined) {
@@ -342,7 +330,7 @@ var devices = {
     /** 
      * Get last entry of specified device according to the datatype and time given in parameter
      * @param {object} obj the object containing the fields to search for
-     * @param {string} obj._id the device's id
+     * @param {string} obj.id the device's id
      * @param {string} obj.datatype the type of data
      * @param {string} obj.date the time on which the data was saved
      * @param {pullCallback} callback send back the result of the query
@@ -351,7 +339,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id == "string")) {
+        if (!(obj.id && typeof obj.id == "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -363,7 +351,7 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj._id), "data.datatype": obj.datatype, "data.date": obj.date }, function (err, result) {
+        findOne({ "_id": mongo.helper.toObjectID(obj.id), "data.datatype": obj.datatype, "data.date": obj.date }, function (err, result) {
             if (err) console.log(err);
 
             var iToReturn;
@@ -399,7 +387,110 @@ var devices = {
         db.collection('device').find({ _id: mongo.helper.toObjectID(id) },{_id: 1, data: 1}).toArray(function (err, result) {
             callback(err, result);
         });
+    },
+
+    /** 
+     * Verify if the token is valid for the object.
+     * If the token is not valid before the expiration date occur, the device might be corrupted
+     * If it's the first connection, the database token will be null, and the bearerToken will be an empty string
+     * @param {String} id The id representing the device (aka req.device.id)
+     * @param {String} bearerToken The token for device authorization
+     * @param {pullCallback} callback send back the result of the query
+     */
+    validateToken : function ( id, bearerToken, callback ) {
+        if( !( callback instanceof Function )) {
+            throw new Error("You have to provide a function callback as last parameter");
+        }
+        if ( !(bearerToken && typeof bearerToken == "string") ) {
+            callback(new Error("You must provide a token (String) as first parameter"), false);
+            return;
+        }
+        else{
+            findOne({ "_id": mongo.helper.toObjectID(id)}, function (err, res) {
+                if (res != null ) { 
+                    // Get the certificate to decipher the token
+                    var cert = fs.readFileSync('../../CERTS/public.key'); //public key
+
+                    // Check if the tokens match
+                    if( res.token == bearerToken ) {
+                        jwt.verify( bearerToken, cert, { algorithms: ['RS256'] , ignoreExpiration: false }, function(err, decoded) { //Checking features of token (the expiration date)
+                            if(err) { // outdated
+                                console.log(err);
+                                callback(new Error("Token Outdated"), false);
+                            }
+                            else{
+                                // Not Outdated --> access granted
+                                callback(err, true);
+                            }
+                        });
+                    } else {
+                        if( res.token == null && bearerToken == "") {
+                            callback(new Error("First connection"), false);
+                        } else {
+                            this.corrupted(id, function (err) {
+                                callback(new Error("Tokens mismatch, corrupted object"), false);
+                            });
+                        }
+                    }
+                }
+                else{
+                    callback(new Error("No device found"), false);
+                }
+            });
+        }
+    },
+
+    /** 
+     * Declare an object as corrupted by setting it's flag in the database
+     * @param {String} id The id representing the device (aka req.device.id)
+     * @param {pullCallback} callback send back the errors of the query, null otherwise
+    */
+    corrupted : function(id, callback) {
+        db.collection('device').update({_id : mongo.helper.toObjectID(id)}, {corrupted : true}, function (err, result) {
+            if(err)
+                console.log("Cannot declare object " + id + " as corrupted");
+            callback(err);
+        });
+    },
+
+    /** 
+     * Declare an object as trusted by setting it's flag in the database
+     * @param {String} id The id representing the device (aka req.device.id)
+     * @param {pullCallback} callback send back the errors of the query, null otherwise
+    */
+    trusted : function(id, callback) {
+        db.collection('device').update({_id : mongo.helper.toObjectID(id)}, {corrupted : false}, function (err, result) {
+            if(err)
+                console.log("Cannot declare object " + id + " as trusted");
+            callback(err);
+        });
+    },
+
+    /** 
+     * Register a specific token for an 
+     * @param {String} id The id representing the device (aka req.device.id)
+     * @param {String} fingerprint the fingerprint of the object (aka req.ssl.fingerprint)
+     * @param {pullCallback} callback send back the errors of the query and the issued token if it complete
+    */
+    register : function(id, fingerprint, callback) {
+        var cert = fs.readFileSync('../../CERTS/token.key');  // getting the private key DOES NOT WORK FOR API_SERVER, do ../CERTS/token.key
+        var token = jwt.sign({id : id, fingerprint: fingerprint}, cert, { algorithm: 'HS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
+
+        db.collection('device').update({_id : mongo.helper.toObjectID(id)}, {token : token}, function (err, result) {
+            if(err) {
+                console.log("Cannot register token for object " + id);
+                callback(err);
+            } else {
+                callback(err, token);
+            }
+        });
     }
 
-}
+};
+
 module.exports = devices;
+
+
+function findOne ( condition, callback ) {
+    db.collection('device').findOne(condition, callback);
+}
