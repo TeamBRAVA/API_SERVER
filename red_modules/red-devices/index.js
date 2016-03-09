@@ -115,7 +115,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id === "string")) {
+        if (!(obj.id && typeof obj.id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -144,7 +144,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id === "string")) {
+        if (!(obj.id && typeof obj.id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -169,7 +169,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id === "string")) {
+        if (!(obj.id && typeof obj.id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -186,7 +186,7 @@ var devices = {
     /** 
      * Push a new software into the chosen device
      * @param {object} obj the object containing the fields to update
-     * @param {string} obj._id the device's id
+     * @param {string} obj.id the device's id
      * @param {string} obj.newsoftware the new software
      * @param {updateCallback} callback send back the result of the query
      */
@@ -194,7 +194,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id === "string")) {
+        if (!(obj.id && typeof obj.id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -219,7 +219,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id === "string")) {
+        if (!(obj.id && typeof obj.id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -245,7 +245,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id === "string")) {
+        if (!(obj.id && typeof obj.id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -261,7 +261,7 @@ var devices = {
             if (res != null) {
                 var today = Date.now().toString(); //store the current date in a string
                 db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { '$push': { data: { datatype: obj.datatype, value: obj.value, date: today } } }, function (err, nbRow) {
-                    console.log('New data are pushed into device ', obj._id);
+                    console.log('New data are pushed into device ', obj.id);
                     callback(err, nbRow);
                 });
             }
@@ -292,7 +292,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id === "string")) {
+        if (!(obj.id && typeof obj.id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -339,7 +339,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id === "string")) {
+        if (!(obj.id && typeof obj.id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
