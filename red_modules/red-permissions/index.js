@@ -262,13 +262,6 @@ var app = {
 		to.collection = Object.keys(to)[0];
 		from.id = from[from.collection];
 		to.id = to[to.collection];
-        
-        console.log(from.collection);
-        console.log(to.collection);
-        console.log(from.id);
-        console.log(from.id);
-
-
 
         // if the requestor is the target
         if (to.collection === from.collection && to.id === from.id) {
@@ -279,7 +272,7 @@ var app = {
             }
         } else if (to.collection === "device" && from.collection === "user") {
             // Find if the device is owned by the user
-            db.collection('user').count({ _id: mongo.helper.toObjectID(from.id), devices: { '$elemMatch': to.id } }, function (err, count) {
+            db.collection('user').count({ _id: mongo.helper.toObjectID(from.id), devices: to.id }, function (err, count) {
                 if (err || count == 0) {
                     callback(err, false);
                     return;
@@ -288,7 +281,7 @@ var app = {
             });
         } else if (to.collection === "user" && from.collection === "device") {
             // Find if the user has the devices in its set
-            db.collection('user').count({ _id: mongo.helper.toObjectID(to.id), devices: { '$elemMatch': from.id } }, function (err, count) {
+            db.collection('user').count({ _id: mongo.helper.toObjectID(to.id), devices: from.id }, function (err, count) {
                 if (err || count == 0) {
                     callback(err, false);
                     return;

@@ -143,7 +143,6 @@ router.get('/user/device/:id', function (req, res) {
     var from = { user: req.user.id };
     var to = { device: req.params.id };
     
-    
     perm.checkRules(from, to, function (err, result) {
         if (err) {
             console.log(err)
@@ -297,6 +296,8 @@ router.post('/user/device', function (req, res) {
  *      responses:
  *        200:
  *          description: permissions of the user
+ *        404:
+ *          description: could not load the data
  *
  */
 router.get('/user/permissions/:userid', function (req, res) {
