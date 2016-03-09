@@ -271,8 +271,7 @@ var app = {
 			// Find if the device is owned by the user
 			db.collection('user').count({_id : mongo.helper.toObjectID(from.id), devices : { '$elemMatch' :  to.id } }, function (err, count) {
 				if(err || count == 0) {
-					// need to log the real error ?? 
-					callback(new Error(" Id s are not found, please provide existing id"), false);
+					callback(err, false);
 					return;
 				}
 				callback(err, true);
@@ -281,8 +280,7 @@ var app = {
 			// Find if the user has the devices in its set
 			db.collection('user').count({_id : mongo.helper.toObjectID(to.id), devices : { '$elemMatch' : from.id } }, function (err, count) {
 				if(err || count == 0) {
-					// Again we need to log the real error
-					callback(new Error(" Id s are not found, please provide existing id"), false);
+					callback(err, false);
 					return;
 				}
 				callback(err, true);
