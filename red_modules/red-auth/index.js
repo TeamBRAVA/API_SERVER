@@ -92,7 +92,6 @@ var auth = {
                     //result is ok, user is authenticated and we store the cookie
                     if (result) {
                         console.log("user authenticated!");
-                        req.user.token = bearerToken;
                         
                         //find user id with the token
                         red_users.findByToken(bearerToken, function (err, result) {
@@ -103,13 +102,13 @@ var auth = {
                                 req.user.authenticated = true;
                                 
                             }
-                            console.log(req.user.id);
                             next();
                         });
                     }
                     else if (err.message == "outdatedtoken") {
                         //token outdated, need to ask for another token (see with emre)
                         console.log("outdated token");
+                        req.user.outdatedToken = true;
                         next();
 
                     }
@@ -140,12 +139,14 @@ var auth = {
      * @param {object} next callback used to call the next express middleware
      */
     gateway: function (req, res, next) {
-        if (req.user.token != null && req.device.id != null) {
+        if (req.user.token != null && req.device.id != null) { //check if there is a token AND a certificate, not possible
             console.log("error, should not be authenticated as a device AND a user");
             res.status(404).send({ error: "can't have a certificate AND a token " });
-        } else if (req.user.token != null || req.device.id != null) {
+        } else if (req.user.token != null || req.device.id != null) { //if there is one authentication, go on to the next middleware
             next();
-        } else if (req.user.token == null && req.device.id == null) {
+        } else if (req.user.outdatedToken) { //if token outdated
+            res.status(401).send({error: "outdated token"})
+        } else if (req.user.token == null && req.device.id == null) { //if no token or certificate
             res.status(401).send({ error: 'no token or certificate' });
         } else {
             res.status(401).send({ error: 'authentication error' });

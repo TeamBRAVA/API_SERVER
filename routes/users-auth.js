@@ -77,13 +77,13 @@ router.post('/register', function (req, res) {
 		  	//callback function
 		    function callback(err, result) {
 		        if (err)
-		            res.status(404).send({message: 'Cannot register the user.'}); //404 Not Found
+		            res.status(404).send({error: 'Cannot register the user.'}); //404 Not Found
 		        else
 		        	res.status(200).json({ token: token });
 		    }	
 	  	}
 	  	else{
-	  		res.status(400).send({message: 'User already exist, try to login.'}); //400 Bad Request
+	  		res.status(400).send({error: 'User already exist, try to login.'}); //400 Bad Request
 	  	}
 	});
 });
@@ -120,7 +120,7 @@ router.post('/login', function (req, res) {
 		  	res.status(200).json({ token: result }); 
 		}
 		else {
-			res.status(401).send({message: 'Unauthorized'}); //401 Unauthorized
+			res.status(401).send({error: 'Unauthorized'}); //401 Unauthorized
 		}
 	});
 });

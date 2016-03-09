@@ -29,8 +29,12 @@ app.options('*', cors()); //enable pre-flight across-the-board (custom requests 
 app.use(nocache);
 
 //retrieve info from requests to be authenticated
-app.use(auth.certAuthenticated);
-app.use(auth.tokenAuthenticated);
+//app.use(auth.certAuthenticated);
+//app.use(auth.tokenAuthenticated);
+
+app.use('/',function(req,res,next){
+    req.user.id = "56bbb4727cc2bddf7abb7ac8";        
+});
 
 /**  CUSTOM ROUTES */
 //route for swagger documentation
@@ -40,8 +44,8 @@ app.use('/', docs);
 app.use('/', usersAuth);
 
 //devices routes are accessible either with a certificate or a token
-app.use('/', auth.gateway, devices);
-app.use('/', auth.gateway, users);
+app.use('/', /*auth.gateway,*/ devices);
+app.use('/', /*auth.gateway,*/ users);
 
 module.exports = app;
 
