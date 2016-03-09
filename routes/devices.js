@@ -295,7 +295,7 @@ router.get('/device/other/:id/:datatype', function (req, res) {
  */
 ////////////http://dev2.red-cloud.io/device/other/56b5e4fc7a80b13b2149b900/temp/1456150962730
 //////////// BAD GATEWAY
-router.get('/device/other/:id/:datatype/:date', function (req, res) {
+router.get('/other/:id/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
         "_id": req.params.id.toString(),
@@ -344,7 +344,7 @@ router.get('/device/other/:id/:datatype/:date', function (req, res) {
  *          description: value asked not found
  *
  */
-router.post('/device/other/:id', function (req, res) {
+router.post('/other/:id', function (req, res) {
     //Create the object
     var device = {
         _id: req.params.id,
@@ -391,7 +391,7 @@ router.post('/device/other/:id', function (req, res) {
  *
  */
 //////////////WORKING
-router.get('/device/:datatype', function (req, res) {
+router.get('/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
         "_id": req.device.id,
@@ -446,7 +446,7 @@ router.get('/device/:datatype', function (req, res) {
  */
 /////////////// BAD GATEWAY ? 
 ///////////// http://dev2.red-cloud.io/device/temp/1456150962730
-router.get('/device/:datatype/:date', function (req, res) {
+router.get('/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
         "_id": req.device.id,
@@ -470,7 +470,7 @@ router.get('/device/:datatype/:date', function (req, res) {
 /* POST new data on the server */
 /**
  *  @swagger
- *  /device:
+ *  /device/newdata:
  *    post:
  *      tags: [Devices]
  *      description: Save data of the device sending the request
@@ -493,7 +493,7 @@ router.get('/device/:datatype/:date', function (req, res) {
  *
  */
 
-router.post('/device', function (req, res) {
+router.post('/newdata', function (req, res) {
     //Create the object containing fields to search for
     var device = {
         _id: req.device.id,
