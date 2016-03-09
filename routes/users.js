@@ -56,7 +56,7 @@ router.post('/user/device/add', function (req, res) {
     function callback(err, result) {
         console.log(err)
         if (err)
-            res.respond({err :"Could not add the device"}, 404);
+            res.respond("Could not add the device", 404);
         else
             res.respond(result);
     }
@@ -84,7 +84,7 @@ router.get('/user/device/all', function (req, res) {
     red_users.find(req.user.id, function (err, result) {
         if (err) {
             console.error(err);
-            res.respond({err : "Could not get the devices"}, 404);
+            res.respond("Could not get the devices", 404);
         } else {
             var toSend = [];
             console.log(result.devices);
@@ -146,7 +146,7 @@ router.get('/user/device/:id', function (req, res) {
     perm.checkRules(from, to, function (err, result) {
         if (err) {
             console.log(err)
-            res.respond({err : "Data not found"}, 500);
+            res.respond("Data not found", 500);
             return;
         }
         if (result == true) {
@@ -261,7 +261,7 @@ router.post('/user/device', function (req, res) {
     perm.checkRules(from, to, function (err, result) {
         if (err) {
             console.log(err)
-            res.respond({err : "Data not found"}, 500);
+            res.respond("Data not found", 500);
             return;
         }
         if (result == true) {
@@ -276,7 +276,7 @@ router.post('/user/device', function (req, res) {
     function callback(err, result) {
         if (err){
             console.log(err);
-            res.respond({err : "Could not load the data"}, 404);
+            res.respond("Could not load the data", 404);
         }
         else
             res.respond(result);
@@ -309,7 +309,7 @@ router.get('/user/permissions/:userid', function (req, res) {
     function callback(err, result) {
         if (err){
             console.log(err);
-            res.respond({err : "Could not load the data"}, 404);
+            res.respond("Could not load the data", 404);
         }
             
         else
@@ -364,7 +364,7 @@ router.post('/user/permissions/new', function (req, res) {
     function callback(err, result) {
         if (err){
             console.log(err);
-            res.respond(err, 404);
+            res.respond("error with permissions", 404);
         }
         else
             res.respond(result);
@@ -407,7 +407,7 @@ router.post('/user/permissions/update', function (req, res) {
     function callback(err, result) {
         if (err){
             console.log(err);
-            res.respond(err, 404);
+            res.respond("error with permissions", 404);
         }
         else
             res.respond(result);
