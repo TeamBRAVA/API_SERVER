@@ -257,8 +257,8 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        findOne({ _id: mongo.helper.toObjectID(obj.id) }, function (err, res) {
-            if (res != undefined) {
+        db.collection('device').findOne({ _id: mongo.helper.toObjectID(obj.id) }, function (err, res) {
+            if (res != null) {
                 var today = Date.now().toString(); //store the current date in a string
                 db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { '$push': { data: { datatype: obj.datatype, value: obj.value, date: today } } }, function (err, nbRow) {
                     console.log('New data are pushed into device ', obj._id);
@@ -300,10 +300,10 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        findOne({ "_id": mongo.helper.toObjectID(obj.id), "data.datatype": obj.datatype }, function (err, result) {
-            if (err) console.log(err);
+        db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj.id), "data.datatype": obj.datatype }, function (err, result) {
+            if(err) callback(err);
             var iToReturn;
-            if (result != undefined) {
+            if (result != null) {
                 var date, biggestDate = 0;
                 //return the last data corresponding to the datatype given in parameter
                 result.data.forEach(function (val, i, array) {
@@ -321,9 +321,9 @@ var devices = {
                     value: result.data[iToReturn].value,
                     date: result.data[iToReturn].date
                 }
-            } else toReturn = result;
-
-            callback(err, toReturn);
+                
+                callback(err, toReturn);
+            } else callback(new Error("id or datatype not found"));
         })
     },
 
@@ -351,9 +351,10 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        findOne({ "_id": mongo.helper.toObjectID(obj.id), "data.datatype": obj.datatype, "data.date": obj.date }, function (err, result) {
+        db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj.id), "data.datatype": obj.datatype, "data.date": obj.date }, function (err, result) {
+            if(err) callback(err);
             var iToReturn;
-            console.log(result);
+            //console.log(result);
             if (result != null) {
                 //return the last data corresponding to the datatype and the date given in parameter
                 result.data.forEach(function (val, i, array) {
@@ -367,9 +368,10 @@ var devices = {
                     value: result.data[iToReturn].value,
                     date: result.data[iToReturn].date
                 }
-            } else toReturn = result;
+                callback(err, toReturn);
+            } else callback(new Error("id or datatype not found"));
 
-            callback(err, toReturn);
+            
         });
     },
 
@@ -405,7 +407,7 @@ var devices = {
             return;
         }
         else{
-            findOne({ "_id": mongo.helper.toObjectID(id)}, function (err, res) {
+            db.collection('device').findOne({ "_id": mongo.helper.toObjectID(id)}, function (err, res) {
                 if (res != null ) { 
                     // Get the certificate to decipher the token
                     var cert = fs.readFileSync('../../CERTS/public.key'); //public key
@@ -488,8 +490,3 @@ var devices = {
 };
 
 module.exports = devices;
-
-
-function findOne ( condition, callback ) {
-    db.collection('device').findOne(condition, callback);
-}
