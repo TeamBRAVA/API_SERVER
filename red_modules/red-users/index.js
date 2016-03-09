@@ -115,22 +115,6 @@ var app = {
 		    callback(err, result);
 		});
 	},
-	listDevices: function(token,callback){
-		if( !( callback instanceof Function )) {
-			throw new Error("You have to provide a function callback as last parameter");
-		}
-		if ( !(token && typeof token == "string") ) {
-			callback(new Error("You must provide a mail as first parameter"));
-			return;
-		}
-		findOne({ token: token }, function (err, result) {
-			if (err) {
-				callback(err);
-			}
-			console.log("Find by ID");
-			callback(err, result.devices);
-		});
-	},
 
 	// Find by ID
 	find : function (id, callback ) {
@@ -138,7 +122,7 @@ var app = {
 			throw new Error("You have to provide a function callback as last parameter");
 		}
 		if ( !(id && typeof id == "string") ) {
-			callback(new Error("You must provide a mail as first parameter"));
+			callback(new Error("You must provide an id (string) as first parameter"));
 			return;
 		}
 		findOne({ _id : mongo.helper.toObjectID(id) }, function (err, result) {
@@ -150,8 +134,8 @@ var app = {
 		    callback(err, result);
 		});
 	},
-	// not sure if useful but return _id with the token.
-	findUserByToken : function(token,callback){
+	// return _id associated to the token.
+	findByToken : function(token,callback){
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
 		}
@@ -181,7 +165,7 @@ var app = {
 		    callback(err, result);
 		});
 	},
-
+    //find by username
 	findUsername : function ( username, callback ) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -199,7 +183,7 @@ var app = {
 		    callback(err, result);
 		});
 	},
-
+    //find owner of device (device parameter must be a device's id) MIGHT NOT WORK, CHECK THE MONGO FUNCTION
 	own : function ( device, callback ) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -218,7 +202,7 @@ var app = {
 		});
 	},
 
-	//New
+	//verify that token is correct
 	validateToken : function ( bearerToken, callback ) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -231,9 +215,10 @@ var app = {
 			findOne({ token: bearerToken }, function (err, res) {
     			if (res != null ){ 
 					//Getting the certificate
-				    var cert = fs.readFileSync('../../CERTS/token.key');
+				    var cert = fs.readFileSync('../../CERTS/public.key'); //public key
 				    jwt.verify( bearerToken, cert, { algorithms: ['RS256'] , ignoreExpiration: false }, function(err, decoded) { //Checking features of token (the expiration date)
 						if(err) { 
+                            console.log(err);
 					        callback(new Error("outdatedtoken"), false);
 					    }
 					    else{
@@ -247,7 +232,8 @@ var app = {
     		});
 		}
 	},
-
+    
+    //verify user's credentials and send back a new token if authenticated
 	// User : { username or mail , password (plaintext) }
 	// Callback( err, boolean)
 	verify : function ( user, callback ) {
@@ -276,9 +262,19 @@ var app = {
 				callback(err, false);
 			}
 			if( passwordHash.verify(user.password, result.password)) {
-				var cert = fs.readFileSync('../../CERTS/token.key');
+				//generate new token
+                var cert = fs.readFileSync('../../CERTS/token.key'); //private key
 				var newToken = jwt.sign(user, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
-				callback(err,newToken);
+                
+                //store the newly generated token in mongo
+                db.collection('user').update({username : user.username}, {'$set':{'token': newToken}}, function (err, result) {
+                    if(err){
+                        callback(new Error("tokensavingerror"),false);
+                    }else{
+                        callback(err,newToken);
+                    }
+                })
+				
    			}
 			else{
 				callback(new Error("passworderror"), false);
@@ -297,7 +293,7 @@ var app = {
 			return;
 		}
 		if( !(user && typeof user == "string") ) {
-			callback( new Error("You must provide a user UD as second argument"));
+			callback( new Error("You must provide a user ID as second argument"));
 			return;
 		}
 		db.collection('user').update({_id : mongo.helper.toObjectID(user) }, {'$push': { devices: device } }, function (err, result) {

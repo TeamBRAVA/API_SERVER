@@ -1,4 +1,5 @@
 var express = require('express');
+var cors = require('cors');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -23,41 +24,36 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Custom middlewares
-app.use(cors);
+app.use(cors());
+app.options('*', cors()); //enable pre-flight across-the-board (custom requests headers)
 app.use(nocache);
 
 //retrieve info from requests to be authenticated
-app.use(auth.certAuthenticated);
-app.use(auth.tokenAuthenticated);
+//app.use(auth.certAuthenticated);
+//app.use(auth.tokenAuthenticated);
+
+app.use('/',function(req,res,next){
+    req.user.id = "56bbb4727cc2bddf7abb7ac8";        
+});
 
 /**  CUSTOM ROUTES */
 //route for swagger documentation
 app.use('/', docs);
 
 //routes for the user authentication
-app.use('/',usersAuth);
-
-//ensure authenticated, everything under this function is protected by token or certificate authentication
-app.use('/',auth.doubleAuth);
+app.use('/', usersAuth);
 
 //devices routes are accessible either with a certificate or a token
-app.use('/', devices);
-app.use('/', users);
+app.use('/', /*auth.gateway,*/ devices);
+app.use('/', /*auth.gateway,*/ users);
 
 module.exports = app;
 
 
 // Custom middlewares definition
 function nocache(req, res, next) {
-  res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
-  res.header('Expires', '-1');
-  res.header('Pragma', 'no-cache');
-  next();
-}
-
-function cors(req, res, next){
-	res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST');
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
+    res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    res.header('Expires', '-1');
+    res.header('Pragma', 'no-cache');
     next();
 }
