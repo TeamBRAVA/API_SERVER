@@ -75,16 +75,25 @@ var app = {
 
 	/*	remove a permission in the database, given it's id
 		Access to this function need to be verified before use !! */
-    remove: function (id, callback) {
-        db.collection('permission').remove({ _id: mongo.helper.toObjectID(id) }, function (err, result) {
-            if (err) {
-                callback(err);
-                return;
-            }
-            console.log("Permission removed");
-            callback(err, result);
-        });
-    },
+
+	remove : function (id, callback) {
+		if( !( callback instanceof Function )) {
+			throw new Error("You have to provide a function callback as last parameter");
+		}
+		if ( !(id && typeof id == "string") ) {
+			callback(new Error("You must provide an ID as first parameter"));
+			return;
+		}
+		db.collection('permission').remove( { _id: mongo.helper.toObjectID(id) }, function (err, result) {
+		    if (err) {
+		    	callback(err);
+		    	return;
+		    }
+		    console.log("Permission removed");
+		    callback(err, result);
+		});
+	},
+
 
 	/*	Add the granted flag to the permission 
 		Access to this function must be verified before use !! */
@@ -130,6 +139,7 @@ var app = {
 		return an object containing two arrays : requestor and target
 		if the id is the target or the requestor of the permission, the result goes inside the corresponding array
 	*/
+
     list: function (collection, id, callback) {
         var tasks, results = {};
 
@@ -150,6 +160,7 @@ var app = {
             callback(new Error("You must provide a collection to the function ('device', 'user', 'permission')"));
             return;
         }
+
 
         async.forEachOf(tasks, function (task, key, cb) {
             db.collection('permission').find(task).toArray(function (err, result) {
@@ -224,16 +235,33 @@ var app = {
 		si un device veut récupérer les informations de son owner il peut le faire
 			-> to.collection : user && to.id = 'id de from.owner'
 	*/
-    checkRules: function (from, to, callback) {
-        // Parse the arguments
-        if (Object.keys(from).length != 1 && Object.keys(to).length != 1) {
-            callback(new Error("Arguments 'from' and 'to' must contain only one parameter"), false);
-            return;
-        }
-        from.collection = Object.keys(from)[0];
-        to.collection = Object.keys(to)[0];
-        from.id = from[from.collection];
-        to.id = to[to.collection];
+
+	checkRules : function (from, to, callback) {
+		// Parse the arguments
+		if(Object.keys(from).length != 1 && Object.keys(to).length != 1) {
+			callback(new Error("Arguments 'from' and 'to' must contain only one parameter"), false);
+			return;
+		}
+		if ( !(Object.keys(from)[0] && typeof Object.keys(from)[0] == "string") ) {
+			callback(new Error("You must provide an collection name as key"));
+			return;
+		}
+		if ( !(Object.keys(to)[0] && typeof Object.keys(to)[0] == "string") ) {
+			callback(new Error("You must provide an collection name as second key"));
+			return;
+		}
+		if ( !(from[Object.keys(from)[0]] && typeof from[Object.keys(from)[0]] == "string") ) {
+			callback(new Error("You must provide an ID as first parameter"));
+			return;
+		}
+		if ( !(to[Object.keys(to)[0]] && typeof to[Object.keys(to)[0]] == "string") ) {
+			callback(new Error("You must provide an ID as second parameter"));
+			return;
+		}
+		from.collection = Object.keys(from)[0];
+		to.collection = Object.keys(to)[0];
+		from.id = from[from.collection];
+		to.id = to[to.collection];
 
         // if the requestor is the target
         if (to.collection === from.collection && to.id === from.id) {
@@ -244,7 +272,7 @@ var app = {
             }
         } else if (to.collection === "device" && from.collection === "user") {
             // Find if the device is owned by the user
-            db.collection('user').count({ _id: mongo.helper.toObjectID(from.id), devices: { '$elemMatch': to.id } }, function (err, count) {
+            db.collection('user').count({ _id: mongo.helper.toObjectID(from.id), devices: to.id }, function (err, count) {
                 if (err || count == 0) {
                     callback(err, false);
                     return;
@@ -253,7 +281,7 @@ var app = {
             });
         } else if (to.collection === "user" && from.collection === "device") {
             // Find if the user has the devices in its set
-            db.collection('user').count({ _id: mongo.helper.toObjectID(to.id), devices: { '$elemMatch': from.id } }, function (err, count) {
+            db.collection('user').count({ _id: mongo.helper.toObjectID(to.id), devices: from.id }, function (err, count) {
                 if (err || count == 0) {
                     callback(err, false);
                     return;

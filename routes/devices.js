@@ -48,6 +48,7 @@ var red_users = require('../red_modules/red-users');
  *          description: value asked not found
  *
  */
+////////////NOTWORKING  :: get only one device ? 
 router.get('/device/result', function (req, res) {
     devices.find(req.device.id, function (err, result) {
         if (err) return console.error(err);
@@ -81,6 +82,8 @@ router.get('/device/result', function (req, res) {
  *
  */
 // Get results from other devices (by id)
+
+////////////WORKING
 router.get('/device/result/:id', function (req, res) {
     devices.find(req.params.id, function (err, result) {
         if (err) return console.error(err);
@@ -115,6 +118,7 @@ router.get('/device/result/:id', function (req, res) {
  *        404:
  *          description: value asked not found
  */
+/////////////NOTIMPLEMENTED
 router.get('/device/update', function (req, res) {
     //call update function
   
@@ -210,6 +214,7 @@ router.get('/device/update', function (req, res) {
  *          description: value asked not found
  *
  */
+//////////////WOKING
 router.get('/device/other/:id/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
@@ -224,7 +229,8 @@ router.get('/device/other/:id/:datatype', function (req, res) {
 
     perm.verify(from, to, access, function (err, result) {
         if(err) {
-            res.respond(err, 500);
+            console.log(err);
+            res.respond("Data not found", 500);
             return;
         }
         if(result == true) {
@@ -237,8 +243,10 @@ router.get('/device/other/:id/:datatype', function (req, res) {
 
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond("Data not found",404);
+        }
         else
             res.respond(result);
     }
@@ -285,6 +293,8 @@ router.get('/device/other/:id/:datatype', function (req, res) {
  *          description: value asked not found
  *
  */
+////////////http://dev2.red-cloud.io/device/other/56b5e4fc7a80b13b2149b900/temp/1456150962730
+//////////// BAD GATEWAY
 router.get('/device/other/:id/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
@@ -297,8 +307,10 @@ router.get('/device/other/:id/:datatype/:date', function (req, res) {
   
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond("Data not found", 404);
+        }
         else
             res.respond(result);
     }
@@ -344,8 +356,10 @@ router.post('/device/other/:id', function (req, res) {
   
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond("Data not found", 404);
+        }
         else
             res.respond(result);
     }
@@ -376,7 +390,7 @@ router.post('/device/other/:id', function (req, res) {
  *          description: value asked not found
  *
  */
-
+//////////////WORKING
 router.get('/device/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
@@ -388,11 +402,13 @@ router.get('/device/:datatype', function (req, res) {
 
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond("Data not found", 404);
+        }
         else
             res.respond(result);
-    }    
+    }   
 });
 
 
@@ -428,6 +444,8 @@ router.get('/device/:datatype', function (req, res) {
  *          description: value asked not found
  *
  */
+/////////////// BAD GATEWAY ? 
+///////////// http://dev2.red-cloud.io/device/temp/1456150962730
 router.get('/device/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
@@ -440,8 +458,10 @@ router.get('/device/:datatype/:date', function (req, res) {
   
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond("Data not found", 404);
+        }
         else
             res.respond(result);
     }
@@ -485,8 +505,10 @@ router.post('/device', function (req, res) {
   
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond("Data not found", 404);
+        }
         else
             res.respond(result);
     }

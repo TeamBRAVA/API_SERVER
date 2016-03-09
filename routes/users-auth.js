@@ -53,39 +53,42 @@ var red_users = require('../red_modules/red-users');
  *        401:
  *          description: invalid inputs
  */
-router.post('/register', function (req, res) {
-	var credentials = {
-	    username: req.body.username,
-	    password: req.body.password,
-	    mail: req.body.mail
-	  };
-	//Check is username if it is already exists
-	red_users.findUsername(credentials.username, function(err,result){
-		if (result == null){
-			//Sending user credentials inside the token
-			var cert = fs.readFileSync('../../CERTS/token.key');  // getting the private key DOES NOT WORK FOR API_SERVER, do ../CERTS/token.key
-			var token = jwt.sign(credentials, cert, { algorithm: 'HS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
-			//Storing the token inside the user credentials
-		  	var completeCredentials = {
-			    username: req.body.username,
-			    password: req.body.password,
-			    mail: req.body.mail,
-			    token: token
-			};
-		  	//Creating a new User
-		  	red_users.insert(completeCredentials,callback);
-		  	//callback function
-		    function callback(err, result) {
-		        if (err)
-		            res.status(404).send({error: 'Cannot register the user.'}); //404 Not Found
-		        else
-		        	res.status(200).json({ token: token });
-		    }	
-	  	}
-	  	else{
-	  		res.status(400).send({error: 'User already exist, try to login.'}); //400 Bad Request
-	  	}
-	});
+router.post('/register', function(req, res) {
+    var credentials = {
+        username: req.body.username,
+        password: req.body.password,
+        mail: req.body.mail
+    };
+    //Check is username if it is already exists
+    red_users.findUsername(credentials.username, function(err, result) {
+        if (result == null) {
+            //Sending user credentials inside the token
+            var cert = fs.readFileSync('../../CERTS/token.key');  // getting the private key DOES NOT WORK FOR API_SERVER, do ../CERTS/token.key
+            var token = jwt.sign(credentials, cert, { algorithm: 'HS256', expiresIn: 60 * 10 }); //expires in 10 minutes (value in seconds)
+            //Storing the token inside the user credentials
+            var completeCredentials = {
+                username: req.body.username,
+                password: req.body.password,
+                mail: req.body.mail,
+                token: token
+            };
+            //Creating a new User
+            red_users.insert(completeCredentials, callback);
+            //callback function
+            function callback(err, result) {
+                if (err){
+                    console.log(err);
+                    res.status(404).send({ error: 'Cannot register the user.' }); //404 Not Found
+                }
+                else
+                    res.status(200).json({ token: token });
+            }
+        }
+        else {
+            console.log(err);
+            res.status(400).send({ error: 'User already exist, try to login.' }); //400 Bad Request
+        }
+    });
 });
 
 /**
@@ -109,20 +112,21 @@ router.post('/register', function (req, res) {
  *        401:
  *          description: invalid inputs
  */
-router.post('/login', function (req, res) {
-	var credentials = {
-	    username: req.body.username,
-	    password: req.body.password,
-	};
-	//Check is username, password and token if they are valid
-	red_users.verify(credentials, function(err,result){
-		if (result != false){
-		  	res.status(200).json({ token: result }); 
-		}
-		else {
-			res.status(401).send({error: 'Unauthorized'}); //401 Unauthorized
-		}
-	});
+router.post('/login', function(req, res) {
+    var credentials = {
+        username: req.body.username,
+        password: req.body.password,
+    };
+    //Check is username, password and token if they are valid
+    red_users.verify(credentials, function(err, result) {
+        if (result != false) {
+            res.status(200).json({ token: result });
+        }
+        else {
+            console.log(err);
+            res.status(401).send({ error: 'Unauthorized' }); //401 Unauthorized
+        }
+    });
 });
 
 module.exports = router;

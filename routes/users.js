@@ -54,8 +54,9 @@ router.post('/user/device/add', function (req, res) {
     
     //callback function
     function callback(err, result) {
+        console.log(err)
         if (err)
-            res.respond(err, 404);
+            res.respond("Could not add the device", 404);
         else
             res.respond(result);
     }
@@ -83,7 +84,7 @@ router.get('/user/device/all', function (req, res) {
     red_users.find(req.user.id, function (err, result) {
         if (err) {
             console.error(err);
-            res.respond(err, 404);
+            res.respond("Could not get the devices", 404);
         } else {
             var toSend = [];
             console.log(result.devices);
@@ -141,13 +142,15 @@ router.get('/user/device/:id', function (req, res) {
 
     var from = { user: req.user.id };
     var to = { device: req.params.id };
-
+    
     perm.checkRules(from, to, function (err, result) {
         if (err) {
-            res.respond(err, 500);
+            console.log(err)
+            res.respond("Data not found", 404);
             return;
         }
         if (result == true) {
+            console.log("checkRules ok");
             //call devices data function to retrieve asked data
             devices.find(req.params.id, callback);
         } else {
@@ -157,8 +160,10 @@ router.get('/user/device/:id', function (req, res) {
     
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond({err : "Could not load the data"}, 404);
+        }
         else
             res.respond(result);
     }
@@ -256,7 +261,8 @@ router.post('/user/device', function (req, res) {
 
     perm.checkRules(from, to, function (err, result) {
         if (err) {
-            res.respond(err, 500);
+            console.log(err)
+            res.respond("Data not found", 500);
             return;
         }
         if (result == true) {
@@ -269,8 +275,10 @@ router.post('/user/device', function (req, res) {
     
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond("Could not load the data", 404);
+        }
         else
             res.respond(result);
     }
@@ -288,6 +296,8 @@ router.post('/user/device', function (req, res) {
  *      responses:
  *        200:
  *          description: permissions of the user
+ *        404:
+ *          description: could not load the data
  *
  */
 router.get('/user/permissions/:userid', function (req, res) {
@@ -300,8 +310,11 @@ router.get('/user/permissions/:userid', function (req, res) {
   
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond("Could not load the data", 404);
+        }
+            
         else
             res.respond(result);
     }
@@ -352,8 +365,10 @@ router.post('/user/permissions/new', function (req, res) {
 
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond("error with permissions", 404);
+        }
         else
             res.respond(result);
     }
@@ -393,8 +408,10 @@ router.post('/user/permissions/update', function (req, res) {
   
     //callback function
     function callback(err, result) {
-        if (err)
-            res.respond(err, 404);
+        if (err){
+            console.log(err);
+            res.respond("error with permissions", 404);
+        }
         else
             res.respond(result);
     }
