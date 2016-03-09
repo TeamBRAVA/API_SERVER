@@ -22,7 +22,7 @@ var devices = require('../index.js');
 // })
 
 var objToPull = {
-    _id: "56c58fb6566c6db8248e64cb",
+    id: "56c58fb6566c6db8248e64cb",
     datatype: "temp"
 }
 devices.pullDatatype(objToPull, function (err, result) {
@@ -33,8 +33,8 @@ devices.pullDatatype(objToPull, function (err, result) {
 
 
 var objDate = {
-    _id: "56c58fb6566c6db8248e64cb",
-    datatype: "temp",
+    id: "56c58fb6566c6db8248e64cb",
+    datatype: "vffed",
     date: "1455788005867"
 }
 devices.pullDatatypeAndDate(objDate, function (err, result) {
