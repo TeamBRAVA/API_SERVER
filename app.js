@@ -36,6 +36,10 @@ app.use('/',function(req,res,next){
     req.user = {
         id : "56bbb4727cc2bddf7abb7ac8"
     }
+    
+    req.device = {
+        id : "56b5e4fc7a80b13b2149b900"
+    }
     next();
 });
 
