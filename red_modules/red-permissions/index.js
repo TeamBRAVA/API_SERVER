@@ -262,6 +262,12 @@ var app = {
 		to.collection = Object.keys(to)[0];
 		from.id = from[from.collection];
 		to.id = to[to.collection];
+        
+        console.log(from.collection);
+        console.log(to.collection);
+        console.log(from.id);
+        console.log(from.id);
+
 
 
         // if the requestor is the target
