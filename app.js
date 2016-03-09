@@ -51,8 +51,8 @@ app.use('/', docs);
 app.use('/', usersAuth);
 
 //devices routes are accessible either with a certificate or a token
-app.use('/device/*', /*auth.certAuthenticated, auth.tokenDeviceAuthorized,*/ devices);
-app.use('/user/*', /*auth.tokenAuthenticated,*/ users);
+app.use('/device', /*auth.certAuthenticated, auth.tokenDeviceAuthorized,*/ devices);
+app.use('/user', /*auth.tokenAuthenticated,*/ users);
 
 module.exports = app;
 
