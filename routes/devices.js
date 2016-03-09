@@ -118,7 +118,7 @@ router.get('/device/result/:id', function (req, res) {
  *        404:
  *          description: value asked not found
  */
-/////////////NOTTESTED
+/////////////NOTIMPLEMENTED
 router.get('/device/update', function (req, res) {
     //call update function
   
@@ -214,7 +214,7 @@ router.get('/device/update', function (req, res) {
  *          description: value asked not found
  *
  */
-//////////////
+//////////////WOKING
 router.get('/device/other/:id/:datatype', function (req, res) {
     //get from url which data we want
     var condition = {
@@ -293,7 +293,8 @@ router.get('/device/other/:id/:datatype', function (req, res) {
  *          description: value asked not found
  *
  */
-////////////NOTTESTED
+////////////http://dev2.red-cloud.io/device/other/56b5e4fc7a80b13b2149b900/temp/1456150962730
+//////////// BAD GATEWAY
 router.get('/device/other/:id/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
@@ -444,6 +445,7 @@ router.get('/device/:datatype', function (req, res) {
  *
  */
 /////////////// BAD GATEWAY ? 
+///////////// http://dev2.red-cloud.io/device/temp/1456150962730
 router.get('/device/:datatype/:date', function (req, res) {
     //get from url which data we want
     var condition = {
