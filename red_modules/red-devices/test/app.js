@@ -15,14 +15,14 @@ var devices = require('../index.js');
 //     console.log("push result" + result);
 // })
 
-devices.find("56c58fb6566c6db8248e64cb",function(err,result){
-    console.log("pull err: " + err);
-    console.log("pull result : ");
-    console.log(result);
-})
+// devices.find("56c58fb6566c6db8248e64cb",function(err,result){
+//     console.log("pull err: " + err);
+//     console.log("pull result : ");
+//     console.log(result);
+// })
 
 var objToPull = {
-    _id: "56c58fb6566c6db8248e64cb",
+    id: "56c58fb6566c6db8248e64cb",
     datatype: "temp"
 }
 devices.pullDatatype(objToPull, function (err, result) {
@@ -33,15 +33,18 @@ devices.pullDatatype(objToPull, function (err, result) {
 
 
 var objDate = {
-    _id: "56c58fb6566c6db8248e64cb",
-    datatype: "temp",
+    id: "56c58fb6566c6db8248e64cb",
+    datatype: "vffed",
     date: "1455788005867"
 }
 devices.pullDatatypeAndDate(objDate, function (err, result) {
     console.log("pull err: " + err);
     console.log("pull date result : ");
     console.log(result);
-    console.log("date in timestamp :" + parseInt(result.date));
-    var date = new Date(parseInt(result.date));
-    console.log("date in datetime : "+date)
+    if(result != null){
+         console.log("date in timestamp :" + parseInt(result.date));
+        var date = new Date(parseInt(result.date));
+        console.log("date in datetime : "+date)
+    }
+   
 })

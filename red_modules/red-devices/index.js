@@ -44,7 +44,7 @@ var permissions = {
 /** @namespace */
 var devices = {
     //////////////////////////DEVICE FUNCTIONS
-    
+
     /**
      * callback that sends back the new device's id
      * @callback insertDeviceWithcertCallback
@@ -59,7 +59,7 @@ var devices = {
      * @param {string} fingerprint The fingerprint of the certificate
      * @param {insertDeviceWithcertCallback} callback send back the result of the query
      */
-    insertDeviceWithCert: function (path, passphrase, fingerprint, callback) {
+    insertDeviceWithCert: function(path, passphrase, fingerprint, callback) {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
@@ -79,7 +79,7 @@ var devices = {
             owner: null,
             creationDate: Date.now(),
             token: null,
-            corrupted : false,
+            corrupted: false,
             certificate: {
                 path: path,
                 passphrase: passphrase,
@@ -89,7 +89,7 @@ var devices = {
             softwarelist: [],
             data: []
         };
-        db.collection('device').insert(device, function (err, result) {
+        db.collection('device').insert(device, function(err, result) {
             if (result.result.ok == 1) {
                 callback(err, result.insertedIds[0]);
             } else {
@@ -113,7 +113,7 @@ var devices = {
      * @param {string} obj.certfkey the new certificate key
      * @param {updateCallback} callback send back the result of the query
      */
-    certificateKey: function (obj, callback) {
+    certificateKey: function(obj, callback) {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
@@ -138,7 +138,7 @@ var devices = {
      * @param {string} obj.path the new certificate path
      * @param {updateCallback} callback send back the result of the query
      */
-    certificatePath: function (obj, callback) {
+    certificatePath: function(obj, callback) {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
@@ -159,11 +159,11 @@ var devices = {
     /** 
      * Push a new software into the chosen device
      * @param {object} obj the object containing the fields to update
-     * @param {string} obj._id the device's id
+     * @param {string} obj.id the device's id
      * @param {string} obj.newsoftware the new software
      * @param {updateCallback} callback send back the result of the query
      */
-    addNewSoftware: function (obj, callback) {
+    addNewSoftware: function(obj, callback) {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
@@ -175,7 +175,7 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { "$addToSet": { "softwarelist": obj.newsoftware } }, function (err, nbRow) {
+        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { "$addToSet": { "softwarelist": obj.newsoftware } }, function(err, nbRow) {
             console.log('Softwarelist of device', obj.id, 'is updated!');
             callback(err, nbRow);
         });
@@ -188,7 +188,7 @@ var devices = {
      * @param {string} obj.v the new version of RED software
      * @param {updateCallback} callback send back the result of the query
      */
-    updateVersion: function (obj, callback) {
+    updateVersion: function(obj, callback) {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
@@ -205,7 +205,7 @@ var devices = {
             callback(err, nbRow);
         });
     },
-    
+
     /** 
      * Push new data into the chosen device
      * @param {object} obj the object containing the fields to update
@@ -214,7 +214,7 @@ var devices = {
      * @param {string} obj.value the value to store
      * @param {updateCallback} callback send back the result of the query
      */
-    pushData: function (obj, callback) {
+    pushData: function(obj, callback) {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
@@ -230,11 +230,11 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        findOne({ _id: mongo.helper.toObjectID(obj.id) }, function (err, res) {
-            if (res != undefined) {
+        db.collection('device').findOne({ _id: mongo.helper.toObjectID(obj.id) }, function(err, res) {
+            if (res != null) {
                 var today = Date.now().toString(); //store the current date in a string
-                db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { '$push': { data: { datatype: obj.datatype, value: obj.value, date: today } } }, function (err, nbRow) {
-                    console.log('New data are pushed into device ', obj._id);
+                db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { '$push': { data: { datatype: obj.datatype, value: obj.value, date: today } } }, function(err, nbRow) {
+                    console.log('New data are pushed into device ', obj.id);
                     callback(err, nbRow);
                 });
             }
@@ -252,7 +252,7 @@ var devices = {
      * @param {string} result.value the value to be returned
      * @param {string} result.date the date on which the value has been saved
      */
-    
+
     /** 
      * Get last entry of specified device according to the datatype given in parameter
      * @param {object} obj the object containing the fields to search for
@@ -261,7 +261,7 @@ var devices = {
      * @param {pullCallback} callback send back the result of the query
      */
     //possiblity of improvement with $filter (mongodb) but need version 3.2 of mongodb (current 3.0)
-    pullDatatype: function (obj, callback) {
+    pullDatatype: function(obj, callback) {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
@@ -273,30 +273,38 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        findOne({ "_id": mongo.helper.toObjectID(obj.id), "data.datatype": obj.datatype }, function (err, result) {
-            if (err) console.log(err);
-            var iToReturn;
-            if (result != undefined) {
-                var date, biggestDate = 0;
-                //return the last data corresponding to the datatype given in parameter
-                result.data.forEach(function (val, i, array) {
-                    if (val.datatype == obj.datatype) {
-                        date = parseInt(val.date);
-                        if (date > biggestDate) {
-                            biggestDate = date;
-                            iToReturn = i;
+        db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj.id), "data.datatype": obj.datatype }, function(err, result) {
+            if (err) {
+                callback(err);
+            } else {
+                var iToReturn = -1;
+                if (result != null) {
+                    var date, biggestDate = 0;
+                    //return the last data corresponding to the datatype given in parameter
+                    result.data.forEach(function(val, i, array) {
+                        if (val.datatype == obj.datatype) {
+                            date = parseInt(val.date);
+                            if (date > biggestDate) {
+                                biggestDate = date;
+                                iToReturn = i;
+                            }
                         }
-                    }
-                })
-                
-                //we retrieved the correct id, we can now build the object that will be sent back
-                var toReturn = {
-                    value: result.data[iToReturn].value,
-                    date: result.data[iToReturn].date
-                }
-            } else toReturn = result;
+                    })
+                    
+                    //if -1, there is no datatype at date asked
+                    if (iToReturn != -1) {
+                        //we retrieved the correct id, we can now build the object that will be sent back
+                        var toReturn = {
+                            value: result.data[iToReturn].value,
+                            date: result.data[iToReturn].date
+                        }
 
-            callback(err, toReturn);
+                        callback(err, toReturn);
+                    } else {
+                        callback(new Error("couple id and datatype not found"));
+                    }
+                } else callback(new Error("id or datatype not found"));
+            }
         })
     },
 
@@ -308,7 +316,7 @@ var devices = {
      * @param {string} obj.date the time on which the data was saved
      * @param {pullCallback} callback send back the result of the query
      */
-    pullDatatypeAndDate: function (obj, callback) {
+    pullDatatypeAndDate: function(obj, callback) {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
@@ -324,30 +332,40 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        findOne({ "_id": mongo.helper.toObjectID(obj.id), "data.datatype": obj.datatype, "data.date": obj.date }, function (err, result) {
-            var iToReturn;
-            console.log(result);
-            if (result != null) {
-                //return the last data corresponding to the datatype and the date given in parameter
-                result.data.forEach(function (val, i, array) {
-                    if (val.datatype == obj.datatype && val.date == obj.date) {
-                        iToReturn = i;
-                    }
-                })
-                
-                //we retrieved the correct id, we can now build the object that will be sent back
-                var toReturn = {
-                    value: result.data[iToReturn].value,
-                    date: result.data[iToReturn].date
-                }
-            } else toReturn = result;
+        db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj.id), "data.datatype": obj.datatype, "data.date": obj.date }, function(err, result) {
+            if (err) {
+                callback(err);
+            } else {
+                var iToReturn = -1;
+                //console.log(result);
+                if (result != undefined || result != null) {
+                    //return the last data corresponding to the datatype and the date given in parameter
+                    result.data.forEach(function(val, i, array) {
+                        if (val.datatype == obj.datatype && val.date == obj.date) {
+                            iToReturn = i;
+                        }
+                    })
+                    
+                    //if -1, there is no datatype at date asked
+                    if (iToReturn != -1) {
+                        //we retrieved the correct id, we can now build the object that will be sent back
+                        var toReturn = {
+                            value: result.data[iToReturn].value,
+                            date: result.data[iToReturn].date
+                        }
 
-            callback(err, toReturn);
+                        callback(err, toReturn);
+                    } else {
+                        callback(new Error("couple id and datatype not found"));
+                    }
+                } else callback(new Error("id or datatype not found"));
+            }
+
         });
     },
 
     ///////////////////////////////////////////////////TO DELETE////////////////////////////
-    find: function (id, callback) {
+    find: function(id, callback) {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
@@ -356,7 +374,7 @@ var devices = {
             return;
         }
         //retrieve only the device's id and its data
-        db.collection('device').find({ _id: mongo.helper.toObjectID(id) },{_id: 1, data: 1}).toArray(function (err, result) {
+        db.collection('device').find({ _id: mongo.helper.toObjectID(id) }, { _id: 1, data: 1 }).toArray(function(err, result) {
             callback(err, result);
         });
     },
@@ -369,8 +387,8 @@ var devices = {
      * @param {String} bearerToken The token for device authorization must be provided in the headers of the request
      * @param {pullCallback} callback send back the result of the query
      */
-    validateToken : function ( id, bearerToken, callback ) {
-        if( !( callback instanceof Function )) {
+    validateToken: function(id, bearerToken, callback) {
+        if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
         if ( !(id && typeof id === "string") ) {
@@ -464,8 +482,3 @@ var devices = {
 };
 
 module.exports = devices;
-
-
-function findOne ( condition, callback ) {
-    db.collection('device').findOne(condition, callback);
-}
