@@ -203,10 +203,10 @@ router.get('/device/new/:nb', function (req, res) {
     certs.generateCertificates(req.params.nb, function () {
 
         // create devices inside the database
-        certs.createDevices(function (err, devices) {
+        certs.createDevices(function (err, d) {
             var nb = 0;
             // Insert in the database
-            async.each(devices, function (device, callback) {
+            async.each(d, function (device, callback) {
                 devices.insertDeviceWithCert(device.path, device.passphrase, device.fingerprint, function (err, results) {
                     if (!err)
                         nb++;

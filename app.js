@@ -37,9 +37,9 @@ app.use('/',function(req,res,next){
         id : "56bbb4727cc2bddf7abb7ac8"
     }
     
-    req.device = {
+    /*req.device = {
         id : "56b5e4fc7a80b13b2149b900"
-    }
+    }*/
     next();
 });
 
@@ -51,7 +51,7 @@ app.use('/', docs);
 app.use('/', usersAuth);
 
 //devices routes are accessible either with a certificate or a token
-app.use('/device', /*auth.certAuthenticated, auth.tokenDeviceAuthorized,*/ devices);
+app.use('/device', auth.certAuthenticated, auth.tokenDeviceAuthorized, devices);
 app.use('/user', /*auth.tokenAuthenticated,*/ users);
 
 module.exports = app;

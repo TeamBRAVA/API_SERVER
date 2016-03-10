@@ -2,6 +2,7 @@ var passwordHash = require('password-hash');
 var mongo = require('mongoskin');
 var async = require('async');
 var util = require('util');
+var path = require('path');
 var db = mongo.db('mongodb://localhost/RED_DB');
 //New
 var express = require('express');
@@ -215,8 +216,8 @@ var app = {
 			findOne({ token: bearerToken }, function (err, res) {
     			if (res != null ){ 
 					//Getting the certificate
-				    var cert = fs.readFileSync('../../CERTS/public.key'); //public key
-				    jwt.verify( bearerToken, cert, { algorithms: ['RS256'] , ignoreExpiration: false }, function(err, decoded) { //Checking features of token (the expiration date)
+				    var cert = fs.readFileSync(path.join(__dirname, '../../CERTS/TOKEN/public.key')); //public key
+				    jwt.verify( bearerToken, cert, {ignoreExpiration: false }, function(err, decoded) { //Checking features of token (the expiration date)
 						if(err) { 
                             console.log(err);
 					        callback(new Error("outdatedtoken"), false);
@@ -263,7 +264,7 @@ var app = {
 			}
 			if( passwordHash.verify(user.password, result.password)) {
 				//generate new token
-                var cert = fs.readFileSync('../../CERTS/token.key'); //private key
+                var cert = fs.readFileSync(path.join(__dirname, '../../CERTS/TOKEN/private.key')); //private key
 				var newToken = jwt.sign(user, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
                 
                 //store the newly generated token in mongo

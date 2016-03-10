@@ -48,7 +48,6 @@ var auth = {
             var cert = req.headers['x-ssl-cert'].replace(/\t/g, '\n');	// Replace some non-desired caracters
             pem.getFingerprint(cert, function (error, f) {
                 req.ssl.fingerprint = f.fingerprint; //retrieve fingerprint
-        
                 // If the client certificate is valid and is found (i.e header is set and fingerprint is not null)
                 if (req.ssl.verified === true && req.ssl.fingerprint) {		
                     db.collection('device').findOne({ "certificate.fingerprint": req.ssl.fingerprint }, function (err, results) {	// Check inside the database
@@ -95,6 +94,7 @@ var auth = {
                 // Detect for corrupted object here
                 red_devices.validateToken( req.device.id, bearerToken, function (err, result) {
                     //result is ok, device is authorized
+                    console.log(err);
                     if (result == true) {
                         console.log("device authorized " + req.device.id);
                         req.device.authorized = true;
@@ -104,7 +104,7 @@ var auth = {
                         console.log("Device Unauthorized : " + req.device.id + " Register for a new token ...");
                         req.device.authorized = false;
                         // register a new token
-                        req_devices.register(req.device.id, req.ssl.fingerprint, function (err, token) {
+                        red_devices.register(req.device.id, req.ssl.fingerprint, function (err, token) {
                             if(err) {
                                 // Error while registering, not authorized
                                 res.respond("Unauthorized : cannot register a new token", 401);

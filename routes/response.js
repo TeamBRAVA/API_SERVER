@@ -15,7 +15,7 @@ http.ServerResponse.prototype.respond = function(content, status) {
     content = {
       "code": status,
       "status": http.STATUS_CODES[status],
-      "message": content && content.toString() || null
+      "message": content || null
     };
   }
   if ('object' != typeof content) { // wrap content if necessary

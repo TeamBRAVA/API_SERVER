@@ -1,4 +1,6 @@
 // To connect the database
+var path = require('path');
+var util = require('util');
 var fs = require('fs');
 var jwt = require('jsonwebtoken');  //https://npmjs.org/package/node-jsonwebtoken
 var mongo = require('mongoskin');
@@ -103,35 +105,6 @@ var devices = {
      * @param {object} result contains the number of rows affected by the update (to be modified)
      */
 
-    /** 
-     * Update Token and Expiration Date
-     * @param {object} obj the object containing the fields to update
-     * @param {string} obj.id the device's id
-     * @param {string} obj.token the new token to update
-     * @param {string} obj.expDate the token's expiration date
-     * @param {updateCallback} callback send back the result of the query
-     */
-    updateToken: function (obj, callback) {
-        if (!(callback instanceof Function)) {
-            throw new Error("You have to provide a function callback as last parameter");
-        }
-        if (!(obj._id && typeof obj._id === "string")) {
-            callback(new Error("You must provide an id in obj"));
-            return;
-        }
-        if (!(obj.token && typeof obj.token === "string")) {
-            callback(new Error("You must provide a token in obj"));
-            return;
-        }
-        if (!(obj.expDate && typeof obj.expDate === "string")) {
-            callback(new Error("You must provide a token in obj"));
-            return;
-        }
-        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { token: obj.token, expirationdate: obj.expDate }, function (err, nbRow) {
-            console.log('Token is updated!');
-            callback(err, nbRow);
-        });
-    },
 
     /** 
      * Update Certificate Key
@@ -144,7 +117,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id === "string")) {
+        if (!(obj.id && typeof obj.id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -152,7 +125,7 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { certificatekey: obj.certfkey }, function (err, nbRow) {
+        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, {'$set' : { certificatekey: obj.certfkey }}, function (err, nbRow) {
             console.log('Certificate key is updated!');
             callback(err, nbRow);
         });
@@ -169,7 +142,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id === "string")) {
+        if (!(obj.id && typeof obj.id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -177,7 +150,7 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { pathtocertificate: obj.path }, function (err, nbRow) {
+        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, {'$set' : { pathtocertificate: obj.path }}, function (err, nbRow) {
             console.log('Path to the Certificate is updated!');
             callback(err, nbRow);
         });
@@ -194,7 +167,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id === "string")) {
+        if (!(obj.id && typeof obj.id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -219,7 +192,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id === "string")) {
+        if (!(obj.id && typeof obj.id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -227,7 +200,7 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { installedversionRED: obj.v }, function (err, nbRow) {
+        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, {'$set': { installedversionRED: obj.v }}, function (err, nbRow) {
             console.log('Installed version of RED is updated for device ', obj.id);
             callback(err, nbRow);
         });
@@ -245,7 +218,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id === "string")) {
+        if (!(obj.id && typeof obj.id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -292,7 +265,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id === "string")) {
+        if (!(obj.id && typeof obj.id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -339,7 +312,7 @@ var devices = {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if (!(obj._id && typeof obj._id === "string")) {
+        if (!(obj.id && typeof obj.id === "string")) {
             callback(new Error("You must provide an id in obj"));
             return;
         }
@@ -393,50 +366,53 @@ var devices = {
      * If the token is not valid before the expiration date occur, the device might be corrupted
      * If it's the first connection, the database token will be null, and the bearerToken will be an empty string
      * @param {String} id The id representing the device (aka req.device.id)
-     * @param {String} bearerToken The token for device authorization
+     * @param {String} bearerToken The token for device authorization must be provided in the headers of the request
      * @param {pullCallback} callback send back the result of the query
      */
     validateToken : function ( id, bearerToken, callback ) {
         if( !( callback instanceof Function )) {
             throw new Error("You have to provide a function callback as last parameter");
         }
-        if ( !(bearerToken && typeof bearerToken == "string") ) {
-            callback(new Error("You must provide a token (String) as first parameter"), false);
+        if ( !(id && typeof id === "string") ) {
+            callback(new Error("You must provide a token (String) as first parameter"));
             return;
         }
-        else{
-            findOne({ "_id": mongo.helper.toObjectID(id)}, function (err, res) {
-                if (res != null ) { 
-                    // Get the certificate to decipher the token
-                    var cert = fs.readFileSync('../../CERTS/public.key'); //public key
+        if ( !(typeof bearerToken === "string") ) {
+            callback(new Error("You must provide a token (String) as second parameter"));
+            return;
+        }
+        
+        findOne({ "_id": mongo.helper.toObjectID(id)}, function (err, res) {
+            if (res != null ) { 
+                // Get the certificate to decipher the token
+                var cert = fs.readFileSync(path.join(__dirname, '../../CERTS/TOKEN/public.key')); //public key
 
-                    // Check if the tokens match
-                    if( res.token == bearerToken ) {
-                        jwt.verify( bearerToken, cert, { algorithms: ['RS256'] , ignoreExpiration: false }, function(err, decoded) { //Checking features of token (the expiration date)
-                            if(err) { // outdated
-                                console.log(err);
-                                callback(new Error("Token Outdated"), false);
-                            }
-                            else{
-                                // Not Outdated --> access granted
-                                callback(err, true);
-                            }
-                        });
-                    } else {
-                        if( res.token == null && bearerToken == "") {
-                            callback(new Error("First connection"), false);
-                        } else {
-                            this.corrupted(id, function (err) {
-                                callback(new Error("Tokens mismatch, corrupted object"), false);
-                            });
+                // Check if the tokens match
+                if( res.token == bearerToken ) {
+                    jwt.verify( bearerToken, cert, {ignoreExpiration: false }, function(err, decoded) { //Checking features of token (the expiration date)
+                        if(err) { // outdated
+                            console.log(err);
+                            callback(new Error("Token Outdated"), false);
                         }
+                        else{
+                            // Not Outdated --> access granted
+                            callback(err, true);
+                        }
+                    });
+                } else {
+                    if( res.token == null && bearerToken == "") {
+                        callback(new Error("First connection"), false);
+                    } else {
+                        devices.corrupted(id, function (err) {
+                            callback(new Error("Tokens mismatch, corrupted object"), false);
+                        });
                     }
                 }
-                else{
-                    callback(new Error("No device found"), false);
-                }
-            });
-        }
+            }
+            else{
+                callback(new Error("No device found"), false);
+            }
+        });
     },
 
     /** 
@@ -445,7 +421,7 @@ var devices = {
      * @param {pullCallback} callback send back the errors of the query, null otherwise
     */
     corrupted : function(id, callback) {
-        db.collection('device').update({_id : mongo.helper.toObjectID(id)}, {corrupted : true}, function (err, result) {
+        db.collection('device').update({_id : mongo.helper.toObjectID(id)}, {'$set': {corrupted : true}}, function (err, result) {
             if(err)
                 console.log("Cannot declare object " + id + " as corrupted");
             callback(err);
@@ -458,7 +434,7 @@ var devices = {
      * @param {pullCallback} callback send back the errors of the query, null otherwise
     */
     trusted : function(id, callback) {
-        db.collection('device').update({_id : mongo.helper.toObjectID(id)}, {corrupted : false}, function (err, result) {
+        db.collection('device').update({_id : mongo.helper.toObjectID(id)}, {'$set':{corrupted : false}}, function (err, result) {
             if(err)
                 console.log("Cannot declare object " + id + " as trusted");
             callback(err);
@@ -472,10 +448,10 @@ var devices = {
      * @param {pullCallback} callback send back the errors of the query and the issued token if it complete
     */
     register : function(id, fingerprint, callback) {
-        var cert = fs.readFileSync('../../CERTS/token.key');  // getting the private key DOES NOT WORK FOR API_SERVER, do ../CERTS/token.key
-        var token = jwt.sign({id : id, fingerprint: fingerprint}, cert, { algorithm: 'HS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
+        var cert = fs.readFileSync(path.join(__dirname, '../../CERTS/TOKEN/private.key'));  // getting the private key DOES NOT WORK FOR API_SERVER, do ../CERTS/token.key
+        var token = jwt.sign({id : id, fingerprint: fingerprint}, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
 
-        db.collection('device').update({_id : mongo.helper.toObjectID(id)}, {token : token}, function (err, result) {
+        db.collection('device').update({_id : mongo.helper.toObjectID(id)}, {'$set':{'token': token}}, function (err, result) {
             if(err) {
                 console.log("Cannot register token for object " + id);
                 callback(err);
