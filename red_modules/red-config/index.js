@@ -11,8 +11,8 @@ var config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
 var options = {
     hostname: config.hostname,
     certsPath: {
-        privateKey: config.CERTS.privateKey != '' ? config.CERTS.privateKey : '/CERTS/TOKEN/private.key',
-        publicKey: config.CERTS.publicKey != '' ? config.CERTS.publicKey : '/CERTS/TOKEN/public.key'
+        privateKey: config.CERTS.privateKey != '' ? config.CERTS.privateKey : 'CERTS/TOKEN/private.key',
+        publicKey: config.CERTS.publicKey != '' ? config.CERTS.publicKey : 'CERTS/TOKEN/public.key'
     },
     token: {
         algorithm: config.Token.algorithm != '' ? config.Token.algorithm : 'RS256',
