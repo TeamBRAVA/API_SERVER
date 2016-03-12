@@ -28,10 +28,6 @@ app.use(cors());
 app.options('*', cors()); //enable pre-flight across-the-board (custom requests headers)
 app.use(nocache);
 
-//retrieve info from requests to be authenticated
-//app.use(auth.certAuthenticated);
-//app.use(auth.tokenAuthenticated);
-
 app.use('/',function(req,res,next){
     req.user = {
         id : "56bbb4727cc2bddf7abb7ac8"
