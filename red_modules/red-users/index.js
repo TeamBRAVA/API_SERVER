@@ -3,8 +3,8 @@ var mongo = require('mongoskin');
 var async = require('async');
 var util = require('util');
 var path = require('path');
+var config = require('../red-config');
 var db = mongo.db('mongodb://localhost/RED_DB');
-//New
 var express = require('express');
 var jwt = require('jsonwebtoken');  //https://npmjs.org/package/node-jsonwebtoken
 var expressJwt = require('express-jwt'); //https://npmjs.org/package/express-jwt
@@ -63,7 +63,7 @@ var app = {
 				return;
 			}
 
-			user.hash = passwordHash.generate(user.password, {algorithm : 'sha256', saltLength : 10, iterations : 2});
+			user.hash = passwordHash.generate(user.password, {algorithm : config.hash.algorithm, saltLength : config.hash.saltLength, iterations : config.hash.iterations});
 
 			var mUser = {
 				username : user.username,
@@ -216,8 +216,8 @@ var app = {
 			findOne({ token: bearerToken }, function (err, res) {
     			if (res != null ){ 
 					//Getting the certificate
-				    var cert = fs.readFileSync(path.join(__dirname, '../../CERTS/TOKEN/public.key')); //public key
-				    jwt.verify( bearerToken, cert, {ignoreExpiration: false }, function(err, decoded) { //Checking features of token (the expiration date)
+				    var cert = fs.readFileSync(config.certsPath.publicKey); //public key
+				    jwt.verify( bearerToken, cert, {ignoreExpiration: config.token.ignoreExpiration }, function(err, decoded) { //Checking features of token (the expiration date)
 						if(err) { 
                             console.log(err);
 					        callback(new Error("outdatedtoken"), false);
@@ -264,8 +264,8 @@ var app = {
 			}
 			if( passwordHash.verify(user.password, result.password)) {
 				//generate new token
-                var cert = fs.readFileSync(path.join(__dirname, '../../CERTS/TOKEN/private.key')); //private key
-				var newToken = jwt.sign(user, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
+                var cert = fs.readFileSync(config.certsPath.privateKey); //private key
+				var newToken = jwt.sign(user, cert, { algorithm: config.token.algorithm, expiresIn: config.token.expiresIn}); //expire value in seconds
                 
                 //store the newly generated token in mongo
                 db.collection('user').update({username : user.username}, {'$set':{'token': newToken}}, function (err, result) {

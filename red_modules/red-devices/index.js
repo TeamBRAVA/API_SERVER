@@ -2,6 +2,7 @@
 var path = require('path');
 var util = require('util');
 var fs = require('fs');
+var config = require('../red-config');
 var jwt = require('jsonwebtoken');  //https://npmjs.org/package/node-jsonwebtoken
 var mongo = require('mongoskin');
 var db = mongo.db('mongodb://localhost/RED_DB');
@@ -403,11 +404,11 @@ var devices = {
         findOne({ "_id": mongo.helper.toObjectID(id)}, function (err, res) {
             if (res != null ) { 
                 // Get the certificate to decipher the token
-                var cert = fs.readFileSync(path.join(__dirname, '../../CERTS/TOKEN/public.key')); //public key
+                var cert = fs.readFileSync(config.certsPath.publicKey); //public key
 
                 // Check if the tokens match
                 if( res.token == bearerToken ) {
-                    jwt.verify( bearerToken, cert, {ignoreExpiration: false }, function(err, decoded) { //Checking features of token (the expiration date)
+                    jwt.verify( bearerToken, cert, {ignoreExpiration: config.token.ignoreExpiration }, function(err, decoded) { //Checking features of token (the expiration date)
                         if(err) { // outdated
                             console.log(err);
                             callback(new Error("Token Outdated"), false);
@@ -466,8 +467,8 @@ var devices = {
      * @param {pullCallback} callback send back the errors of the query and the issued token if it complete
     */
     register : function(id, fingerprint, callback) {
-        var cert = fs.readFileSync(path.join(__dirname, '../../CERTS/TOKEN/private.key'));  // getting the private key DOES NOT WORK FOR API_SERVER, do ../CERTS/token.key
-        var token = jwt.sign({id : id, fingerprint: fingerprint}, cert, { algorithm: 'RS256', expiresIn: 60*10}); //expires in 10 minutes (value in seconds)
+        var cert = fs.readFileSync(config.certsPath.privateKey);  // getting the private key DOES NOT WORK FOR API_SERVER, do ../CERTS/token.key
+        var token = jwt.sign({id : id, fingerprint: fingerprint}, cert, { algorithm: config.token.algorithm, expiresIn: config.token.expiresIn}); //expires in 10 minutes (value in seconds)
 
         db.collection('device').update({_id : mongo.helper.toObjectID(id)}, {'$set':{'token': token}}, function (err, result) {
             if(err) {
