@@ -193,10 +193,10 @@ var app = {
         request['from.id'] = from[request['from.collection']];
         request['to.id'] = to[request['to.collection']];
 
-        console.log(request);
+        //console.log(request);
 
         this.checkRules(from, to, function (err, res) {
-            console.log("checkRules : " + res);
+            //console.log("checkRules : " + res);
             if (err) { console.log(err); }
             if (res === true) {	// The rules have more priority than other permissions
                 callback(err, true);

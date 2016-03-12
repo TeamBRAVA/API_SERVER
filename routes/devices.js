@@ -129,61 +129,8 @@ router.get('/update', function(req, res) {
     }
 });
 
-// Create new devices with the corresponding certs inside de database ### OK ###
-/**
-*  @swagger
-*  /device/new/{nb}:
-*    get:
-*      tags: [Devices]
-*      description: Get the most recent value matching the date & the data type.
-*      produces:
-*        - application/json
-*      parameters:
-*        - name: nb
-*          description: quantity of new certificate to create
-*          in : path
-*          required : true
-*          schema:
-*            type: integer
-*      responses:
-*        200:
-*          description: Return a link to download the created certificate.
-*        401:
-*          description: unauthorized, the certificate is missing or wrong
-*        404:
-*          description: value asked not found
-*/
-
-/*router.get('/device/new/:nb', function (req, res) {
- 
-    // Set some absolute path
-    certs.setCA(path.join(__dirname, '../CERTS/CA/ca.pem'), path.join(__dirname, '../CERTS/CA/ca.key'), "Ek12Bb@.");
-    certs.setCertsFolder(path.join(__dirname, '../CERTS/DEVICES'));
- 
-    // Generate the certs
-    certs.generateCertificates(req.params.nb, function() {
- 
-        // create devices inside the database
-        certs.createDevices(function (err, devices) {
-            var nb = 0;
-            // Insert in the database
-            async.each(devices, function (device, callback) {
-                devices.insertDeviceWithCert(device.path, device.passphrase, device.fingerprint, function (err, results) {
-                    if(!err)
-                        nb++;
-                    else
-                        console.log(err);
-                    callback();
-                });
-            }, function done() {
-                res.respond(nb + " certificates created", 200);
-            });            
-        });
-    });
-});*/
 
 /* GET data from other device represented by it's id and that match the datatype (aka key) (need permissions)*/
-
 /**
 *  @swagger
 *  /device/other/{id}/{datatype}:
@@ -330,8 +277,6 @@ router.get('/other/:id/:datatype/:date', function(req, res) {
 });
 
 /* POST data on the server for other devices represented by their id (need permissions)*/
-
-
 /**
 *  @swagger
 *  /device/other/{id}:
