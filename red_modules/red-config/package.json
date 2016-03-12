@@ -1,0 +1,14 @@
+{
+  "name": "red-config",
+  "version": "1.0.0",
+  "description": "A utility that load the configuration from config.ini. It is used to set security parameters like path for rsa keys, algorithm used, ...",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "pem": "~1.8.1"
+  },
+  "author": "Pierre Jankowiez <p.jankowiez@gmail.com>",
+  "license": "MIT License"
+}
