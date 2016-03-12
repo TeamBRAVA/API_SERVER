@@ -1,0 +1,15 @@
+{
+  "name": "red-repository",
+  "version": "1.0.0",
+  "description": "A utility that grant access to the repository",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "async": "^1.5.2",
+    "mongoskin": "^2.0.3"
+  },
+  "author": "Pierre Jankowiez <p.jankowiez@gmail.com>",
+  "license": "MIT License"
+}

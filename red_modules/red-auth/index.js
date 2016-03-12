@@ -11,14 +11,27 @@ var db = mongo.db('mongodb://localhost/RED_DB');
 /**
  * Usage: 
  *   authentications using certificates and token
- *   app.use('/',certAuthenticated);
- *   app.use('/',tokenAuthenticated);
- *   app.use('/',doubleAuth);
+ *   app.use('/device', deviceAuthenticated);
+ *   app.use('/user', tokenAuthenticated);
  */
 
 
 /**@namespace */
 var auth = {
+
+
+    /**
+     * Function that encapsulates all the device authentication process
+     * Middleware for Express
+     * @param {object} req The req object of express framework, see express.js website for more informations
+     * @param {object} res The res object of express framework, see express.js website for more informations
+     * @param {object} next callback used to call the next express middleware
+     */
+    deviceAuthenticated : function (req, res, next) {
+        auth.certAuthenticated(req, res, function() {
+            auth.tokenDeviceAuthorized(req, res, next);
+        });
+    },
 
     /** 
      * authenticate the device using certificate and then add it to the req object
