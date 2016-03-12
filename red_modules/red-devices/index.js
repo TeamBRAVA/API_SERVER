@@ -401,7 +401,7 @@ var devices = {
             return;
         }
         
-        findOne({ "_id": mongo.helper.toObjectID(id)}, function (err, res) {
+        db.collection('device').findOne({ "_id": mongo.helper.toObjectID(id)}, function (err, res) {
             if (res != null ) { 
                 // Get the certificate to decipher the token
                 var cert = fs.readFileSync(config.certsPath.publicKey); //public key
