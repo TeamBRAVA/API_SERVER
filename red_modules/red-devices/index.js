@@ -126,7 +126,7 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, {'$set' : { certificatekey: obj.certfkey }}, function (err, nbRow) {
+        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, {'$set' : { 'certificate.passphrase': obj.certfkey }}, function (err, nbRow) {
             console.log('Certificate key is updated!');
             callback(err, nbRow);
         });
@@ -151,7 +151,7 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, {'$set' : { pathtocertificate: obj.path }}, function (err, nbRow) {
+        db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, {'$set' : { 'certificate.path': obj.path }}, function (err, nbRow) {
             console.log('Path to the Certificate is updated!');
             callback(err, nbRow);
         });
@@ -161,7 +161,7 @@ var devices = {
      * Push a new software into the chosen device
      * @param {object} obj the object containing the fields to update
      * @param {string} obj.id the device's id
-     * @param {string} obj.newsoftware the new software
+     * @param {string} obj.newsoftware the new software id
      * @param {updateCallback} callback send back the result of the query
      */
     addNewSoftware: function(obj, callback) {
@@ -179,6 +179,26 @@ var devices = {
         db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { "$addToSet": { "softwarelist": obj.newsoftware } }, function(err, nbRow) {
             console.log('Softwarelist of device', obj.id, 'is updated!');
             callback(err, nbRow);
+        });
+    },
+
+
+    /** 
+     * Get the list of software for a device
+     * @param {string} id The device's id
+     * @param {updateCallback} callback send back the result of the query
+     */
+    softwares: function(id, callback) {
+        if (!(callback instanceof Function)) {
+            throw new Error("You have to provide a function callback as last parameter");
+        }
+        if (!(id && typeof id === "string")) {
+            callback(new Error("You must provide an id"));
+            return;
+        }
+        db.collection('device').findOne({ _id: mongo.helper.toObjectID(id) }, function(err, res) {
+            console.log('Get the list of softwares');
+            callback(err, res.softwarelist);
         });
     },
 
@@ -467,7 +487,7 @@ var devices = {
      * @param {pullCallback} callback send back the errors of the query and the issued token if it complete
     */
     register : function(id, fingerprint, callback) {
-        var cert = fs.readFileSync(config.certsPath.privateKey);  // getting the private key DOES NOT WORK FOR API_SERVER, do ../CERTS/token.key
+        var cert = fs.readFileSync(config.certsPath.privateKey);
         var token = jwt.sign({id : id, fingerprint: fingerprint}, cert, { algorithm: config.token.algorithm, expiresIn: config.token.expiresIn}); //expires in 10 minutes (value in seconds)
 
         db.collection('device').update({_id : mongo.helper.toObjectID(id)}, {'$set':{'token': token}}, function (err, result) {

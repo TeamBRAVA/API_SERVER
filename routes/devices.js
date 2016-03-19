@@ -8,6 +8,7 @@ var devices = require('../red_modules/red-devices');
 var certs = require('../red_modules/red-cert-generator');
 var perm = require('../red_modules/red-permissions');
 var red_users = require('../red_modules/red-users');
+var soft = require('../red_modules/red-repository');
 
 /*API FOR THE DEVICES AND THEIR PERMISSIONS */
 
@@ -112,7 +113,7 @@ router.get('/result/:id', function(req, res) {
 *
 *      responses:
 *        200:
-*          description: Return the URl of the trusty repository
+*          description: return the list of softwares that need to be updated
 *        401:
 *          description: unauthorized, the certificate is missing or wrong
 *        404:
@@ -120,13 +121,32 @@ router.get('/result/:id', function(req, res) {
 */
 /////////////NOTIMPLEMENTED
 router.get('/update', function(req, res) {
-    //call update function
+    devices.softwares(req.device.id, function (err, result) {
+        soft.createList(result, function (list) {
+            res.respond(list);
+        });
+    });
+});
 
-    //callback function
-    function callback(err, result) {
-        if (err) return console.error(err);
-        //todo create response
-    }
+
+router.get('/update/:id', function (req, res) {
+    var id = req.params.id;
+    devices.softwares(req.device.id, function (err, result) {
+        soft.createIDList(result, function (list) {
+            if(list.indexOf(id) != -1 || result.indexOf(id) != -1) {    // if the soft ID is in the list of the device
+                soft.getPath(id, function (err, p) {
+                    res.sendFile(p, {dotfiles : 'allow'}, function (err) {
+                        if (err) {
+                            console.log(err);
+                            res.status(err.status).end();
+                        } else {
+                            console.log('Sent:', p);
+                        }
+                    });
+                });
+            }
+        });
+    });
 });
 
 
