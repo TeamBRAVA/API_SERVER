@@ -185,50 +185,29 @@ var auth = {
                         //token outdated, need to ask for another token (see with emre)
                         console.log("outdated token");
                         req.user.outdatedToken = true;
-                        next();
+                        res.respond("Unauthorized : OutDated Token", 401);
 
                     }
                     else if (err.message == "tokenunmatcherror") {
                         //else if token does not exist, do nothing, the user is not authenticated
                         console.log("token num match error");
-                        next();
+                        res.respond("Unauthorized : wrong token", 401);
+                        
                     }
                 });
             }
             else {
                 //header authorization is present but no token
                 console.log('no token in header');
-                next();
+                res.respond("Unauthorized : No token in header provided", 401);
+               
             }
         }
         else {
             //no header authorization in request 
             console.log('no token header provided');
-            next();
-        }
-    },
-
-
-    
-    
-    /** 
-     * last middleware that check if one of the previous middleware worked
-     * @param {object} req The req object of express framework, see express.js website for more informations
-     * @param {object} res The res object of express framework, see express.js website for more informations
-     * @param {object} next callback used to call the next express middleware
-     */
-    gateway: function (req, res, next) {
-        if (req.user.token != null && req.device.id != null) { //check if there is a token AND a certificate, not possible
-            console.log("error, should not be authenticated as a device AND a user");
-            res.status(404).send({ error: "can't have a certificate AND a token " });
-        } else if (req.user.token != null || req.device.id != null) { //if there is one authentication, go on to the next middleware
-            next();
-        } else if (req.user.outdatedToken) { //if token outdated
-            res.status(401).send({error: "outdated token"})
-        } else if (req.user.token == null && req.device.id == null) { //if no token or certificate
-            res.status(401).send({ error: 'no token or certificate' });
-        } else {
-            res.status(401).send({ error: 'authentication error' });
+            res.respond("Unauthorized : No authorization headers provided", 401);
+            
         }
     }
 

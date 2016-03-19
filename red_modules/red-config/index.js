@@ -1,11 +1,13 @@
 var path = require("path");
 var ini = require("ini");
 var fs = require("fs");
+var path = require("path");
 
 //retrieve data from config.ini file
 var config = ini.parse(fs.readFileSync(path.join(__dirname, '../../config.ini'), 'utf-8'));
 
 //store in an object
+//if the user does not provide inputs for the parameters, it will be filled with default values
 var options = {
     hostname: config.hostname,
     certsPath: {
@@ -23,6 +25,10 @@ var options = {
         iterations: parseInt(config.Hash.iterations != '' ? config.Hash.iterations : '2')
     }
 };
+
+//modify paths to be absolute paths
+options.certsPath.privateKey = path.join(process.cwd(), options.certsPath.privateKey);
+options.certsPath.publicKey = path.join(process.cwd(), options.certsPath.publicKey);
 
 //check values provided by the user
 
