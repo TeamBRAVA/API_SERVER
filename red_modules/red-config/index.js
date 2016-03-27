@@ -26,11 +26,5 @@ var options = {
     }
 };
 
-//modify paths to be absolute paths
-options.certsPath.privateKey = path.join(process.cwd(), options.certsPath.privateKey);
-options.certsPath.publicKey = path.join(process.cwd(), options.certsPath.publicKey);
-
-//check values provided by the user
-
 //export the object
 module.exports = options;
