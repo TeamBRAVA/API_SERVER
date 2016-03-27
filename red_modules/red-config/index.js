@@ -11,8 +11,8 @@ var config = ini.parse(fs.readFileSync(path.join(__dirname, '../../config.ini'),
 var options = {
     hostname: config.hostname,
     certsPath: {
-        privateKey: path.join(__dirname, '../..', config.CERTS.privatePath != '' ? config.CERTS.privatePath : './CERTS/TOKEN/private.key'),
-        publicKey: path.join(__dirname, '../..', config.CERTS.publicPath != '' ? config.CERTS.publicPath : './CERTS/TOKEN/public.key')
+        privateKey: path.join(__dirname, '../..', config.CERTS.privateKey != '' ? config.CERTS.privateKey : './CERTS/TOKEN/private.key'),
+        publicKey: path.join(__dirname, '../..', config.CERTS.publicKey != '' ? config.CERTS.publicKey : './CERTS/TOKEN/public.key')
     },
     token: {
         algorithm: config.Token.algorithm != '' ? config.Token.algorithm : 'RS256',

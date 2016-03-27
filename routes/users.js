@@ -420,6 +420,6 @@ router.post('/permissions/update', function (req, res) {
 /*ADMIN ROUTE, manage the permissions requests at a higher level*/
 router.get('/permissions/pending', function (req, res) {
     //admin can see which permissions requests have a pending status.
-})
+});
 
 module.exports = router;

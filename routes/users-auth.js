@@ -3,6 +3,7 @@ var router = express.Router();
 var jwt = require('jsonwebtoken');  //https://npmjs.org/package/node-jsonwebtoken
 var expressJwt = require('express-jwt'); //https://npmjs.org/package/express-jwt
 var fs = require('fs');
+var config = require('../red_modules/red-config');
 var red_users = require('../red_modules/red-users');
 /**@swagger
  * definition: 
@@ -63,8 +64,8 @@ router.post('/register', function(req, res) {
     red_users.findUsername(credentials.username, function(err, result) {
         if (result == null) {
             //Sending user credentials inside the token
-            var cert = fs.readFileSync('../../CERTS/token.key');  // getting the private key DOES NOT WORK FOR API_SERVER, do ../CERTS/token.key
-            var token = jwt.sign(credentials, cert, { algorithm: 'HS256', expiresIn: 60 * 10 }); //expires in 10 minutes (value in seconds)
+            var cert = fs.readFileSync(config.certsPath.privateKey);  // getting the private key DOES NOT WORK FOR API_SERVER, do ../CERTS/token.key
+            var token = jwt.sign(credentials, cert, { algorithm: config.token.algorithm, expiresIn: config.token.expiresIn }); //expires in 10 minutes (value in seconds)
             //Storing the token inside the user credentials
             var completeCredentials = {
                 username: req.body.username,

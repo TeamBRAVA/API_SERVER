@@ -94,7 +94,34 @@ router.get('/result/:id', function(req, res) {
 /////////////////////////////////////////////////////////////////////////////////////
 
 
-//update the object **TO BE IMPLEMENTED**
+
+/**
+*  @swagger
+*  /device/update:
+*    get:
+*      tags: [Devices]
+*      description: Get the last version of the library
+*      produces:
+*        - application/json
+*      parameters:
+*
+*      responses:
+*        200:
+*          description: return the list of softwares that need to be updated, with their corresponding IDs
+*        401:
+*          description: unauthorized, the certificate is missing or wrong
+*        404:
+*          description: value asked not found
+*/
+router.get('/update', function(req, res) {
+    devices.softwares(req.device.id, function (err, result) {
+        soft.createList(result, function (list) {
+            res.respond(list);
+        });
+    });
+});
+
+
 /**
 *  @swagger
 *  /device/update/{id}:
@@ -106,29 +133,19 @@ router.get('/result/:id', function(req, res) {
 *      parameters:
 *        - name: id
 *          description: value type
-*          in : path
+*          in : MongoDB ID
 *          required : true
 *          schema:
 *            type: string
 *
 *      responses:
 *        200:
-*          description: return the list of softwares that need to be updated
+*          description: return .deb package file
 *        401:
 *          description: unauthorized, the certificate is missing or wrong
 *        404:
 *          description: value asked not found
 */
-/////////////NOTIMPLEMENTED
-router.get('/update', function(req, res) {
-    devices.softwares(req.device.id, function (err, result) {
-        soft.createList(result, function (list) {
-            res.respond(list);
-        });
-    });
-});
-
-
 router.get('/update/:id', function (req, res) {
     var id = req.params.id;
     devices.softwares(req.device.id, function (err, result) {
