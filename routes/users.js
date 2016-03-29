@@ -1,13 +1,31 @@
 var express = require('express');
 var router = express.Router();
 var path = require('path');
+var util = require('util');
 var async = require('async');
+var multer = require('multer');
 require('./response');
 
 var devices = require('../red_modules/red-devices');
+var softwares = require('../red_modules/red-repository');
 var certs = require('../red_modules/red-cert-generator');
 var perm = require('../red_modules/red-permissions');
 var red_users = require('../red_modules/red-users');
+
+
+
+var storage = multer.diskStorage({ //multers disk storage settings
+    destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, '../uploads/'));
+    },
+    filename: function (req, file, cb) {
+        var datetimestamp = Date.now();
+        cb(null, file.fieldname + '-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]);
+    }
+});
+
+var upload = multer({storage: storage}).single('file');
+
 
 /*API FOR THE USERS AND THEIR PERMISSIONS */
 /**@swagger
@@ -25,6 +43,159 @@ var red_users = require('../red_modules/red-users');
  *
  */
 
+
+/**
+ *  @swagger
+ *  /user/info:
+ *    get:
+ *      tags: [Users]
+ *      description: add a device to the user's list of devices
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: A json document that contain all the data related to the device.
+ *        401:
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
+ *
+ */
+router.get('/info', function (req, res) {
+    red_users.findSummary(req.user.id, callback);
+
+    //callback function
+    function callback(err, result) {
+        console.log(err)
+        if (err)
+            res.respond("Could not find the user summary", 404);
+        else
+            res.respond(result);
+    }
+});
+
+
+/**
+ *  @swagger
+ *  /user/software/list:
+ *    get:
+ *      tags: [Users]
+ *      description: List all the softwares from a user without obsolete ones
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: A json document that contain all the data related to the softwares
+ *        401:
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
+ *
+ */
+router.get('/software/list', function (req, res) {
+    softwares.list(req.user.id, callback);
+
+    //callback function
+    function callback(err, result) {
+        if (err) {
+            console.log(err);
+            res.respond("Could not find the list of softwares", 404);
+        } else
+            res.respond(result);
+    }
+});
+
+/**
+ *  @swagger
+ *  /user/software/list/all:
+ *    get:
+ *      tags: [Users]
+ *      description: List all the softwares from a user with obsoletes ones
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: A json document that contain all the data related to the softwares
+ *        401:
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
+ *
+ */
+router.get('/software/list/all', function (req, res) {
+    softwares.listAll(req.user.id, callback);
+
+    //callback function
+    function callback(err, result) {
+        if (err) {
+            console.log(err);
+            res.respond("Could not find the list of softwares", 404);
+        } else
+            res.respond(result);
+    }
+});
+
+/**
+ *  @swagger
+ *  /user/software/add:
+ *    post:
+ *      tags: [Users]
+ *      description: Upload a new software to the software list of the user
+ *      produces:
+ *        - application/json
+ *      parameters:
+ *        - name: name
+ *          description: software name
+ *          in: body
+ *          required: true
+ *          schema: 
+ *            type: string
+ *        - name: version
+ *          description: software version
+ *          in: body
+ *          required: true
+ *          schema: 
+ *            type: string
+ *        - name: description
+ *          description: software short description
+ *          in: body
+ *          required: true
+ *          schema: 
+ *            type: string
+ *        - name: file
+ *          description: software file (file upload as post)
+ *          in: body
+ *          required: true
+ *          schema: 
+ *            type: string
+ *      responses:
+ *        200:
+ *          description: A json document that contain information about the uploaded software
+ *        401:
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
+ *
+ */
+router.post('/software/add', function (req, res) {
+    upload(req,res,function(err){
+        if(err){
+            res.respond("Internal error while uploaded the file", 500);
+            return;
+        }
+
+        softwares.copy(req.file.path, function (err, chemin) {
+            softwares.add({name: req.body.name, version: req.body.version, desc: req.body.description, path: chemin}, req.user.id, function (err) {
+                if(err) {
+                    res.respond("Could not save the software", 500);
+                }
+                res.respond("file uploaded and stored");
+            });
+        });
+    });
+});
+
+
 /**
  *  @swagger
  *  /user/device/add:
@@ -34,7 +205,7 @@ var red_users = require('../red_modules/red-users');
  *      produces:
  *        - application/json
  *      parameters:
- *        - name: body
+ *        - name: id
  *          description: device's id
  *          in: body
  *          required: true
@@ -54,10 +225,10 @@ router.post('/device/add', function (req, res) {
     
     //callback function
     function callback(err, result) {
-        console.log(err)
-        if (err)
+        if (err) {
+            console.log(err);
             res.respond("Could not add the device", 404);
-        else
+        } else
             res.respond(result);
     }
 });
@@ -87,31 +258,55 @@ router.get('/device/all', function (req, res) {
             res.respond("Could not get the devices", 404);
         } else {
             var toSend = [];
-            console.log(result.devices);
             
             //for each user's device, retrieve its informations
-            result.devices.forEach(function (val, index, array) {
-                devices.find(val, function (err, device) {
+            async.each(result.devices, function (device, callback) {
+                devices.findData(device, function (err, d) {
                     if (err) {
                         res.respond(err, 404);
                     } else {
                         //add each to an array that will be sent back
-                        toSend.push(device);
-                        
-                        //if last device, send back the result
-                        if (index == result.devices.length - 1) {
-                            console.log(toSend);
-                            res.respond(toSend);
-                        }
-
+                        toSend.push(d);
+                        callback();
                     }
                 });
+            }, function done () {
+                console.log(toSend);
+                res.respond(toSend);
             });
-
         }
     });
 });
 
+
+/**
+ *  @swagger
+ *  /user/device/list:
+ *    get:
+ *      tags: [Users]
+ *      description: Get the list of all devices owned by the authenticated user
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: A json document that contain all the related devices. {list.[deviceIDList]}
+ *        401:
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
+ *
+ */
+router.get('/device/list', function (req, res) {
+    // Get the users informations
+    red_users.find(req.user.id, function (err, result) {
+        if (err) {
+            console.error(err);
+            res.respond("Could not get the list of devices", 404);
+        } else {
+            res.respond({list : result.devices});
+        }
+    });
+});
 
 /**
  *  @swagger
@@ -152,7 +347,7 @@ router.get('/device/:id', function (req, res) {
         if (result == true) {
             console.log("checkRules ok");
             //call devices data function to retrieve asked data
-            devices.find(req.params.id, callback);
+            devices.findData(req.params.id, callback);
         } else {
             res.respond("Unauthorized", 403);    // Forbidden
         }
@@ -161,6 +356,95 @@ router.get('/device/:id', function (req, res) {
     //callback function
     function callback(err, result) {
         if (err){
+            console.log(err);
+            res.respond({err : "Could not load the data"}, 404);
+        }
+        else
+            res.respond(result);
+    }
+});
+
+
+/**
+ *  @swagger
+ *  /user/device/summary{id}:
+ *    get:
+ *      tags: [Users]
+ *      description: Get the sample of data the device has produce
+ *      produces:
+ *        - application/json
+ *      parameters:
+ *        - name: id
+ *          description: the id of the object to get the summary
+ *          in : path
+ *          required : true
+ *          schema:
+ *            type: integer
+ *      responses:
+ *        200:
+ *          description: most recent value corresponding to datatype sent in parameter
+ *        401:
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
+ *
+ */
+// Get results from other devices (by id)
+router.get('/device/summary/:id', function (req, res) {
+
+    var from = { user: req.user.id };
+    var to = { device: req.params.id };
+    
+    perm.checkRules(from, to, function (err, result) {
+        if (err) {
+            console.log(err)
+            res.respond("Data not found", 404);
+            return;
+        }
+        if (result == true) {
+            console.log("checkRules ok");
+            var errors = [];
+            var results = {};
+            //call devices data function to retrieve asked data
+            async.parallel([
+                function (cb) {
+                    devices.find(req.params.id, function (err, r) {
+                        if(err) errors.push(err);
+                        else {
+                            // copy an object
+                            for (var key in r) {
+                                results[key] = r[key];
+                            }
+                        }
+                        cb();
+                    });
+                },
+                function (cb) {
+                    red_users.findDeviceUsers(req.params.id, function (err, r) {
+                        if(err) errors.push(err);
+                        else results.users = r.length;
+                        cb();
+                    });
+                },
+                function (cb) {
+                    perm.list('device', req.params.id, function (err, r) {
+                        if(err) errors.push(err);
+                        else results.permissions = r.requestor.length + r.target.length;
+                        cb();
+                    });
+                }
+                ], function (err) {
+                    callback(errors, results);
+                });
+            
+        } else {
+            res.respond("Unauthorized", 403);    // Forbidden
+        }
+    });
+    
+    //callback function
+    function callback(err, result) {
+        if (err.length > 0){
             console.log(err);
             res.respond({err : "Could not load the data"}, 404);
         }
@@ -207,12 +491,15 @@ router.get('/device/new/:nb', function (req, res) {
             var nb = 0;
             // Insert in the database
             async.each(d, function (device, callback) {
-                devices.insertDeviceWithCert(device.path, device.passphrase, device.fingerprint, function (err, results) {
-                    if (!err)
-                        nb++;
-                    else
-                        console.log(err);
-                    callback();
+                devices.insertDeviceWithCert(device.path, device.passphrase, device.fingerprint, req.user.id, function (err, results) {
+                    if (!err) {
+                        red_users.addDevice(results.toString(), req.user.id, function (err, result) {
+                            if (!err) {
+                                nb++;
+                            } else console.log(err);
+                            callback();
+                        });
+                    } else console.log(err);
                 });
             }, function done() {
                 res.respond(nb + " certificates created", 200);
@@ -246,7 +533,6 @@ router.get('/device/new/:nb', function (req, res) {
  *          description:  error message indicating the type of error
  *
  */
-
 router.post('/device', function (req, res) {
     //Create the object containing fields to search for
     var device = {
@@ -319,6 +605,9 @@ router.get('/permissions/:userid', function (req, res) {
             res.respond(result);
     }
 });
+
+
+
 
 /* POST new permissions for a user on a certain device */
 /**

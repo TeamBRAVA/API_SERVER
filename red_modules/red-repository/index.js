@@ -19,8 +19,10 @@ Data structure:
 var software = {
   _id: String,
   name : String,
+  description : String,
   version : String,
   path : String,
+  owner : String,
   obsolete : Boolean
 }
 */
@@ -36,13 +38,14 @@ var softwares = {
 
 	/**
 	 * Add a software to the list. Verify if the software is already uploaded
-	 *	@param {Object} obj : { name, version, path } All are strings to define the software
+	 *	@param {Object} obj : { name, version, desc, path } All are strings to define the software
 	 *	@param {String} owner The id of the owner who push the software
 	 *	@param {updateCallback} callback send back the errors of the query or nothing
 	 */
 	add : function(obj, owner, callback) {
 		var soft = {
 			name : obj.name,
+			description : obj.desc,
 			version : obj.version,
 			path : obj.path,
 			owner : owner,
@@ -159,6 +162,34 @@ var softwares = {
 				}
 				callback(err, {id : result._id.toString()});
 			});
+		});
+	},
+
+	/** 
+	 * Get the full list of softwares, not obsolete, from one user
+	 * @param {string} owner The user who the software belongs to
+	 * @param {updateCallback} callback return an error if it cannot complete
+	 */
+	list : function(owner, callback) {
+		db.collection('software').find({obsolete: false, owner: owner}, {name:1,version:1,description:1}).toArray(function (err, res) {
+			if(err) {
+				return error("Cannot find the list of softwares", err, callback);
+			}
+			callback(err, res);
+		});
+	},
+
+	/** 
+	 * Get the full list of softwares from one user
+	 * @param {string} owner The user who the software belongs to
+	 * @param {updateCallback} callback return an error if it cannot complete
+	 */
+	listAll : function(owner, callback) {
+		db.collection('software').find({owner: owner}, {name:1,version:1,description:1, obsolete:1}).toArray(function (err, res) {
+			if(err) {
+				return error("Cannot find the list of softwares", err, callback);
+			}
+			callback(err, res);
 		});
 	},
 

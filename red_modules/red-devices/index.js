@@ -9,13 +9,15 @@ var db = mongo.db('mongodb://localhost/RED_DB');
 /* 
 Description: 
 
-wiki: http://wiki.red.jankobox.fr
+wiki: http://wiki.red-cloud.io
 API documentation: http://api.red-cloud.io
 
 Data structure: 
 
 var device = {
   _id: String,
+  name : String,
+  description : String,
   owner: String,
   creationDate,
   token: String,
@@ -26,14 +28,9 @@ var device = {
   }
   installedversionRED: String,
   softwarelist: [String], 
-  data: [ { datatype: String, value: String, date: Date() } ]    date is timestamp in milliseconds
+  data: { datatype : [ { value: String, date: Date() } ] }    date is timestamp in milliseconds
 }
 
-var permissions = {
-  _id: String,
-  userid: String,
-  permission: String
-}
 */
 
 /**
@@ -58,9 +55,10 @@ var devices = {
      * @param {string} path The path of the certificate
      * @param {string} passphrase The password of the certificate
      * @param {string} fingerprint The fingerprint of the certificate
+     * @param {string} owner The owner ID (user ID)
      * @param {insertDeviceWithcertCallback} callback send back the result of the query
      */
-    insertDeviceWithCert: function(path, passphrase, fingerprint, callback) {
+    insertDeviceWithCert: function(path, passphrase, fingerprint, owner, callback) {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
@@ -76,8 +74,14 @@ var devices = {
             callback(new Error("You must provide an id in obj"));
             return;
         }
+        if (!(owner && typeof owner === "string")) {
+            callback(new Error("You must provide an id in obj"));
+            return;
+        }
         var device = {
-            owner: null,
+            name: null,
+            description: null,
+            owner: owner,
             creationDate: Date.now(),
             token: null,
             corrupted: false,
@@ -88,7 +92,7 @@ var devices = {
             },
             installedversionRED: null,
             softwarelist: [],
-            data: []
+            data: {}
         };
         db.collection('device').insert(device, function(err, result) {
             if (result.result.ok == 1) {
@@ -203,6 +207,63 @@ var devices = {
     },
 
     /** 
+     * Set the name of a device
+     * @param {string} id The device's id
+     * @param {string} name The device name to set
+     * @param {updateCallback} callback send back the result of the query or the corresponding errors
+     */
+    setName: function(id, name, callback) {
+        if (!(callback instanceof Function)) {
+            throw new Error("You have to provide a function callback as last parameter");
+        }
+        if (!(id && typeof id === "string")) {
+            callback(new Error("You must provide an id"));
+            return;
+        }
+        if (!(name && typeof name === "string")) {
+            callback(new Error("You must provide a name"));
+            return;
+        }
+        db.collection('device').update({ _id: mongo.helper.toObjectID(id) }, {'$set' : {name : name}}, function(err, res) {
+            console.log('update the name');
+            if(err) {
+                callback(err, false);
+            } else {
+                callback(err, res);
+            }
+        });
+    },
+
+    /** 
+     * Set the description of a device
+     * @param {string} id The device's id
+     * @param {string} desc The device description to set
+     * @param {updateCallback} callback send back the result of the query or the corresponding errors
+     */
+    setDescription: function(id, desc, callback) {
+        if (!(callback instanceof Function)) {
+            throw new Error("You have to provide a function callback as last parameter");
+        }
+        if (!(id && typeof id === "string")) {
+            callback(new Error("You must provide an id"));
+            return;
+        }
+        if (!(desc && typeof desc === "string")) {
+            callback(new Error("You must provide a name"));
+            return;
+        }
+        db.collection('device').update({ _id: mongo.helper.toObjectID(id) }, {'$set' : {description : desc}}, function(err, res) {
+            console.log('update the description');
+            if(err) {
+                callback(err, false);
+            } else {
+                callback(err, res);
+            }
+        });
+    },
+
+
+    /** 
      * Update the installed version of RED
      * @param {object} obj the object containing the fields to update
      * @param {string} obj.id the device's id
@@ -254,7 +315,11 @@ var devices = {
         db.collection('device').findOne({ _id: mongo.helper.toObjectID(obj.id) }, function(err, res) {
             if (res != null) {
                 var today = Date.now().toString(); //store the current date in a string
-                db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, { '$push': { data: { datatype: obj.datatype, value: obj.value, date: today } } }, function(err, nbRow) {
+
+                var o = {}; o['$push'] = {};
+                o['$push']['data.'+obj.datatype] = {value: obj.value, date: today};
+
+                db.collection('device').update({ _id: mongo.helper.toObjectID(obj.id) }, o, function(err, nbRow) {
                     console.log('New data are pushed into device ', obj.id);
                     callback(err, nbRow);
                 });
@@ -294,7 +359,21 @@ var devices = {
             callback(new Error("You must provide a token in obj"));
             return;
         }
-        db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj.id), "data.datatype": obj.datatype }, function(err, result) {
+
+        var o = {'data':1}; o['data.'+obj.datatype] = { '$slice' : -1 };    // Conditions to return only the data field and the last push data
+
+        db.collection('device').findOne({ _id : mongo.helper.toObjectID(obj.id)}, o, function (err, result) {
+            if(err) callback(err);
+            else {
+                if(result.data[obj.datatype] != undefined) {
+                    callback(err, result.data[obj.datatype][0]);
+                } else {
+                    callback(new Error("The require datatype wasn't found"));
+                }
+            }
+        });
+
+        /*db.collection('device').findOne({ "_id": mongo.helper.toObjectID(obj.id), "data.datatype": obj.datatype }, function(err, result) {
             if (err) {
                 callback(err);
             } else {
@@ -326,11 +405,12 @@ var devices = {
                     }
                 } else callback(new Error("id or datatype not found"));
             }
-        })
+        })*/
     },
 
     /** 
      * Get last entry of specified device according to the datatype and time given in parameter
+     * Obsolete for now
      * @param {object} obj the object containing the fields to search for
      * @param {string} obj.id the device's id
      * @param {string} obj.datatype the type of data
@@ -385,8 +465,30 @@ var devices = {
         });
     },
 
+    /** 
+     * Get one object preformatted without the certificate, token and data informations
+     * @param {String} id The id representing the device (aka req.device.id)
+     * @param {pullCallback} callback send back the result of the query
+     */
+    find : function(id, callback) {
+        if (!(callback instanceof Function)) {
+            throw new Error("You have to provide a function callback as last parameter");
+        }
+        if (!(id && typeof id === "string")) {
+            callback(new Error("You must provide an id (string)"));
+            return;
+        }
+
+        var conditions = {_id:1,name:1,description:1,creationDate:1,installedversionRED:1,softwarelist:1};
+
+        db.collection('device').findOne({ _id: mongo.helper.toObjectID(id) }, conditions, function (err, result) {
+            if(err) callback(err);
+            else callback(err, result);
+        });
+    },
+
     ///////////////////////////////////////////////////TO DELETE////////////////////////////
-    find: function(id, callback) {
+    findData: function(id, callback) {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }

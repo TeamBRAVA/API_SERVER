@@ -131,7 +131,27 @@ var app = {
 		    	callback(err);
 		    	return;
 		    }
-		    console.log("Find by ID");
+		    console.log("Find By ID");
+		    callback(err, result);
+		});
+	},
+
+	/*
+	 *	Return the user infos that can be publicly displayed
+	 */
+	findSummary : function (id, callback ) {
+		if( !( callback instanceof Function )) {
+			throw new Error("You have to provide a function callback as last parameter");
+		}
+		if ( !(id && typeof id == "string") ) {
+			callback(new Error("You must provide an id (string) as first parameter"));
+			return;
+		}
+		db.collection('user').findOne({ _id : mongo.helper.toObjectID(id) }, {username:1, mail:1}, function (err, result) {
+			if (err) {
+		    	callback(err);
+		    	return;
+		    }
 		    callback(err, result);
 		});
 	},
@@ -144,7 +164,7 @@ var app = {
 			if (err) {
 				callback(err);
 			}
-			console.log("Find by ID");
+			console.log("Find by Token");
 			callback(err, result._id);
 		});
 	},
@@ -280,6 +300,26 @@ var app = {
 			else{
 				callback(new Error("passworderror"), false);
 			}
+		});
+	},
+
+	/*
+	 * Find all users ID that have the device in their set
+	 * @param {string} device The device ID
+	 * @param {pullCallback} callback send back the result of the query
+	 */
+	findDeviceUsers : function ( device, callback ) {
+		if( !( callback instanceof Function )) {
+			throw new Error("You have to provide a function callback as last parameter");
+		}
+		if( !(device && typeof device == "string") ) {
+			callback( new Error("You must provide a device ID as first argument"));
+			return;
+		}
+		db.collection('user').find({devices : device}, {_id:1}).toArray(function (err, results) {
+			if(err) callback(err);
+			else callback(err, results);
+			console.log(results);
 		});
 	},
 

@@ -135,7 +135,7 @@ var app = {
 		});
 	},
 
-	/*	List all permissions for an specific couple collection:id 
+	/*	List all permissions for a specific couple collection:id 
 		return an object containing two arrays : requestor and target
 		if the id is the target or the requestor of the permission, the result goes inside the corresponding array
 	*/
