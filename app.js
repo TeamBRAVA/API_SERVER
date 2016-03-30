@@ -33,9 +33,9 @@ app.use('/',function(req,res,next){
         id : "56bbb4727cc2bddf7abb7ac8"
     }*/
     
-    req.device = {
+    /*req.device = {
         id : "56f85f79a83e51c3560271ab"
-    }
+    }*/
     next();
 });
 
