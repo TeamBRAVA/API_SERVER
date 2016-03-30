@@ -28,16 +28,16 @@ app.use(cors());
 app.options('*', cors()); //enable pre-flight across-the-board (custom requests headers)
 app.use(nocache);
 
-/*app.use('/',function(req,res,next){
-    req.user = {
+app.use('/',function(req,res,next){
+    /*req.user = {
         id : "56bbb4727cc2bddf7abb7ac8"
-    }
+    }*/
     
-    req.device = {
-        id : "56b5e4fc7a80b13b2149b900"
-    }
+    /*req.device = {
+        id : "56f85f79a83e51c3560271ab"
+    }*/
     next();
-});*/
+});
 
 /**  CUSTOM ROUTES */
 //route for swagger documentation

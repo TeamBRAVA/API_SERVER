@@ -15,9 +15,15 @@ var db = mongo.db('mongodb://localhost/RED_DB');
  *   app.use('/user', tokenAuthenticated);
  */
 
+/**
+ * @fileOverview Authentication functions.
+ * @author {@link mailto:meetbrava@gmail.com|Team Brava}
+ * @see {@link https://github.com/TeamBRAVA/API_SERVER|Github}
+ * @version 1.0.0
+ */
 
 /**@namespace */
-var auth = {
+var _authentication = {
 
 
     /**
@@ -28,8 +34,8 @@ var auth = {
      * @param {object} next callback used to call the next express middleware
      */
     deviceAuthenticated : function (req, res, next) {
-        auth.certAuthenticated(req, res, function() {
-            auth.tokenDeviceAuthorized(req, res, next);
+        _authentication.certAuthenticated(req, res, function() {
+            _authentication.tokenDeviceAuthorized(req, res, next);
         });
     },
 
@@ -214,4 +220,4 @@ var auth = {
 
 }
 
-module.exports = auth;
+module.exports = _authentication;

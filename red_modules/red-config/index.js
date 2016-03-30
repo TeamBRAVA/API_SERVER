@@ -8,7 +8,16 @@ var config = ini.parse(fs.readFileSync(path.join(__dirname, '../../config.ini'),
 
 //store in an object
 //if the user does not provide inputs for the parameters, it will be filled with default values
-var options = {
+
+/**
+ * @fileOverview Configuration file manager.
+ * @author {@link mailto:meetbrava@gmail.com|Team Brava}
+ * @see {@link https://github.com/TeamBRAVA/API_SERVER|Github}
+ * @version 1.0.0
+ */
+
+/**@namespace */
+var _options = {
     hostname: config.hostname,
     certsPath: {
         privateKey: path.join(__dirname, '../..', config.CERTS.privateKey != '' ? config.CERTS.privateKey : './CERTS/TOKEN/private.key'),
@@ -27,4 +36,4 @@ var options = {
 };
 
 //export the object
-module.exports = options;
+module.exports = _options;
