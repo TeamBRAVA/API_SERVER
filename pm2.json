@@ -5,7 +5,7 @@
     "script"      : "bin/www",
     "args"        : [],
     "watch"       : true,
-    "ignore_watch": ["red_modules", "node_modules", "CERTS"],
+    "ignore_watch": ["red_modules", "node_modules", "CERTS", "uploads"],
     "merge_logs"  : true
   }]
 }
