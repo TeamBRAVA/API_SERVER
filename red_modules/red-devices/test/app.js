@@ -26,20 +26,20 @@ var objToPull = {
     datatype: "temp"
 }
 devices.pullDatatype(objToPull, function (err, result) {
-    console.log("pull err: " + err);
-    console.log("pull result : ");
+    console.log("pull err d: " + err);
+    console.log("pull result d: ");
     console.log(result);
 })
 
 
 var objDate = {
     id: "56c58fb6566c6db8248e64cb",
-    datatype: "vffed",
-    date: "1455788005867"
+    datatype: "temp",
+    date: "1455788014303"
 }
 devices.pullDatatypeAndDate(objDate, function (err, result) {
-    console.log("pull err: " + err);
-    console.log("pull date result : ");
+    console.log("pull err dd: " + err);
+    console.log("pull date result dd: ");
     console.log(result);
     if(result != null){
          console.log("date in timestamp :" + parseInt(result.date));
