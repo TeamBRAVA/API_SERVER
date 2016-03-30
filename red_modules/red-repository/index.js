@@ -212,7 +212,7 @@ var _softwares = {
 	createList : function(list, callback) {
 		var nList = [];
 		async.each(list, function(soft, cb) {
-			softwares.lastOne(soft, function (err, r) {
+			_softwares.lastOne(soft, function (err, r) {
 				if(r) {
 					db.collection('software').findOne({_id : mongo.helper.toObjectID(r.id)}, function (err, res) {
 						if(!err) {
@@ -235,7 +235,7 @@ var _softwares = {
 	createIDList : function(list, callback) {
 		var nList = [];
 		async.each(list, function(soft, cb) {
-			softwares.lastOne(soft, function (err, r) {
+			_softwares.lastOne(soft, function (err, r) {
 				if(r) {
 					db.collection('software').findOne({_id : mongo.helper.toObjectID(r.id)}, function (err, res) {
 						if(!err) {
