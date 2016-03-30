@@ -10,25 +10,35 @@ var jwt = require('jsonwebtoken');  //https://npmjs.org/package/node-jsonwebtoke
 var expressJwt = require('express-jwt'); //https://npmjs.org/package/express-jwt
 var fs = require('fs');
 
-/* 
-var user = {
-  _id: String,
-  username: String,
-  password: String,
-  mail : String,
-  token: {
-  	value : String,
-  	expireIn : Date
-  }
-  devices : [ String ],
-}
-*/
+/**
+ * @property {object}  defaults               - The default values for parties.
+ * @property {number}  defaults.players       - The default number of players.
+ * @property {string}  defaults.level         - The default level for the party.
+ * @property {object}  defaults.treasure      - The default treasure.
+ * @property {number}  defaults.treasure.gold - How much gold the party starts with.
+ */
+var user;
 
-// Use of password-hash module, which add inside the password hash, the algorithm, the salt, the iteration
 
-var app = {
+/**
+ * @fileOverview Users functions.
+ * @author {@link mailto:meetbrava@gmail.com|Team Brava}
+ * @see {@link https://github.com/TeamBRAVA/API_SERVER|Github}
+ * @version 1.0.0
+ */
 
-	// User : { username , password (plaintext), mail }
+/**@namespace */
+var _users = {
+
+	/** 
+     * insert a new user in the database
+     * @param {object} user The object containing all the required user informations see above
+     * @param {string} user.username The username of the user
+     * @param {string} user.password The password of the user as clear text
+     * @param {string} user.token The token of the user, automatically creating at registering time
+     * @param {string} user.mail The mail of the user for contact or second method for registration
+     * @param {Function} callback Callback when this function end. Pass err and result
+     */
 	insert : function ( user, callback) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -41,12 +51,10 @@ var app = {
 			callback(new Error("You must provide a password in String format inside the first parameter"));
 			return;
 		}
-		//New
 		if( ! (user.token && typeof user.token == "string") ) {
 			callback(new Error("You must provide a token in String format inside the first parameter"));
 			return;
 		}
-		//
 		if( !( user.mail && typeof user.mail == "string" && validateEmail(user.mail) ) ) {
 			callback(new Error("You must provide a valid mail"));
 			return;
@@ -87,7 +95,11 @@ var app = {
 		});
 	},
 
-	// Remove one specific user given it's ID
+	/** 
+     * delete a user in the database
+     * @param {string} id The id of the user to delete
+     * @param {Function} callback Callback when this function end. Pass err and result
+     */
 	remove : function ( id, callback) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -102,7 +114,10 @@ var app = {
 		});
 	},
 
-	// Get a list of all users
+	/** 
+     * list all users in the database
+     * @param {Function} callback Callback when this function end. Pass err and result
+     */
 	list : function ( callback ) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -117,7 +132,11 @@ var app = {
 		});
 	},
 
-	// Find by ID
+	/** 
+     * find a user in the database given it's ID
+     * @param {string} id The id of the user to find
+     * @param {Function} callback Callback when this function end. Pass err and result
+     */
 	find : function (id, callback ) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -136,9 +155,11 @@ var app = {
 		});
 	},
 
-	/*
-	 *	Return the user infos that can be publicly displayed
-	 */
+	/** 
+     * Create a summary of the user, return only _id, username and mail
+     * @param {string} id The id of the user to find
+     * @param {Function} callback Callback when this function end. Pass err and result
+     */
 	findSummary : function (id, callback ) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -155,7 +176,13 @@ var app = {
 		    callback(err, result);
 		});
 	},
-	// return _id associated to the token.
+	
+
+	/** 
+     * Find a user given it's token. Use for authentication
+     * @param {string} token The token of the user
+     * @param {Function} callback Callback when this function end. Pass err and result
+     */
 	findByToken : function(token,callback){
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -168,7 +195,12 @@ var app = {
 			callback(err, result._id);
 		});
 	},
-	// Find by mail
+	
+	/** 
+     * Find a user by mail
+     * @param {string} mail The mail of the user
+     * @param {Function} callback Callback when this function end. Pass err and result
+     */
 	findMail : function ( mail, callback ) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -186,7 +218,13 @@ var app = {
 		    callback(err, result);
 		});
 	},
-    //find by username
+    
+
+    /** 
+     * Find a user by its username
+     * @param {string} username The user username
+     * @param {Function} callback Callback when this function end. Pass err and result
+     */
 	findUsername : function ( username, callback ) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -204,7 +242,13 @@ var app = {
 		    callback(err, result);
 		});
 	},
-    //find owner of device (device parameter must be a device's id) MIGHT NOT WORK, CHECK THE MONGO FUNCTION
+    
+
+    /** 
+     * List all users that owns a specific device
+     * @param {string} device The id of the device
+     * @param {Function} callback Callback when this function end. Pass err and result
+     */
 	own : function ( device, callback ) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -223,7 +267,12 @@ var app = {
 		});
 	},
 
-	//verify that token is correct
+	
+	/** 
+     * Check if the token is correct (true if correct, false otherwise)
+     * @param {string} bearerToken The token given in the Authorization header during request
+     * @param {Function} callback Callback when this function end. Pass err and true or false
+     */
 	validateToken : function ( bearerToken, callback ) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -254,15 +303,19 @@ var app = {
 		}
 	},
     
-    //verify user's credentials and send back a new token if authenticated
-	// User : { username or mail , password (plaintext) }
-	// Callback( err, boolean)
-	verify : function ( user, callback ) {
+    /** 
+     * Verify if the user couple username:password match a user in the database
+     * @param {object} user The object representing the user (required)
+     * @param {string} user.username The username of the user
+     * @param {string} user.password The username password in clear text (as received in the request)
+     * @param {Function} callback Callback when this function end. Pass err and true or false
+     */
+	verifyAndLogin : function ( user, callback ) {
 		if( !(callback instanceof Function) ) {
 			throw new Error("You have to provide a function callback as last parameter");
 		}
 		if( !(user && user instanceof Object) ) {
-			callback( new Error("You must provide an user ( {username or mail, password(plain text) } ) as first parameter"), false);
+			callback( new Error("You must provide an user ( {username, password(plain text) } ) as first parameter"), false);
 			return;
 		}
 		if( !(typeof user.username == "string" ) ) {
@@ -303,10 +356,52 @@ var app = {
 		});
 	},
 
+	/** 
+     * Verify if the user couple id:password match a user in the database
+     * @param {object} user The object representing the user (required)
+     * @param {string} user.id The user id
+     * @param {string} user.password The username password in clear text (as received in the request)
+     * @param {Function} callback Callback when this function end. Pass err and true or false
+     */
+	verifyByID : function ( user, callback ) {
+		if( !(callback instanceof Function) ) {
+			throw new Error("You have to provide a function callback as last parameter");
+		}
+		if( !(user && user instanceof Object) ) {
+			callback( new Error("You must provide an user ( {id, password(plain text) } ) as first parameter"), false);
+			return;
+		}
+		if( !(user.id && typeof user.id == "string" ) ) {
+			callback( new Error("You must provide an id inside the first argument"), false);
+			return;
+		}
+		if( !(user.password && typeof user.password == "string") ) {
+			callback( new Error("You must provide a password inside the first argument"), false);
+			return;
+		}
+		
+		findOne({_id : mongo.helper.toObjectID(user.id)}, function (err, result) {
+			if(err) {
+				callback(err, false);
+			}
+			if( !result )  {
+				callback(err, false);
+			}
+			if( passwordHash.verify(user.password, result.password)) {
+				
+				callback(undefined, true);
+				
+   			}
+			else{
+				callback(new Error("password mismatch"), false);
+			}
+		});
+	},
+
 	/*
 	 * Find all users ID that have the device in their set
 	 * @param {string} device The device ID
-	 * @param {pullCallback} callback send back the result of the query
+	 * @param {Function} callback Function callback when this function end. Pass err and result
 	 */
 	findDeviceUsers : function ( device, callback ) {
 		if( !( callback instanceof Function )) {
@@ -323,8 +418,12 @@ var app = {
 		});
 	},
 
-	// Add a device to the set of devices of the user
-	// Need to verify if the device exist before adding it
+	/*
+	 * Add a device to the set of devices of the user
+	 * @param {string} device The device ID to register
+	 * @param {string} user The user ID in which to bind the device ID
+	 * @param {Function} callback Callback when this function end. Pass err and result
+	 */
 	addDevice : function ( device, user, callback ) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -350,8 +449,12 @@ var app = {
 		});
 	},
 
-	// Remove a device to the set of devices of the user
-	// Need to verify if the device is in the list before
+	/*
+	 * Remove a device to the set of devices of the user
+	 * @param {string} device The device ID to remove
+	 * @param {string} user The user ID in which to unbind the device ID
+	 * @param {Function} callback Callback when this function end. Pass err and result
+	 */
 	removeDevice : function ( device, user, callback ) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -398,4 +501,4 @@ function validateEmail(email) {
     return re.test(email);
 }
 
-module.exports = app;
+module.exports = _users;

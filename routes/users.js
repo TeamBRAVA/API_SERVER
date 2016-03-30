@@ -453,6 +453,109 @@ router.get('/device/summary/:id', function (req, res) {
     }
 });
 
+
+/**
+ *  @swagger
+ *  /user/device/certificate/{nb}:
+ *    get:
+ *      tags: [Users]
+ *      description:  Create new devices with the corresponding certs inside de database
+ *      produces:
+ *        - application/octet-stream
+ *      parameters:
+ *        - name: id
+ *          description: the device id which is bundle to the certificate
+ *          in : path
+ *          required : true
+ *          schema:
+ *            type: integer
+ *      responses:
+ *        200:
+ *          description: return the certificate file.
+ *        401:
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
+ */
+router.get('/device/certificate/:id', function (req, res) {
+    devices.getCertificatePath({id: req.params.id, owner: req.user.id}, function (err, result) {
+        if(err) {
+            console.log(err);
+            res.respond("Internal server error", 500);
+            return; 
+        }
+        if(result) {
+            res.sendFile(result.certificate.path);
+        } else {
+            res.respond("You don't own the object", 404);
+            return;
+        }
+    });
+});
+
+/**
+ *  @swagger
+ *  /user/device/certificate/passphrase/{nb}:
+ *    post:
+ *      tags: [Users]
+ *      description:  Create new devices with the corresponding certs inside de database
+ *      produces:
+ *        - application/json
+ *      parameters:
+ *        - name: id
+ *          description: the device id which is bundle to the certificate
+ *          in : body
+ *          required : true
+ *          schema:
+ *            type: integer
+ *        - name: password
+ *          description: the password of the user to validate
+ *          in : body
+ *          required : true
+ *          schema:
+ *            type: integer
+ *      responses:
+ *        200:
+ *          description: return the passphrase of the certificate
+ *        401:
+ *          description: unauthorized, the certificate is missing or wrong
+ *        404:
+ *          description: value asked not found
+ */
+router.post('/device/certificate/passphrase', function (req, res) {
+    if(!req.body.password) {
+        res.respond("Unauthorized : No password provided", 401);
+        return;
+    }
+    var u = {id : req.user.id, password : req.body.password};
+    red_users.verifyByID(u, function (err, status) {
+        if(err) {
+            console.log(err);
+            res.respond("Internal server error", 500);
+            return;
+        }
+        if(status) {
+            devices.getCertificateKey({id: req.body.id, owner: req.user.id}, function (err, result) {
+                if(err) {
+                    console.log(err);
+                    res.respond("Internal server error", 500);
+                    return; 
+                }
+                if(result) {
+                    res.respond(result.certificate);
+                } else {
+                    res.respond("You don't own the object", 404);
+                    return;
+                }
+            });
+        } else {
+            res.respond("Password mismatch", 401);
+        }
+    });
+});
+
+
+
 /**
  *  @swagger
  *  /user/device/new/{nb}:
@@ -470,13 +573,12 @@ router.get('/device/summary/:id', function (req, res) {
  *            type: integer
  *      responses:
  *        200:
- *          description: Return a link to download the created certificate.
+ *          description: The acknowlegment of the number of certificates created
  *        401:
  *          description: unauthorized, the certificate is missing or wrong
  *        404:
  *          description: value asked not found
  */
-
 router.get('/device/new/:nb', function (req, res) {
 
     // Set some absolute path

@@ -6,6 +6,8 @@ var config = require('../red-config');
 var jwt = require('jsonwebtoken');  //https://npmjs.org/package/node-jsonwebtoken
 var mongo = require('mongoskin');
 var db = mongo.db('mongodb://localhost/RED_DB');
+
+
 /* 
 Description: 
 
@@ -34,21 +36,27 @@ var device = {
 */
 
 /**
- * @fileOverview devices functions.
- * @author <a href="mailto:berthaud@edu.ece.fr">Thomas Berthaud</a>
+ * @fileOverview Devices functions.
+ * @author {@link mailto:meetbrava@gmail.com|Team Brava}
+ * @see {@link https://github.com/TeamBRAVA/API_SERVER|Github}
  * @version 1.0.0
  */
 
-/** @namespace */
-var devices = {
-    //////////////////////////DEVICE FUNCTIONS
-
-    /**
-     * callback that sends back the new device's id
-     * @callback insertDeviceWithcertCallback
-     * @param {string} err contains the error message if there was one
-     * @param {string} result contains the id of the new Device created 
-     */
+/** @namespace 
+ * @property {object}  device               - The default values for parties.
+ * @property {ObjectID}  device._id       - The default number of players.
+ * @property {string}  device.name         - The default level for the party.
+ * @property {string}  device.description      - The default treasure.
+ * @property {string}  device.owner             - How much gold the party starts with.
+ * @property {object}  device.certificate         - The default level for the party.
+ * @property {string}  device.certificate.path      - The default treasure.
+ * @property {string}  device.certificate.passphrase             - How much gold the party starts with.
+ * @property {string}  device.certificate.fingerprint         - The default level for the party.
+ * @property {array}    device.software      - The default treasure.
+ * @property {object}  device.data             - How much gold the party starts with.
+ * @property {array}  device.data.key             - How much gold the party starts with.
+*/
+var _devices = {
 
     /** 
      * Insert a new Device with it's corresponding certificate
@@ -103,13 +111,61 @@ var devices = {
         });
     },
 
-    /**
-     * callback send back the number of rows affected by the query
-     * @callback updateCallback
-     * @param {string} err contains the error message if there was one
-     * @param {object} result contains the number of rows affected by the update (to be modified)
+    /** 
+     * Get Certificate Key
+     * @param {object} obj the object containing the fields to update
+     * @param {string} obj.id the device's id
+     * @param {string} obj.owner the user ID that owns the device
+     * @param {updateCallback} callback send back the result of the query
      */
+    getCertificateKey: function(obj, callback) {
+        if (!(callback instanceof Function)) {
+            throw new Error("You have to provide a function callback as last parameter");
+        }
+        if (!(obj.id && typeof obj.id === "string")) {
+            callback(new Error("You must provide an id in obj"));
+            return;
+        }
+        if (!(obj.owner && typeof obj.owner === "string")) {
+            callback(new Error("You must provide a token in obj"));
+            return;
+        }
+        db.collection('device').findOne({ _id: mongo.helper.toObjectID(obj.id), owner : obj.owner }, {'certificate.passphrase' : 1, _id:0}, function (err, result) {
+            if(err) {
+              callback(err);
+              return;
+            }
+            callback(err, result);
+        });
+    },
 
+    /** 
+     * Get Certificate Path
+     * @param {object} obj the object containing the fields to update
+     * @param {string} obj.id the device's id
+     * @param {string} obj.owner the user ID that owns the device
+     * @param {updateCallback} callback send back the result of the query
+     */
+    getCertificatePath: function(obj, callback) {
+        if (!(callback instanceof Function)) {
+            throw new Error("You have to provide a function callback as last parameter");
+        }
+        if (!(obj.id && typeof obj.id === "string")) {
+            callback(new Error("You must provide an id in obj"));
+            return;
+        }
+        if (!(obj.owner && typeof obj.owner === "string")) {
+            callback(new Error("You must provide a token in obj"));
+            return;
+        }
+        db.collection('device').findOne({ _id: mongo.helper.toObjectID(obj.id), owner : obj.owner }, {'certificate.path' : 1, _id:0}, function (err, result) {
+            if(err) {
+              callback(err);
+              return;
+            }
+            callback(err, result);
+        });
+    },
 
     /** 
      * Update Certificate Key
@@ -118,7 +174,7 @@ var devices = {
      * @param {string} obj.certfkey the new certificate key
      * @param {updateCallback} callback send back the result of the query
      */
-    certificateKey: function(obj, callback) {
+    setCertificateKey: function(obj, callback) {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
@@ -143,7 +199,7 @@ var devices = {
      * @param {string} obj.path the new certificate path
      * @param {updateCallback} callback send back the result of the query
      */
-    certificatePath: function(obj, callback) {
+    setCertificatePath: function(obj, callback) {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
         }
@@ -329,15 +385,6 @@ var devices = {
             }
         });
     },
-
-    /**
-     * callback send back an object containing the value asked
-     * @callback pullCallback
-     * @param {string} err contains the error message if there was one
-     * @param {object} result contains the number of rows affected by the update
-     * @param {string} result.value the value to be returned
-     * @param {string} result.date the date on which the value has been saved
-     */
 
     /** 
      * Get last entry of specified device according to the datatype given in parameter
@@ -538,13 +585,13 @@ var devices = {
                         else{
                             // Not Outdated --> access granted
                             callback(err, true);
-                        }
+                        }members/account
                     });
                 } else {
-                    if( res.token == null && bearerToken == "") {
+                    if( res.token == null && bearerToken == "") {members/account
                         callback(new Error("First connection"), false);
                     } else {
-                        devices.corrupted(id, function (err) {
+                        _devices.corrupted(id, function (err) {
                             callback(new Error("Tokens mismatch, corrupted object"), false);
                         });
                     }
@@ -604,4 +651,4 @@ var devices = {
 
 };
 
-module.exports = devices;
+module.exports = _devices;

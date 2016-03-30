@@ -119,7 +119,7 @@ router.post('/login', function(req, res) {
         password: req.body.password,
     };
     //Check is username, password and token if they are valid
-    red_users.verify(credentials, function(err, result) {
+    red_users.verifyAndLogin(credentials, function(err, result) {
         if (result != false) {
             res.status(200).json({ token: result });
         }

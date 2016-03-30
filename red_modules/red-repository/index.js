@@ -8,6 +8,15 @@ var config = require('../red-config');
 var db = mongo.db('mongodb://localhost/RED_DB');
 
 
+/**
+ * @property {object}  defaults               - The default values for parties.
+ * @property {number}  defaults.players       - The default number of players.
+ * @property {string}  defaults.level         - The default level for the party.
+ * @property {object}  defaults.treasure      - The default treasure.
+ * @property {number}  defaults.treasure.gold - How much gold the party starts with.
+ */
+var software;
+
 /* 
 Description: 
 
@@ -28,13 +37,14 @@ var software = {
 */
 
 /**
- * @fileOverview softwares functions.
- * @author <a href="mailto:jankowie@edu.ece.fr">Pierre Jankowiez</a>
+ * @fileOverview Softwares functions.
+ * @author {@link mailto:meetbrava@gmail.com|Team Brava}
+ * @see {@link https://github.com/TeamBRAVA/API_SERVER|Github}
  * @version 1.0.0
  */
 
 /** @namespace */
-var softwares = {
+var _softwares = {
 
 	/**
 	 * Add a software to the list. Verify if the software is already uploaded
@@ -256,7 +266,7 @@ var softwares = {
 }
 
 
-module.exports = softwares;
+module.exports = _softwares;
 
 function error (message, err, callback) {
 	console.log(message)
