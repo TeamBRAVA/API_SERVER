@@ -114,7 +114,12 @@ router.get('/result/:id', function(req, res) {
 *          description: value asked not found
 */
 router.get('/update', function(req, res) {
+    console.log("device ID : " + req.device.id);
     devices.softwares(req.device.id, function (err, result) {
+        if(err) {
+            res.respond("Internal server error", 500);
+            return;
+        }
         soft.createList(result, function (list) {
             res.respond(list);
         });

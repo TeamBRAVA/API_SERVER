@@ -257,7 +257,12 @@ var _devices = {
             return;
         }
         db.collection('device').findOne({ _id: mongo.helper.toObjectID(id) }, function(err, res) {
-            console.log('Get the list of softwares');
+            if(err) {
+              console.log(err);
+              callback(err);
+              return;
+            } 
+            console.log(res);
             callback(err, res.softwarelist);
         });
     },
