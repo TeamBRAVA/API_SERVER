@@ -590,10 +590,10 @@ var _devices = {
                         else{
                             // Not Outdated --> access granted
                             callback(err, true);
-                        }members/account
+                        }
                     });
                 } else {
-                    if( res.token == null && bearerToken == "") {members/account
+                    if( res.token == null && bearerToken == "") {
                         callback(new Error("First connection"), false);
                     } else {
                         _devices.corrupted(id, function (err) {
