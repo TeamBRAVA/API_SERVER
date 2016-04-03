@@ -548,7 +548,7 @@ router.post('/newdata', function(req, res) {
 *
 */
 
-router.post('/ack/:idsoft', function(req, res) {
+router.post('/update/ack/:idsoft', function(req, res) {
     //Create the object containing fields to search for
     var device = {
         id: req.device.id,
