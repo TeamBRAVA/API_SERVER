@@ -241,6 +241,31 @@ var _devices = {
             callback(err, nbRow);
         });
     },
+    
+    /** 
+     * Push a new software into the chosen device
+     * @param {object} obj the object containing the fields to update
+     * @param {string} obj.id the device's id
+     * @param {string} obj.newsoftware the new software
+     * @param {updateCallback} callback send back the result of the query
+     */
+    validateNewSoftware: function(obj, callback) {
+        if (!(callback instanceof Function)) {
+            throw new Error("You have to provide a function callback as last parameter");
+        }
+        if (!(obj.id && typeof obj.id === "string")) {
+            callback(new Error("You must provide an id in obj"));
+            return;
+        }
+        if (!(obj.validateSoft && typeof obj.validateSoft === "string")) {
+            callback(new Error("You must provide a software id in obj"));
+            return;
+        }
+        db.collection('software').update({ _id: mongo.helper.toObjectID(obj.id) }, { "$addToSet": { "obsolote": true } }, function(err, nbRow) {
+            console.log('Softwarelist of device', obj.id, 'is updated!');
+            callback(err, nbRow);
+        });
+    },
 
 
     /** 
