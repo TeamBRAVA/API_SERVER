@@ -246,6 +246,9 @@ var _devices = {
      * Push a new software into the chosen device
      * @param {object} obj the object containing the fields to update
      * @param {string} obj.id the device's id
+     * 
+     * 56e9381be89d6470714f8eec
+     * 
      * @param {string} obj.newsoftware the new software
      * @param {updateCallback} callback send back the result of the query
      */
@@ -261,22 +264,43 @@ var _devices = {
             callback(new Error("You must provide a software id in obj"));
             return;
         }
-        db.collection('software').findOne({"_id": obj.validateSoft}, function(err,res){ // to get the name 
-            db.collection('software').find({ "name":res.name }).toArray(function(err,res){
+        db.collection('software').findOne({_id: mongo.helper.toObjectID(obj.validateSoft)}, function(err,res){ // to get the name 
+            if(err) {
+              return callback(err);
+            }
+            if(!res) {
+              return callback(new Error("Unknown software"));
+            }
+            db.collection('software').find({ "name":res.name }).toArray(function(err,results){
+                if(err) {
+                  return callback(err);
+                }
                 var oldSoftList = [];
-                res.forEach(function(element) {
-                        oldSoftList.push(element._id); 
-                    }, this);
-                    db.collection('device').find({_id:mongo.helper.toObjectID(obj.id)}).toArray(function(err,res){
-                    res.softwarelist.forEach(function(element) {
-                        if (oldSoftList.indexOf(element) != -1 ){
-                            db.collection('device').update({_id:mongo.helper.toObjectID(obj.id)}, {'$pull':{"softwarelist":element}}, function(err) {
-                                if (err) throw err;});
-                            db.collection('device').update({_id:mongo.helper.toObjectID(obj.id)}, {'$push':{"softwarelist":obj.validateSoft}}, function(err) {
-                                if (err) throw err;
-                                console.log('Updated!');});
-                        }
-                    }, this);
+                results.forEach(function(element) {
+                    oldSoftList.push(element._id.toString()); 
+                }, this);
+
+                db.collection('device').findOne({_id:mongo.helper.toObjectID(obj.id)}, function(err,result){
+                  if(err) {
+                    return callback(err);
+                  }
+                  result.softwarelist.forEach(function(element) {
+                    if (oldSoftList.indexOf(element) != -1 ){
+
+                        db.collection('device').update({_id:mongo.helper.toObjectID(obj.id)}, {'$pull':{"softwarelist":element}}, function(err) {
+                            if(err) {
+                              return callback(err);
+                            }
+                            db.collection('device').update({_id:mongo.helper.toObjectID(obj.id)}, { "$addToSet": { "softwarelist": obj.validateSoft } }, function(err) {
+                              if(err) {
+                                return callback(err);
+                              }
+                              callback(undefined);
+                            });
+                        });
+                        
+                    }
+                  });
                     
                 });
             });
