@@ -8,6 +8,7 @@ var devices = require('../red_modules/red-devices');
 var certs = require('../red_modules/red-cert-generator');
 var perm = require('../red_modules/red-permissions');
 var red_users = require('../red_modules/red-users');
+var soft = require('../red_modules/red-repository');
 
 /*API FOR THE DEVICES AND THEIR PERMISSIONS */
 
@@ -93,7 +94,39 @@ router.get('/result/:id', function(req, res) {
 /////////////////////////////////////////////////////////////////////////////////////
 
 
-//update the object **TO BE IMPLEMENTED**
+
+/**
+*  @swagger
+*  /device/update:
+*    get:
+*      tags: [Devices]
+*      description: Get the last version of the library
+*      produces:
+*        - application/json
+*      parameters:
+*
+*      responses:
+*        200:
+*          description: return the list of softwares that need to be updated, with their corresponding IDs
+*        401:
+*          description: unauthorized, the certificate is missing or wrong
+*        404:
+*          description: value asked not found
+*/
+router.get('/update', function(req, res) {
+    console.log("device ID : " + req.device.id);
+    devices.softwares(req.device.id, function (err, result) {
+        if(err) {
+            res.respond("Internal server error", 500);
+            return;
+        }
+        soft.createList(result, function (list) {
+            res.respond(list);
+        });
+    });
+});
+
+
 /**
 *  @swagger
 *  /device/update/{id}:
@@ -105,28 +138,37 @@ router.get('/result/:id', function(req, res) {
 *      parameters:
 *        - name: id
 *          description: value type
-*          in : path
+*          in : MongoDB ID
 *          required : true
 *          schema:
 *            type: string
 *
 *      responses:
 *        200:
-*          description: Return the URl of the trusty repository
+*          description: return .deb package file
 *        401:
 *          description: unauthorized, the certificate is missing or wrong
 *        404:
 *          description: value asked not found
 */
-/////////////NOTIMPLEMENTED
-router.get('/update', function(req, res) {
-    //call update function
-
-    //callback function
-    function callback(err, result) {
-        if (err) return console.error(err);
-        //todo create response
-    }
+router.get('/update/:id', function (req, res) {
+    var id = req.params.id;
+    devices.softwares(req.device.id, function (err, result) {
+        soft.createIDList(result, function (list) {
+            if(list.indexOf(id) != -1 || result.indexOf(id) != -1) {    // if the soft ID is in the list of the device
+                soft.getPath(id, function (err, p) {
+                    res.sendFile(p, {dotfiles : 'allow'}, function (err) {
+                        if (err) {
+                            console.log(err);
+                            res.status(err.status).end();
+                        } else {
+                            console.log('Sent:', p);
+                        }
+                    });
+                });
+            }
+        });
+    });
 });
 
 

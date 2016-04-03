@@ -1,36 +1,39 @@
-
+var path = require("path");
 var ini = require("ini");
 var fs = require("fs");
 var path = require("path");
 
 //retrieve data from config.ini file
-var config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
+var config = ini.parse(fs.readFileSync(path.join(__dirname, '../../config.ini'), 'utf-8'));
 
 //store in an object
 //if the user does not provide inputs for the parameters, it will be filled with default values
-var options = {
+
+/**
+ * @fileOverview Configuration file manager.
+ * @author {@link mailto:meetbrava@gmail.com|Team Brava}
+ * @see {@link https://github.com/TeamBRAVA/API_SERVER|Github}
+ * @version 1.0.0
+ */
+
+/**@namespace */
+var _options = {
     hostname: config.hostname,
     certsPath: {
-        privateKey: config.CERTS.privateKey != '' ? config.CERTS.privateKey : 'CERTS/TOKEN/private.key',
-        publicKey: config.CERTS.publicKey != '' ? config.CERTS.publicKey : 'CERTS/TOKEN/public.key'
+        privateKey: path.join(__dirname, '../..', config.CERTS.privateKey != '' ? config.CERTS.privateKey : './CERTS/TOKEN/private.key'),
+        publicKey: path.join(__dirname, '../..', config.CERTS.publicKey != '' ? config.CERTS.publicKey : './CERTS/TOKEN/public.key')
     },
     token: {
         algorithm: config.Token.algorithm != '' ? config.Token.algorithm : 'RS256',
-        expiresIn: config.Token.expiresIn != '' ? config.Token.expiresIn : '600',
+        expiresIn: parseInt(config.Token.expiresIn != '' ? config.Token.expiresIn : '600'),
         ignoreExpiration: config.Token.timeout == '0' ? true : false
     },
     hash: {
         algorithm: config.Hash.algorithm != '' ? config.Hash.algorithm : 'sha256',
-        saltLength: config.Hash.saltLength != '' ? config.Hash.saltLength : '10',
-        iterations: config.Hash.iterations != '' ? config.Hash.iterations : '2'
+        saltLength: parseInt(config.Hash.saltLength != '' ? config.Hash.saltLength : '10'),
+        iterations: parseInt(config.Hash.iterations != '' ? config.Hash.iterations : '2')
     }
 };
 
-//modify paths to be absolute paths
-options.certsPath.privateKey = path.join(process.cwd(), options.certsPath.privateKey);
-options.certsPath.publicKey = path.join(process.cwd(), options.certsPath.publicKey);
-
-//check values provided by the user
-
 //export the object
-module.exports = options;
+module.exports = _options;

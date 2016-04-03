@@ -5,7 +5,14 @@ var util = require('util');
 
 var db = mongo.db('mongodb://localhost/RED_DB');
 
-
+/**
+ * @property {object}  defaults               - The default values for parties.
+ * @property {number}  defaults.players       - The default number of players.
+ * @property {string}  defaults.level         - The default level for the party.
+ * @property {object}  defaults.treasure      - The default treasure.
+ * @property {number}  defaults.treasure.gold - How much gold the party starts with.
+ */
+var permission;
 
 /* PERMISSIONS MODEL
 	
@@ -25,13 +32,25 @@ var db = mongo.db('mongodb://localhost/RED_DB');
 
 */
 
+/**
+ * @fileOverview Permissions functions.
+ * @author {@link mailto:meetbrava@gmail.com|Team Brava}
+ * @see {@link https://github.com/TeamBRAVA/API_SERVER|Github}
+ * @version 1.0.0
+ */
+
 /* All callback are in the form  : callback(err, result); */
+/**@namespace */
+var _permissions = {
 
-var app = {
-
-	/* 	obj : { from : [collection, id ], to : [ collection : id ], permissions : {"key" : "read/write" , ...} } 
-		! the status is always pending after an insert !
-	*/
+    /** 
+     * Insert a new permission in the database
+     * @param {object} obj The object representing the permission (required)
+     * @param {string} obj.from The collection type which ask the permission ("device" or "user")
+     * @param {string} obj.to The collection type which is the target of the permission ("device" or "permission")
+     * @param {object} obj.permission The object representing what kind of entry the requestor can access (ie {"key" : "read|write" , ... } )
+     * @param {function} callback Callback function which is called when this function end. Pass errors and the result of the insert
+     */
     insert: function (obj, callback) {
 
         if (!(obj.from[0] == "device" || obj.from[0] == "user")) {
@@ -73,9 +92,11 @@ var app = {
 
     },
 
-	/*	remove a permission in the database, given it's id
-		Access to this function need to be verified before use !! */
-
+	/** 
+     * Remove a permission in the database
+     * @param {string} id The id representing the permission entry in the database
+     * @param {function} callback Callback function which is called when this function end. Pass errors and result
+     */
 	remove : function (id, callback) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -95,8 +116,11 @@ var app = {
 	},
 
 
-	/*	Add the granted flag to the permission 
-		Access to this function must be verified before use !! */
+	/** 
+     * Add the granted flag to the permission. use this function when the user allow a permission
+     * @param {string} id The id representing the permission entry in the database
+     * @param {function} callback Callback function which is called when this function end. Pass errors and result
+     */
 	allow : function (id, callback) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -115,8 +139,11 @@ var app = {
 		});
 	},
 
-	/*	Add the denied flag to the permission, the permission is not deleted and will appear in the list
-		Access to this function must be verified before use !! */
+	/** 
+     * Add the denied flag to the permission. use this function when the user deny a permission
+     * @param {string} id The id representing the permission entry in the database
+     * @param {function} callback Callback function which is called when this function end. Pass errors and result
+     */
 	deny : function (id, callback) {
 		if( !( callback instanceof Function )) {
 			throw new Error("You have to provide a function callback as last parameter");
@@ -135,11 +162,12 @@ var app = {
 		});
 	},
 
-	/*	List all permissions for an specific couple collection:id 
-		return an object containing two arrays : requestor and target
-		if the id is the target or the requestor of the permission, the result goes inside the corresponding array
-	*/
-
+	/** 
+     * List all permissions given a couple collection and id. Return the entry when the couple is the target or the requestor of the permission
+     * @param {string} collection The collection type (ie "device", "user", "permission") to find in the database
+     * @param {string} id The id representing the entry in the collection given above
+     * @param {function} callback Callback function which is called when this function end. Pass errors and result. Return two arrays : requestor and target depending on the couple state
+     */
     list: function (collection, id, callback) {
         var tasks, results = {};
 
@@ -177,7 +205,17 @@ var app = {
         });
     },
 
-    /* from : { device : id || user : id }, to : { device : id || permission : id }, access : { key : "read/write"} */
+    /** 
+     * Verify if a current operation is possible given two couple object
+     * @param {object} from The object representing the requestor of the permission
+     * @param {string} from.device The device id of the requestor (optional)
+     * @param {string} from.user The user id of the requestor (optional)
+     * @param {object} to The object representing the target of the permission
+     * @param {string} to.device The device id as a target  (optional)
+     * @param {string} to.permission The permission id as a target (optional)
+     * @param {string} access The access type to the data ("read" or "write")
+     * @param {function} callback Callback function which is called when this function end. Pass errors and result (true or false)
+     */
     verify: function (from, to, access, callback) {
 
         // Parse the arguments
@@ -226,16 +264,16 @@ var app = {
         });
     },
 
-	/* 	si un device veut modifier ses permissions il peut le faire tout seul
-			-> to.collection = 'device' && to.id = 'idDuDevice'
-		si un utilisateur veut modifier ses propres permissions il peut le faire
-			-> to.collection = 'user' && to.id = 'idDuMec'
-		si un utilisateur veut modifier les permissions de ses devices il peut le faire
-			-> to.collection = 'device' && to.id = 'celui dun device du mec'
-		si un device veut récupérer les informations de son owner il peut le faire
-			-> to.collection : user && to.id = 'id de from.owner'
-	*/
-
+	/** 
+     * Check some default rules to manage devices and user permissions (rules are hard coded like device owner has all access)
+     * @param {object} from The object representing the requestor of the permission
+     * @param {string} from.device The device id of the requestor (optional)
+     * @param {string} from.user The user id of the requestor (optional)
+     * @param {object} to The object representing the target of the permission
+     * @param {string} to.device The device id as a target  (optional)
+     * @param {string} to.permission The permission id as a target (optional)
+     * @param {function} callback Callback function which is called when this function end. Pass errors and result (true or false)
+     */
 	checkRules : function (from, to, callback) {
 		// Parse the arguments
 		if(Object.keys(from).length != 1 && Object.keys(to).length != 1) {
@@ -293,6 +331,7 @@ var app = {
         }
     },
 
+    
     pullUserPermission: function (condition, callback) {
         // we get the data for the permission
         // we retrieve the data fromt the user
@@ -314,4 +353,4 @@ var app = {
     }
 };
 
-module.exports = app;
+module.exports = _permissions;

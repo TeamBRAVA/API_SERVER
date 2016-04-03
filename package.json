@@ -1,19 +1,19 @@
 {
   "name": "api_red",
   "version": "0.0.0",
-  "description":"",
+  "description": "",
   "homepage": "http://red-cloud.io",
   "author": "Pierre Jankowiez <p.jankowiez@gmail.com>",
   "contributors": [
-      "Thomas Berthaud <berthaud@edu.ece.fr>",
-      "Loic Berthelot",
-      "Emre Karagözoğlu",
-      "Paul Le Tilly",
-      "Valentin Mercier"
+    "Thomas Berthaud <berthaud@edu.ece.fr>",
+    "Loic Berthelot",
+    "Emre Karagözoğlu",
+    "Paul Le Tilly",
+    "Valentin Mercier"
   ],
   "repository": {
-      "type": "git",
-      "url": "https://github.com/TeamBRAVA/API_SERVER.git"
+    "type": "git",
+    "url": "https://github.com/TeamBRAVA/API_SERVER.git"
   },
   "private": true,
   "scripts": {
@@ -28,15 +28,16 @@
     "exec": "^0.2.1",
     "express": "~4.13.1",
     "express-jwt": "^3.3.0",
-    "ini":"~1.3.4",
+    "ini": "~1.3.4",
     "jsonwebtoken": "^5.5.4",
     "mongodb": "~2.0",
     "mongoskin": "~2.0.3",
     "morgan": "~1.6.1",
+    "multer": "^1.1.0",
     "password-hash": "~1.2.0",
     "pem": "^1.8.1",
     "serve-favicon": "~2.3.0",
-    "swagger-jsdoc":"~1.1.2",
+    "swagger-jsdoc": "~1.1.2",
     "underscore": "^1.8.3"
   }
 }

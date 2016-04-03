@@ -29,13 +29,13 @@ app.options('*', cors()); //enable pre-flight across-the-board (custom requests 
 app.use(nocache);
 
 app.use('/',function(req,res,next){
-    req.user = {
+    /*req.user = {
         id : "56bbb4727cc2bddf7abb7ac8"
-    }
+    }*/
     
-    req.device = {
-        id : "56b5e4fc7a80b13b2149b900"
-    }
+    /*req.device = {
+        id : "56f85f79a83e51c3560271ab"
+    }*/
     next();
 });
 
@@ -48,7 +48,7 @@ app.use('/', usersAuth);
 
 //devices routes are accessible either with a certificate or a token
 app.use('/device', auth.deviceAuthenticated, devices);
-app.use('/user', /*auth.tokenAuthenticated,*/ users);
+app.use('/user', auth.tokenAuthenticated, users);
 
 module.exports = app;
 

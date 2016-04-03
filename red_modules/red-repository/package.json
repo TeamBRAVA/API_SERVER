@@ -1,7 +1,7 @@
 {
   "name": "red-repository",
   "version": "1.0.0",
-  "description": "A utility that grant access to the repository",
+  "description": "A utility to manage software downloads, access and database syntesis",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
