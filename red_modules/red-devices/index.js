@@ -261,9 +261,28 @@ var _devices = {
             callback(new Error("You must provide a software id in obj"));
             return;
         }
-        db.collection('software').update({ _id: mongo.helper.toObjectID(obj.id) }, { "$addToSet": { "obsolote": true } }, function(err, nbRow) {
-            console.log('Softwarelist of device', obj.id, 'is updated!');
-            callback(err, nbRow);
+        db.collection('software').find({"_id": obj.validateSoft},function(err,res){ // to get the name 
+            db.collection('software').find({ "name":res.name },function(err,res){ // to get all the id of the obsolete soft
+                // save all the ids with the same name
+                var oldSoftList = [];
+                res.forEach(function(element) {
+                        oldSoftList.push(element._id); 
+                    }, this);
+                    
+                db.collection('device').find({_id:mongo.helper.toObjectID(obj.id)},function(err,res){
+                    res.softwarelist.forEach(function(element) {
+                        if (oldSoftList.indexOf(element) != -1 ){
+                            db.collection('device').update({_id:mongo.helper.toObjectID(obj.id)}, {'$pull':{"softwarelist":element}}, function(err) {
+                                if (err) throw err;});
+                            db.collection('device').update({_id:mongo.helper.toObjectID(obj.id)}, {'$push':{"softwarelist":obj.validateSoft}}, function(err) {
+                                if (err) throw err;
+                                console.log('Updated!');});
+                            
+                        }
+                    }, this);
+                    
+                })   
+            });
         });
     },
 
