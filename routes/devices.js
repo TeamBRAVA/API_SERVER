@@ -552,7 +552,7 @@ router.post('/ack/:idsoft', function(req, res) {
     //Create the object containing fields to search for
     var device = {
         id: req.device.id,
-        validateSoft: req.param.namesoft,
+        validateSoft: req.param.idsoft,
     }
     //we call devices data function that will take, the object, translate it into model object and then save it
     devices.validateNewSoftware(device, callback);
