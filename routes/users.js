@@ -188,8 +188,9 @@ router.post('/software/add', function (req, res) {
             softwares.add({name: req.body.name, version: req.body.version, desc: req.body.description, path: chemin}, req.user.id, function (err) {
                 if(err) {
                     res.respond("Could not save the software", 500);
+                } else {
+                    res.respond("file uploaded and stored");
                 }
-                res.respond("file uploaded and stored");
             });
         });
     });

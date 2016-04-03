@@ -81,11 +81,28 @@ var _softwares = {
 							console.log("Cannot set obsolescence of the software");
 							callback(err);
 							return;
+						} else {
+							console.log("Software added successfully ! ");
+							callback();
+						}
+					});
+				} else {
+					soft._id = undefined;
+					soft.obsolete = true;
+					soft.version = "0.0.0";
+					db.collection('software').insert(soft, function (err, res) {
+						if(err) {
+							console.log("Cannot set the first index in the database");
+							console.log(err);
+							callback(err);
+							return;
+						} else {
+							console.log("Software added successfully ! ");
+							callback();
 						}
 					});
 				}
-				console.log("Software added successfully ! ");
-				callback();
+				
 			});
 		});
 	},
