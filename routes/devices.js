@@ -531,19 +531,13 @@ router.post('/newdata', function(req, res) {
 /* POST new data on the server */
 /**
 *  @swagger
-*  /device/newdata:
+*  /device/ack/{id} :
 *    post:
 *      tags: [Devices]
-*      description: Save data of the device sending the request
+*      description: provide a intallation feedback 
 *      produces:
 *        - application/json
-*      parameters:
-*        - name: body
-*          description: object containing the datatype and value to add inside the database
-*          in: body
-*          required: true
-*          schema:
-*            $ref: '#/definitions/DataNoId'
+*      
 *      responses:
 *        200:
 *          description: amount of modified elements
