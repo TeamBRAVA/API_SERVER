@@ -262,14 +262,12 @@ var _devices = {
             return;
         }
         db.collection('software').find({"_id": obj.validateSoft},function(err,res){ // to get the name 
-            db.collection('software').find({ "name":res.name },function(err,res){ // to get all the id of the obsolete soft
-                // save all the ids with the same name
+            db.collection('software').find({ "name":res.name }).toArray(function(err,res){
                 var oldSoftList = [];
                 res.forEach(function(element) {
                         oldSoftList.push(element._id); 
                     }, this);
-                    
-                db.collection('device').find({_id:mongo.helper.toObjectID(obj.id)},function(err,res){
+                    db.collection('device').find({_id:mongo.helper.toObjectID(obj.id)}).toArray(function(err,res){
                     res.softwarelist.forEach(function(element) {
                         if (oldSoftList.indexOf(element) != -1 ){
                             db.collection('device').update({_id:mongo.helper.toObjectID(obj.id)}, {'$pull':{"softwarelist":element}}, function(err) {
@@ -277,11 +275,10 @@ var _devices = {
                             db.collection('device').update({_id:mongo.helper.toObjectID(obj.id)}, {'$push':{"softwarelist":obj.validateSoft}}, function(err) {
                                 if (err) throw err;
                                 console.log('Updated!');});
-                            
                         }
                     }, this);
                     
-                })   
+                });
             });
         });
     },
