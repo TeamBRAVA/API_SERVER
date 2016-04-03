@@ -527,4 +527,46 @@ router.post('/newdata', function(req, res) {
     }
 });
 
+
+/* POST new data on the server */
+/**
+*  @swagger
+*  /device/ack/{id} :
+*    post:
+*      tags: [Devices]
+*      description: provide a intallation feedback 
+*      produces:
+*        - application/json
+*       
+*      responses:
+*        200:
+*          description: amount of modified elements
+*        401:
+*          description: unauthorized, the certificate is missing or wrong
+*        404:
+*          description:  error message indicating the type of error
+*
+*/
+
+router.post('/update/ack/:idsoft', function(req, res) {
+    //Create the object containing fields to search for
+    var device = {
+        id: req.device.id,
+        validateSoft: req.params.idsoft,
+    }
+    //we call devices data function that will take, the object, translate it into model object and then save it
+    devices.validateNewSoftware(device, callback);
+
+    //callback function
+    function callback(err, result) {
+        if (err) {
+            console.log(err);
+            //res.respond("Data not found", 404);
+            res.respond(" !! update error !!", 500);
+        }
+        else
+            res.respond(result);
+    }
+});
+
 module.exports = router;

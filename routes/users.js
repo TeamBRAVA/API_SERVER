@@ -137,6 +137,36 @@ router.get('/software/list/all', function (req, res) {
 
 /**
  *  @swagger
+ *  /user/software/{id}:
+ *    get:
+ *      tags: [Users]
+ *      description: return all the informations on the software identified by the id
+ *      produces:
+ *        - application/json
+ *      responses:
+ *        200:
+ *          description: A json document that contain all the data related to the software
+ *        401:
+ *          description: unauthorized, the token is missing or wrong
+ *        404:
+ *          description: software asked not found
+ *
+ */
+router.get('/software/:id', function (req, res) {
+    softwares.findSoftware(req.params.id, callback);
+
+    //callback function
+    function callback(err, result) {
+        if (err) {
+            console.log(err);
+            res.respond("Could not find the software", 404);
+        } else
+            res.respond(result);
+    }
+});
+
+/**
+ *  @swagger
  *  /user/software/add:
  *    post:
  *      tags: [Users]

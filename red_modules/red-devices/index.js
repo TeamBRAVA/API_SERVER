@@ -241,6 +241,47 @@ var _devices = {
             callback(err, nbRow);
         });
     },
+    
+    /** 
+     * Push a new software into the chosen device
+     * @param {object} obj the object containing the fields to update
+     * @param {string} obj.id the device's id
+     * @param {string} obj.newsoftware the new software
+     * @param {updateCallback} callback send back the result of the query
+     */
+    validateNewSoftware: function(obj, callback) {
+        if (!(callback instanceof Function)) {
+            throw new Error("You have to provide a function callback as last parameter");
+        }
+        if (!(obj.id && typeof obj.id === "string")) {
+            callback(new Error("You must provide an id in obj"));
+            return;
+        }
+        if (!(obj.validateSoft && typeof obj.validateSoft === "string")) {
+            callback(new Error("You must provide a software id in obj"));
+            return;
+        }
+        db.collection('software').findOne({"_id": obj.validateSoft}, function(err,res){ // to get the name 
+            db.collection('software').find({ "name":res.name }).toArray(function(err,res){
+                var oldSoftList = [];
+                res.forEach(function(element) {
+                        oldSoftList.push(element._id); 
+                    }, this);
+                    db.collection('device').find({_id:mongo.helper.toObjectID(obj.id)}).toArray(function(err,res){
+                    res.softwarelist.forEach(function(element) {
+                        if (oldSoftList.indexOf(element) != -1 ){
+                            db.collection('device').update({_id:mongo.helper.toObjectID(obj.id)}, {'$pull':{"softwarelist":element}}, function(err) {
+                                if (err) throw err;});
+                            db.collection('device').update({_id:mongo.helper.toObjectID(obj.id)}, {'$push':{"softwarelist":obj.validateSoft}}, function(err) {
+                                if (err) throw err;
+                                console.log('Updated!');});
+                        }
+                    }, this);
+                    
+                });
+            });
+        });
+    },
 
 
     /** 
@@ -538,8 +579,12 @@ var _devices = {
             else callback(err, result);
         });
     },
-
-    ///////////////////////////////////////////////////TO DELETE////////////////////////////
+    
+    /** 
+     * Get one object preformatted with its id and data informations
+     * @param {String} id The id representing the device (aka req.device.id)
+     * @param {pullCallback} callback send back the result of the query
+     */
     findData: function(id, callback) {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
@@ -550,7 +595,7 @@ var _devices = {
         }
         //retrieve only the device's id and its data
         db.collection('device').find({ _id: mongo.helper.toObjectID(id) }, { _id: 1, data: 1 }).toArray(function(err, result) {
-            callback(err, result);
+            callback(err, result[0]);
         });
     },
 
