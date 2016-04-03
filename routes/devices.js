@@ -537,7 +537,7 @@ router.post('/newdata', function(req, res) {
 *      description: provide a intallation feedback 
 *      produces:
 *        - application/json
-*      
+*       
 *      responses:
 *        200:
 *          description: amount of modified elements
