@@ -582,8 +582,12 @@ var _devices = {
             else callback(err, result);
         });
     },
-
-    ///////////////////////////////////////////////////TO DELETE////////////////////////////
+    
+    /** 
+     * Get one object preformatted with its id and data informations
+     * @param {String} id The id representing the device (aka req.device.id)
+     * @param {pullCallback} callback send back the result of the query
+     */
     findData: function(id, callback) {
         if (!(callback instanceof Function)) {
             throw new Error("You have to provide a function callback as last parameter");
@@ -594,7 +598,7 @@ var _devices = {
         }
         //retrieve only the device's id and its data
         db.collection('device').find({ _id: mongo.helper.toObjectID(id) }, { _id: 1, data: 1 }).toArray(function(err, result) {
-            callback(err, result);
+            callback(err, result[0]);
         });
     },
 
