@@ -62,14 +62,14 @@ var _softwares = {
             obsolete: false
         }
         // Find if a software has the same name in the list from the same owner
-        db.collection('software').findOne({ name: obj.name, owner: owner }, function(err, result) {
+        db.collection('software').findOne({ name: obj.name, owner: owner, obsolete: false }, function(err, result) {
             if (err) {
                 console.log("Cannot find an existing software");
                 callback(err);
                 return;
             }
             // Set the new software in the database
-            db.collection('software').insert(soft, function(err, res) {
+            db.collection('software').insert(soft, function(err, r) {
                 if (err) {
                     error("Cannot register the new software", err, callback);
                     return;
@@ -82,10 +82,22 @@ var _softwares = {
                             callback(err);
                             return;
                         }
+                        console.log("Software added successfully ! ");
+                        callback();
+                    });
+                } else {    // No already uploaded software
+                    soft._id = undefined; //unset _id
+                    soft.version = "0.0.0"; // Set version to first one
+                    soft.path = null;   // remove the path, impossible to get a file
+                    soft.obsolete = true; // already obsolete 
+                    db.collection('software').insert(soft, function(err, res) {
+                        if (err) {
+                            return error("Cannot register the new software", err, callback);
+                        }
+                        console.log("Software added successfully ! ");
+                        callback();
                     });
                 }
-                console.log("Software added successfully ! ");
-                callback();
             });
         });
     },
