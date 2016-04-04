@@ -404,7 +404,6 @@ router.post('/other/:id', function(req, res) {
 *          description: value asked not found
 *
 */
-//////////////WORKING
 router.get('/:datatype', function(req, res) {
     //get from url which data we want
     var condition = {

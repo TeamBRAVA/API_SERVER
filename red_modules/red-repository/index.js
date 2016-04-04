@@ -163,8 +163,8 @@ var _softwares = {
             if (err) {
                 return error("Cannot find a matching software in the database", err, callback);
             }
-            if (res.obsolete == false) {
-                return callback(err, { id: id });
+            if (res.obsolete == false) {    // Already the last one don't return it
+                return callback(err, undefined);
             }
             db.collection('software').findOne({ name: res.name, owner: res.owner, obsolete: false }, function(req, result) {
                 if (err) {
