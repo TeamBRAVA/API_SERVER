@@ -245,6 +245,8 @@ var _softwares = {
                             cb();
                         }
                     });
+                } else {
+                    cb();
                 }
             });
         }, function done() {
