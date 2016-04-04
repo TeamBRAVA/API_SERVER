@@ -86,11 +86,11 @@ var _softwares = {
                         callback();
                     });
                 } else {    // No already uploaded software
-                    console.log(soft);
                     soft._id = undefined; //unset _id
                     soft.version = "0.0.0"; // Set version to first one
                     soft.path = null;   // remove the path, impossible to get a file
                     soft.obsolete = true; // already obsolete 
+                    console.log(soft);
                     db.collection('software').insert(soft, function(err, res) {
                         if (err) {
                             return error("Cannot register the new software", err, callback);
