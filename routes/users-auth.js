@@ -5,55 +5,73 @@ var expressJwt = require('express-jwt'); //https://npmjs.org/package/express-jwt
 var fs = require('fs');
 var config = require('../red_modules/red-config');
 var red_users = require('../red_modules/red-users');
-/**@swagger
- * definition: 
- *   NewUser:
- *     type: object
- *     required:
- *       - username
- *       - email
- *       - password
- *     properties:
- *       username:
- *         type: string
- *       email:
- *         type: string
- *       password:
- *         type: string
- *         format: password
- *   userLogin:
- *     type: object
- *     required:
- *       - username
- *       - password
- *     properties:
- *       username:
- *         type: string
- *       password:
- *         type: string
- *         format: password
- * 
- */
+
+
 
 /**
- *  @swagger
- *  /register:
- *    post:
- *      tags: [Users Authentication]
- *      description: register as a new user
- *      produces:
- *        - application/json
- *      parameters:
- *        - name: body
- *          description: user credentials to be added in the database
- *          in: body
- *          required: true
- *          schema: 
- *            $ref: '#/definitions/NewUser'
- *      responses:
- *        401:
- *          description: invalid inputs
- */
+*  @swagger
+*  /register:
+*    post:
+*      tags: [Users]
+*      description: Register a new user into the service
+*      produces:
+*        - application/json
+*      parameters:
+*        - name: params
+*          description: user credentials to be added in the database
+*          in: body
+*          required: true
+*          schema: 
+*               type: object
+*               properties : 
+*                   username : 
+*                       type: string
+*                       description: the username of the user
+*                   mail : 
+*                       type: string
+*                       description: the user mail
+*                   password :
+*                       type: string
+*                       description: plain text password send over TLS tunnel
+*      responses:
+*
+*        ' 200':
+*           description: return the token of the newly created user
+*           schema:
+*               type: object
+*               properties : 
+*                   token : 
+*                        type: string
+*                        description: The newly authorization token created
+*        ' 400':
+*           description: user already exist in the database
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (400)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (Bad Request)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*        ' 500':
+*           description: Internal Server Error
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (500)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (Internal Server Error)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*/
 router.post('/register', function(req, res) {
     var credentials = {
         username: req.body.username,
@@ -79,7 +97,7 @@ router.post('/register', function(req, res) {
             function callback(err, result) {
                 if (err){
                     console.log(err);
-                    res.status(404).send({ error: 'Cannot register the user.' }); //404 Not Found
+                    res.status(500).send({ error: 'Cannot register the user.' }); //500 Internal server error
                 }
                 else
                     res.status(200).json({ token: token });
@@ -93,26 +111,66 @@ router.post('/register', function(req, res) {
 });
 
 /**
- *  @swagger
- *  /login:
- *    post:
- *      tags: [Users Authentication]
- *      description: login to the dashboard, with the username and password provided
- *      produces:
- *        - application/json
- *      parameters:
- *        - name: body
- *          description: user credentials to be added in the database
- *          in: body
- *          required: true
- *          schema: 
- *            $ref: '#/definitions/userLogin'
- *      responses:
- *        200:
- *          description: authentified and the token is sent back to the user
- *        401:
- *          description: invalid inputs
- */
+*  @swagger
+*  /login:
+*    post:
+*      tags: [Users]
+*      description: Login a user to the service, returning the new authorization token
+*      produces:
+*        - application/json
+*      parameters:
+*        - name: params
+*          description: user credentials
+*          in: body
+*          required: true
+*          schema: 
+*               type: object
+*               properties : 
+*                   username : 
+*                       type: string
+*                       description: the username of the user
+*                   password :
+*                       type: string
+*                       description: plain text password send over TLS tunnel
+*      responses:
+*
+*        ' 200':
+*           description: return the token of the newly created user
+*           schema:
+*               type: object
+*               properties : 
+*                   token : 
+*                        type: string
+*                        description: The newly authorization token created
+*        ' 400':
+*           description: user already exist in the database
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (400)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (Bad Request)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*        ' 500':
+*           description: Internal Server Error
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (500)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (Internal Server Error)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*/
 router.post('/login', function(req, res) {
     var credentials = {
         username: req.body.username,

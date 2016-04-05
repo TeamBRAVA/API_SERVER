@@ -12,42 +12,11 @@ var soft = require('../red_modules/red-repository');
 
 /*API FOR THE DEVICES AND THEIR PERMISSIONS */
 
-/**@swagger
-* definition:
-*   DataNoId:
-*     type: object
-*     required:
-*       - datatype
-*       - value
-*     properties:
-*       datatype:
-*         type: string
-*       value:
-*         type: string
-*
-*/
-
 
 ////////////////////////////////////////////////////////////////////////////////
 /*dev code (TO DELETE)*/
 
 /**
-*  @swagger
-*  /device/result:
-*    get:
-*      tags: [devDevices]
-*      description: Get the result from all the pool of  devices, all the data it already produce
-*      produces:
-*        - application/json
-*
-*      responses:
-*        200:
-*          description: A json document that contain all the data related to the device.
-*        401:
-*          description: unauthorized, the certificate is missing or wrong
-*        404:
-*          description: value asked not found
-*
 */
 ////////////NOTWORKING  :: get only one device ? 
 router.get('/result', function(req, res) {
@@ -59,27 +28,6 @@ router.get('/result', function(req, res) {
 
 
 /**
-*  @swagger
-*  /device/result/{id}:
-*    get:
-*      tags: [devDevices]
-*      description: Get the sample of data the device has produce
-*      produces:
-*        - application/json
-*      parameters:
-*        - name: id
-*          description: value type
-*          in : path
-*          required : true
-*          schema:
-*            type: integer
-*      responses:
-*        200:
-*          description: most recent value corresponding to datatype sent in parameter
-*        401:
-*          description: unauthorized, the certificate is missing or wrong
-*        404:
-*          description: value asked not found
 *
 */
 // Get results from other devices (by id)
@@ -103,15 +51,50 @@ router.get('/result/:id', function(req, res) {
 *      description: Get the last version of the library
 *      produces:
 *        - application/json
-*      parameters:
-*
 *      responses:
-*        200:
-*          description: return the list of softwares that need to be updated, with their corresponding IDs
-*        401:
-*          description: unauthorized, the certificate is missing or wrong
-*        404:
-*          description: value asked not found
+*
+*        ' 200':
+*           description: return the list of softwares that need to be updated, with their corresponding IDs
+*           schema:
+*               type: object
+*               properties : 
+*                   _id : 
+*                       type: string
+*                       description: MongDB ID
+*                   name : 
+*                       type: string
+*                       description: name of the software as in MongoDB
+*                   version : 
+*                        type: string
+*                        description: version of the software as in MongoDB
+*        ' 401':
+*           description: unauthorized, the certificate is missing, wrong or you didn't provide any Bearer Token
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (401)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (unauthorized)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*        ' 404':
+*           description: Not Found on the server (maybe wrong parameters) should never appear
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (404)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (Not Found)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
 */
 router.get('/update', function(req, res) {
     console.log("device ID : " + req.device.id);
@@ -126,30 +109,55 @@ router.get('/update', function(req, res) {
     });
 });
 
-
 /**
 *  @swagger
 *  /device/update/{id}:
 *    get:
 *      tags: [Devices]
-*      description: Get the last version of the library
+*      description: Download the specified software. It check if the device has all the rights to do it
 *      produces:
-*        - application/json
+*         - application/octet-stream
 *      parameters:
-*        - name: id
-*          description: value type
-*          in : MongoDB ID
-*          required : true
-*          schema:
-*            type: string
-*
+*         - name: id
+*           description: ID of the device, previously getted with /device/update
+*           in : path
+*           required : true
+*           schema:
+*               type: string
 *      responses:
-*        200:
-*          description: return .deb package file
-*        401:
-*          description: unauthorized, the certificate is missing or wrong
-*        404:
-*          description: value asked not found
+*
+*        ' 200':
+*           description: Return the corresponding .deb file. Before download, the server verify the authenticity of the request
+*           schema:
+*               type: file
+*        ' 401':
+*           description: unauthorized, the certificate is missing, wrong or you didn't provide any Bearer Token
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (401)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (unauthorized)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*        ' 404':
+*           description: Not Found on the server (maybe wrong parameters) should never appear
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (404)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (Not Found)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
 */
 router.get('/update/:id', function (req, res) {
     var id = req.params.id;
@@ -171,16 +179,351 @@ router.get('/update/:id', function (req, res) {
     });
 });
 
-
-/* GET data from other device represented by it's id and that match the datatype (aka key) (need permissions)*/
 /**
 *  @swagger
-*  /device/other/{id}/{datatype}:
+*  /device/update/ack/{id}:
+*    post:
+*      tags: [Devices]
+*      description:  Post data to the device itself
+*      produces:
+*         - application/json
+*      parameters:
+*         - name: id
+*           description: ID of the software, previously getted with /device/update, the device successfully installed
+*           in : path
+*           required : true
+*           schema:
+*               type: string
+*      responses:
+*
+*        ' 200':
+*           description: Only the HTTP code, no other response
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (200)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (created)
+*        ' 401':
+*           description: unauthorized, the certificate is missing, wrong or you didn't provide any Bearer Token
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (401)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (unauthorized)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*        ' 500':
+*           description: An error occured during the process, the server return 500
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (500)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (Internal Server Error)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*/
+router.post('/update/ack/:idsoft', function(req, res) {
+    //Create the object containing fields to search for
+    var device = {
+        id: req.device.id,
+        validateSoft: req.params.idsoft,
+    }
+    //we call devices data function that will take, the object, translate it into model object and then save it
+    devices.validateNewSoftware(device, callback);
+
+    //callback function
+    function callback(err, result) {
+        if (err) {
+            console.log(err);
+            res.respond("Cannot change the status of the update, retry later", 500);
+        }
+        else
+            res.respond(true);
+    }
+});
+
+/**
+*  @swagger
+*  /device/newdata:
+*    post:
+*      tags: [Devices]
+*      description:  Post data to the device itself
+*      produces:
+*         - application/json
+*      parameters:
+*        - name : params
+*          in : body
+*          description: The data you want to send to the server
+*          required: true
+*          schema:
+*            type: object
+*            properties : 
+*               datatype : 
+*                  type: string
+*                  description: the datatype key asked for
+*               value : 
+*                  type: string
+*                  description: Status corresponding to the code (unauthorized)
+*               date : 
+*                  type: string
+*                  description: recording timestamp of the sample
+*      responses:
+*
+*        ' 200':
+*           description: Return the value that you previously send in the request
+*           schema:
+*               type: object
+*               properties : 
+*                   datatype : 
+*                       type: string
+*                       description: the datatype key asked for
+*                   value : 
+*                       type: string
+*                       description: Status corresponding to the code (unauthorized)
+*                   date : 
+*                       type: string
+*                       description: recording timestamp of the sample
+*        ' 401':
+*           description: unauthorized, the certificate is missing, wrong or you didn't provide any Bearer Token
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (401)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (unauthorized)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*        ' 404':
+*           description: Not Found on the server (maybe wrong parameters) should never appear
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (404)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (Not Found)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*/
+router.post('/newdata', function(req, res) {
+    //Create the object containing fields to search for
+    var device = {
+        id: req.device.id,
+        datatype: req.body.datatype,
+        value: req.body.value,
+    }
+    //we call devices data function that will take, the object, translate it into model object and then save it
+    devices.pushData(device, callback);
+
+    //callback function
+    function callback(err, result) {
+        if (err) {
+            console.log(err);
+            res.respond("Data not found", 404);
+        }
+        else
+            res.respond(result);
+    }
+});
+
+
+/**
+*  @swagger
+*  /device/{datatype}:
 *    get:
 *      tags: [Devices]
-*      description: Get the data that match the data type requested and his id, in the last sample of data
+*      description: Get the most recent value matching the datatype for the device itself
 *      produces:
-*        - application/json
+*         - application/json
+*      parameters:
+*        - name: datatype
+*          description: Type of the data you request
+*          in : path
+*          required: true
+*          schema:
+*            type: string
+*      responses:
+*
+*        ' 200':
+*           description: Return the entry in the database corresponding to the datatype asked
+*           schema:
+*               type: object
+*               properties : 
+*                   datatype : 
+*                       type: string
+*                       description: the datatype key asked for
+*                   value : 
+*                       type: string
+*                       description: Status corresponding to the code (unauthorized)
+*                   date : 
+*                       type: string
+*                       description: recording timestamp of the sample
+*        ' 401':
+*           description: unauthorized, the certificate is missing, wrong or you didn't provide any Bearer Token
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (401)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (unauthorized)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*        ' 404':
+*           description: Not Found on the server (maybe wrong parameters) should never appear
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (404)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (Not Found)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*/
+router.get('/:datatype', function(req, res) {
+    //get from url which data we want
+    var condition = {
+        "id": req.device.id,
+        "datatype": req.params.datatype
+    };
+    //call devices data function to retrieve asked data
+    devices.pullDatatype(condition, callback);
+
+    //callback function
+    function callback(err, result) {
+        if (err) {
+            console.log(err);
+            res.respond("Data not found", 404);
+        }
+        else
+            res.respond(result);
+    }
+});
+
+/**
+*  @swagger
+*  /device/{datatype}/{date}:
+*    get:
+*      tags: [Devices]
+*      description: Get the last data marked with a specific date as a second argument
+*      produces:
+*         - application/json
+*      parameters:
+*        - name: datatype
+*          description: Type of the data you request
+*          in : path
+*          required: true
+*          schema:
+*            type: string
+*        - name: date
+*          description: Timestamp in milliseconds which value is the time when the data was saved.
+*          in : path
+*          required: true
+*          schema:
+*            type: string
+*      responses:
+*
+*        ' 200':
+*           description: Return the entry in the database corresponding to the datatype and date asked
+*           schema:
+*               type: object
+*               properties : 
+*                   datatype : 
+*                       type: string
+*                       description: the datatype key asked for
+*                   value : 
+*                       type: string
+*                       description: Status corresponding to the code (unauthorized)
+*                   date : 
+*                       type: string
+*                       description: recording timestamp of the sample
+*        ' 401':
+*           description: unauthorized, the certificate is missing, wrong or you didn't provide any Bearer Token
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (401)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (unauthorized)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*        ' 404':
+*           description: Not Found on the server (maybe wrong parameters) should never appear
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (404)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (Not Found)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*/
+router.get('/:datatype/:date', function(req, res) {
+    //get from url which data we want
+    var condition = {
+        "id": req.device.id,
+        "datatype": req.params.datatype,
+        "date": req.params.date
+    };
+    //call devices data function to retrieve asked data
+    devices.pullDatatypeAndDate(condition, callback);
+
+    //callback function
+    function callback(err, result) {
+        if (err) {
+            console.log(err);
+            res.respond("Data not found", 404);
+        }
+        else
+            res.respond(result);
+    }
+});
+
+
+/**
+*  @swagger
+*  /device/other/{id}:
+*    post:
+*      tags: [Devices]
+*      description:  Post data to an other device. You need to have the right permissions to handle this
+*      produces:
+*         - application/json
 *      parameters:
 *        - name: id
 *          description: id of the device targeted doing the request
@@ -188,22 +531,169 @@ router.get('/update/:id', function (req, res) {
 *          required : true
 *          schema:
 *            type: string
-*        - name: datatype
-*          description:
-*          in : path
+*        - name : params
+*          in : body
+*          description: The data you want to send
 *          required: true
 *          schema:
-*            type: string
+*            type: object
+*            properties : 
+*               datatype : 
+*                  type: string
+*                  description: the datatype key asked for
+*               value : 
+*                  type: string
+*                  description: Status corresponding to the code (unauthorized)
+*               date : 
+*                  type: string
+*                  description: recording timestamp of the sample
 *      responses:
-*        200:
-*          description: value corresponding to datatype and date sent in parameter
-*        401:
-*          description: unauthorized, the certificate is missing or wrong
-*        404:
-*          description: value asked not found
 *
+*        ' 200':
+*           description: Return the value that you previously send in the request
+*           schema:
+*               type: object
+*               properties : 
+*                   datatype : 
+*                       type: string
+*                       description: the datatype key asked for
+*                   value : 
+*                       type: string
+*                       description: Status corresponding to the code (unauthorized)
+*                   date : 
+*                       type: string
+*                       description: recording timestamp of the sample
+*        ' 401':
+*           description: unauthorized, the certificate is missing, wrong or you didn't provide any Bearer Token
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (401)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (unauthorized)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*        ' 404':
+*           description: Not Found on the server (maybe wrong parameters) should never appear
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (404)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (Not Found)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
 */
-//////////////WOKING
+router.post('/other/:id', function(req, res) {
+    //make sure the data can be written on a device
+    var access = {};
+    access[req.params.datatype] = "write";
+    var from = { device: req.device.id };
+    var to = { device: req.params.id };
+
+    perm.verify(from, to, access, function(err, result) {
+        if (err) {
+            console.log(err);
+            res.respond("Data not found", 500);
+            return;
+        }
+        if (result == true) {
+            //Create the object
+            var device = {
+                id: req.params.id,
+                datatype: req.body.datatype,
+                value: req.body.value,
+            }
+            //we call devices data function that will take, the object, translate it into model object and then save it
+            devices.pushData(device, function(err, result) {
+                if (err) {
+                    console.log(err);
+                    res.respond("Data not found", 404);
+                } else
+                    res.respond(result);
+            });
+        } else {
+            res.respond("Unauthorized to access data", 403);    // Forbidden
+        }
+
+    });
+});
+
+
+/**
+*  @swagger
+*  /device/other/{id}/{datatype}:
+*    get:
+*      tags: [Devices]
+*      description: Get the data that match the data type requested and its ID, in the last sample of data
+*      produces:
+*         - application/json
+*      parameters:
+*         - name: id
+*           description: MongoDB ID of the device targeted doing the request
+*           in : path
+*           required : true
+*           schema:
+*             type: string
+*         - name: datatype
+*           description:
+*           in : path
+*           required: true
+*           schema:
+*             type: string
+*      responses:
+*
+*        ' 200':
+*           description: Return the entry in the database corresponding to the one asked
+*           schema:
+*               type: object
+*               properties : 
+*                   datatype : 
+*                       type: string
+*                       description: the datatype key asked for
+*                   value : 
+*                       type: string
+*                       description: Status corresponding to the code (unauthorized)
+*                   date : 
+*                       type: string
+*                       description: recording timestamp of the sample
+*        ' 401':
+*           description: unauthorized, the certificate is missing, wrong or you didn't provide any Bearer Token
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (401)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (unauthorized)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*        ' 404':
+*           description: Not Found on the server (maybe wrong parameters) should never appear
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (404)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (Not Found)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*/
 router.get('/other/:id/:datatype', function(req, res) {
     //get from url which data we want
     var condition = {
@@ -240,17 +730,14 @@ router.get('/other/:id/:datatype', function(req, res) {
 });
 
 
-/* GET data identified with key and date from device : id (need permissions)*/
-
-
 /**
 *  @swagger
 *  /device/other/{id}/{datatype}/{date}:
 *    get:
 *      tags: [Devices]
-*      description: Get more specific data form a dated sample and a specific data type, The date is a time stamp.
+*      description:  Get the last data marked with a specific date as a second argument
 *      produces:
-*        - application/json
+*         - application/json
 *      parameters:
 *        - name: id
 *          description: id of the device targeted doing the request
@@ -270,17 +757,51 @@ router.get('/other/:id/:datatype', function(req, res) {
 *          required: true
 *          schema:
 *            type: string
-*
 *      responses:
-*        200:
-*          description: value corresponding to datatype and date sent in parameter
-*        401:
-*          description: unauthorized, the certificate is missing or wrong
-*        404:
-*          description: value asked not found
 *
+*        ' 200':
+*           description: Return the entry in the database corresponding to the one asked
+*           schema:
+*               type: object
+*               properties : 
+*                   datatype : 
+*                       type: string
+*                       description: the datatype key asked for
+*                   value : 
+*                       type: string
+*                       description: Status corresponding to the code (unauthorized)
+*                   date : 
+*                       type: string
+*                       description: recording timestamp of the sample
+*        ' 401':
+*           description: unauthorized, the certificate is missing, wrong or you didn't provide any Bearer Token
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (401)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (unauthorized)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
+*        ' 404':
+*           description: Not Found on the server (maybe wrong parameters) should never appear
+*           schema:
+*               type: object
+*               properties : 
+*                   code : 
+*                       type: string
+*                       description: HTTP code for the request (404)
+*                   status : 
+*                       type: string
+*                       description: Status corresponding to the code (Not Found)
+*                   message : 
+*                       type: string
+*                       description: Custom message from the API
 */
-////////////WORKING
 router.get('/other/:id/:datatype/:date', function(req, res) {
     //Make sure the current device as the right to get the data
     var access = {};
@@ -318,254 +839,6 @@ router.get('/other/:id/:datatype/:date', function(req, res) {
     });
 });
 
-/* POST data on the server for other devices represented by their id (need permissions)*/
-/**
-*  @swagger
-*  /device/other/{id}:
-*    post:
-*      tags: [Devices]
-*      description: Post specific data to all the pool of devices
-*      produces:
-*        - application/json
-*      parameters:
-*        - name: id
-*          description: id of the device targeted doing the request
-*          in : path
-*          required : true
-*          schema:
-*            type: string
-*
-*      responses:
-*        200:
-*          description: value corresponding to datatype and date sent in parameter
-*        401:
-*          description: unauthorized, the certificate is missing or wrong
-*        404:
-*          description: value asked not found
-*
-*/
-router.post('/other/:id', function(req, res) {
-    //make sure the data can be written on a device
-    var access = {};
-    access[req.params.datatype] = "write";
-    var from = { device: req.device.id };
-    var to = { device: req.params.id };
 
-    perm.verify(from, to, access, function(err, result) {
-        if (err) {
-            console.log(err);
-            res.respond("Data not found", 500);
-            return;
-        }
-        if (result == true) {
-            //Create the object
-            var device = {
-                id: req.params.id,
-                datatype: req.body.datatype,
-                value: req.body.value,
-            }
-            //we call devices data function that will take, the object, translate it into model object and then save it
-            devices.pushData(device, function(err, result) {
-                if (err) {
-                    console.log(err);
-                    res.respond("Data not found", 404);
-                } else
-                    res.respond(result);
-            });
-        } else {
-            res.respond("Unauthorized to access data", 403);    // Forbidden
-        }
-
-    });
-});
-
-/* GET data from itself, that match the datatype (aka key)*/
-/**
-*  @swagger
-*  /device/{datatype}:
-*    get:
-*      tags: [Devices]
-*      description: Get the most recent value matching the data type
-*      produces:
-*        - application/json
-*      parameters:
-*        - name: datatype
-*          description: value type
-*          in : path
-*          required : true
-*          schema: 
-*            type: string
-*      responses:
-*        200:
-*          description: most recent value corresponding to datatype sent in parameter
-*        401:
-*          description: unauthorized, the certificate is missing or wrong
-*        404:
-*          description: value asked not found
-*
-*/
-router.get('/:datatype', function(req, res) {
-    //get from url which data we want
-    var condition = {
-        "id": req.device.id,
-        "datatype": req.params.datatype
-    };
-    //call devices data function to retrieve asked data
-    devices.pullDatatype(condition, callback);
-
-    //callback function
-    function callback(err, result) {
-        if (err) {
-            console.log(err);
-            res.respond("Data not found", 404);
-        }
-        else
-            res.respond(result);
-    }
-});
-
-
-/* GET data from itself, that match the datatype (aka key) and the date*/
-
-/**
-*  @swagger
-*  /device/{datatype}/{date}:
-*    get:
-*      tags: [Devices]
-*      description: Get the most recent value matching the date & the data type. 
-*      produces:
-*        - application/json
-*      parameters:
-*        - name: datatype
-*          description: value type
-*          in : path
-*          required : true
-*          schema: 
-*            type: string
-*        - name: date
-*          description: date on which the value has been saved in the database
-*          in : path
-*          required: true
-*          schema:
-*            type: string 
-*      responses:
-*        200:
-*          description: value corresponding to datatype and date sent in parameter
-*        401:
-*          description: unauthorized, the certificate is missing or wrong
-*        404:
-*          description: value asked not found
-*
-*/
-///////////////WORKING 
-router.get('/:datatype/:date', function(req, res) {
-    //get from url which data we want
-    var condition = {
-        "id": req.device.id,
-        "datatype": req.params.datatype,
-        "date": req.params.date
-    };
-    //call devices data function to retrieve asked data
-    devices.pullDatatypeAndDate(condition, callback);
-
-    //callback function
-    function callback(err, result) {
-        if (err) {
-            console.log(err);
-            res.respond("Data not found", 404);
-        }
-        else
-            res.respond(result);
-    }
-});
-
-/* POST new data on the server */
-/**
-*  @swagger
-*  /device/newdata:
-*    post:
-*      tags: [Devices]
-*      description: Save data of the device sending the request
-*      produces:
-*        - application/json
-*      parameters:
-*        - name: body
-*          description: object containing the datatype and value to add inside the database
-*          in: body
-*          required: true
-*          schema:
-*            $ref: '#/definitions/DataNoId'
-*      responses:
-*        200:
-*          description: amount of modified elements
-*        401:
-*          description: unauthorized, the certificate is missing or wrong
-*        404:
-*          description:  error message indicating the type of error
-*
-*/
-
-router.post('/newdata', function(req, res) {
-    //Create the object containing fields to search for
-    var device = {
-        id: req.device.id,
-        datatype: req.body.datatype,
-        value: req.body.value,
-    }
-    //we call devices data function that will take, the object, translate it into model object and then save it
-    devices.pushData(device, callback);
-
-    //callback function
-    function callback(err, result) {
-        if (err) {
-            console.log(err);
-            res.respond("Data not found", 404);
-        }
-        else
-            res.respond(result);
-    }
-});
-
-
-/* POST new data on the server */
-/**
-*  @swagger
-*  /device/ack/{id} :
-*    post:
-*      tags: [Devices]
-*      description: provide a intallation feedback 
-*      produces:
-*        - application/json
-*       
-*      responses:
-*        200:
-*          description: amount of modified elements
-*        401:
-*          description: unauthorized, the certificate is missing or wrong
-*        404:
-*          description:  error message indicating the type of error
-*
-*/
-
-router.post('/update/ack/:idsoft', function(req, res) {
-    //Create the object containing fields to search for
-    var device = {
-        id: req.device.id,
-        validateSoft: req.params.idsoft,
-    }
-    //we call devices data function that will take, the object, translate it into model object and then save it
-    devices.validateNewSoftware(device, callback);
-
-    //callback function
-    function callback(err, result) {
-        if (err) {
-            console.log(err);
-            //res.respond("Data not found", 404);
-            res.respond(" !! update error !!", 500);
-        }
-        else
-            res.respond(true);
-    }
-});
 
 module.exports = router;

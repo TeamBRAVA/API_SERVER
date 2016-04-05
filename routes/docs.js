@@ -9,22 +9,18 @@ var swagger = require('swagger-jsdoc');
 var options = {
   swaggerDefinition: {
     info: {
-      title: 'RED API',  
-      description : 'This documentation is about RED API routes, you can find more on : [http://red-cloud.io](http://red-cloud.io)',
-      version: '1.0.0', 
+      title: 'Documentation about the API of the RED online service',  
+      description : 'This documentation deals with the special API of the RED SaaS solution. You can find more on [http://docs.red-cloud.io](http://docs.red-cloud.io)',
+      version: '0.0.2', 
     },
     tags: [
     {
         name: 'Devices',
-        description: 'routes to manage devices, it is protected by a device certificate'
-    },
-    {
-        name: 'Permissions',
-        description: 'routes to manage permissions'
+        description: 'Routes accessible by a device only with its certificate || URL : https://device.red-cloud.io'
     },
     {
         name: 'Users',
-        description: 'routes to manage users, it is protected by a token authentication'
+        description: 'Routes accessible by a user only || URL : https://user.red-cloud.io'
     }]
   },
   apis: ['./routes/devices.js','./routes/users-auth.js', './routes/users.js'], // Path to the files containing the documented routes
